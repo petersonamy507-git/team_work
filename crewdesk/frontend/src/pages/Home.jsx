@@ -60,7 +60,7 @@ function Library({ have, onAdd, onClose }) {
   )
 }
 
-export function Dashboard({ scope = 'home', header, defaults, projectId, compact, extraActions }) {
+export function Dashboard({ scope = 'home', header, defaults, projectId, compact, extraActions, hideBody }) {
   const [range, setRange] = useState(7)
   const { data } = useData(`/dashboard?range_days=${range}`, [range])
   const { notify } = useUi()
@@ -99,7 +99,7 @@ export function Dashboard({ scope = 'home', header, defaults, projectId, compact
           </div>
         </div>
       </div>
-      <div className={compact ? '' : 'tw-body'} style={compact ? { paddingTop: 14 } : undefined}>
+      <div className={compact ? '' : 'tw-body'} style={compact ? { paddingTop: 14, display: hideBody ? 'none' : undefined } : undefined}>
         {!data || !board ? <div className="muted">Loading…</div> : !widgets.length ? (
           <div className="kit-empty"><b>This dashboard is empty</b><span>Add widgets to build your view.</span><button className="btn primary" onClick={() => setPicker(true)}><Plus size={15} />Add widget</button></div>) : (
           <div className="dash-grid">{widgets.map((w) => <Widget key={w.id} w={w} data={data} range={range} setRange={setRange}

@@ -78,7 +78,7 @@ export function ProjectDashboard() {
         </>}
       </div>
       <div className="proj-main-dash">
-        <Dashboard compact scope={`project:${pid}`} projectId={pid} defaults={['tasks', 'milestones', 'workflow_stages', 'my_tasks', 'unread', 'activity']}
+        <Dashboard compact hideBody={tab === 'activity'} scope={`project:${pid}`} projectId={pid} defaults={['tasks', 'milestones', 'workflow_stages', 'my_tasks', 'unread', 'activity']}
           header={<div className="row" style={{ gap: 10 }}><h2 style={{ fontSize: 20 }}>Dashboard</h2>
             <div className="wtabs" style={{ border: 0, marginBottom: 0, marginLeft: 16 }}><button className={tab === 'summary' ? 'on' : ''} onClick={() => setTab('summary')}>Summary</button><button className={tab === 'activity' ? 'on' : ''} onClick={() => setTab('activity')}>Activity</button></div></div>}
           extraActions={<>
