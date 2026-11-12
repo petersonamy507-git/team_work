@@ -1,0 +1,11 @@
+{
+  "id": "s168",
+  "trigger": "open: Quick add",
+  "url": "https://marketingcorps.eu.teamwork.com/app/messages/519066",
+  "fingerprint": "58bebb9595744032",
+  "folder": "snapshots/s168__marketingcorps.eu.teamwork.com_app_messages_519066",
+  "screenshot": "snapshots/s168__marketingcorps.eu.teamwork.com_app_messages_519066/page.png",
+  "html": "snapshots/s168__marketingcorps.eu.teamwork.com_app_messages_519066/page.html",
+  "a11y": "snapshots/s168__marketingcorps.eu.teamwork.com_app_messages_519066/a11y.json",
+  "urlFile": "snapshots/s168__marketingcorps.eu.teamwork.com_app_messages_519066/url.txt"
+}

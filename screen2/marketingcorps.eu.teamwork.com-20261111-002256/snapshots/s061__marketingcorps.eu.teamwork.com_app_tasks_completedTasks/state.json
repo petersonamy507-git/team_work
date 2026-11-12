@@ -1,0 +1,11 @@
+{
+  "id": "s061",
+  "trigger": "default",
+  "url": "https://marketingcorps.eu.teamwork.com/app/tasks/completedTasks",
+  "fingerprint": "26e261219e4538b5",
+  "folder": "snapshots/s061__marketingcorps.eu.teamwork.com_app_tasks_completedTasks",
+  "screenshot": "snapshots/s061__marketingcorps.eu.teamwork.com_app_tasks_completedTasks/page.png",
+  "html": "snapshots/s061__marketingcorps.eu.teamwork.com_app_tasks_completedTasks/page.html",
+  "a11y": "snapshots/s061__marketingcorps.eu.teamwork.com_app_tasks_completedTasks/a11y.json",
+  "urlFile": "snapshots/s061__marketingcorps.eu.teamwork.com_app_tasks_completedTasks/url.txt"
+}

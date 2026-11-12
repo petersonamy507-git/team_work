@@ -1,0 +1,11 @@
+{
+  "id": "s059",
+  "trigger": "open: Quick add",
+  "url": "https://marketingcorps.eu.teamwork.com/app/ai/teammates/personalAssistant/onboard",
+  "fingerprint": "8ee191dc5baf9cd8",
+  "folder": "snapshots/s059__marketingcorps.eu.teamwork.com_app_ai_teammates_personalAssistant_onboard",
+  "screenshot": "snapshots/s059__marketingcorps.eu.teamwork.com_app_ai_teammates_personalAssistant_onboard/page.png",
+  "html": "snapshots/s059__marketingcorps.eu.teamwork.com_app_ai_teammates_personalAssistant_onboard/page.html",
+  "a11y": "snapshots/s059__marketingcorps.eu.teamwork.com_app_ai_teammates_personalAssistant_onboard/a11y.json",
+  "urlFile": "snapshots/s059__marketingcorps.eu.teamwork.com_app_ai_teammates_personalAssistant_onboard/url.txt"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "s220",
+  "trigger": "open: Quick add",
+  "url": "https://marketingcorps.eu.teamwork.com/app/people/statuses",
+  "fingerprint": "83ade32a9134e82f",
+  "folder": "snapshots/s220__marketingcorps.eu.teamwork.com_app_people_statuses",
+  "screenshot": "snapshots/s220__marketingcorps.eu.teamwork.com_app_people_statuses/page.png",
+  "html": "snapshots/s220__marketingcorps.eu.teamwork.com_app_people_statuses/page.html",
+  "a11y": "snapshots/s220__marketingcorps.eu.teamwork.com_app_people_statuses/a11y.json",
+  "urlFile": "snapshots/s220__marketingcorps.eu.teamwork.com_app_people_statuses/url.txt"
+}

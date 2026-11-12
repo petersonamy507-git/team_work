@@ -18,6 +18,8 @@ export function StarButton({ project }) {
   )
 }
 
+const TYPE_COLORS = { Confirmed: '#d6f7e6', Tentative: '#fff1d6', Internal: '#e5ebff', Billable: '#efe5ff', 'Non-billable': '#f1f2f6' }
+
 export default function Projects({ mine }) {
   const { setQuickAdd, notify, refresh } = useUi()
   const navigate = useNavigate()
@@ -26,6 +28,7 @@ export default function Projects({ mine }) {
   const [view, setView] = useState(() => { try { return localStorage.getItem('cd_pview') || 'table' } catch { return 'table' } })
   const [catForm, setCatForm] = useState(null)
   const [setCatFor, setSetCatFor] = useState(null)
+  const [typeFor, setTypeFor] = useState(null)
   const { data } = useData(`/projects?status=${status}`, [status])
   const { data: me } = useData('/auth/me')
   const cats = useRows('categories')
@@ -39,6 +42,7 @@ export default function Projects({ mine }) {
   return (
     <Section icon={Folder} title={mine ? 'My projects' : 'Projects'} tabs={mine ? null : [{ to: '/projects', label: 'List', end: true }, { to: '/templates', label: 'Templates' }]}
       right={<>
+        <span className="small" style={{ textTransform: 'capitalize' }}>{status} <span className="kit-pill gray">{items.length}</span></span>
         <div className="chips">{['active', 'completed', 'archived', 'all'].map((s) => <button key={s} className={status === s ? 'on' : ''} onClick={() => setStatus(s)} style={{ textTransform: 'capitalize' }}>{s}</button>)}</div>
         <div className="scope-toggle"><button className={view === 'table' ? 'active' : ''} onClick={() => setV('table')}><List size={14} /></button><button className={view === 'cards' ? 'active' : ''} onClick={() => setV('cards')}><LayoutGrid size={14} /></button></div>
         <button className="tb-btn" onClick={exportCsv}><Download size={14} /></button>
@@ -76,6 +80,7 @@ export default function Projects({ mine }) {
                 columns={[
                   { key: 'star', label: '', nosort: true, width: 30, render: (p) => <StarButton project={p} /> },
                   { key: 'name', label: 'Name', render: (p) => <span className="row" style={{ gap: 8 }}><span className="dot" style={{ background: p.color }} /><b>{p.name}</b></span> },
+                  { key: 'type', label: 'Type', render: (p) => <button className="type-pill" onClick={(e) => { e.stopPropagation(); setTypeFor(p) }} style={{ background: TYPE_COLORS[p.type] || '#f1f2f6' }}>{p.type || 'Set type'}</button> },
                   { key: 'client', label: 'Client', sort: (p) => p.client?.name, render: (p) => p.client?.name || '—' },
                   { key: 'owner', label: 'Owner', sort: (p) => p.owner?.name, render: (p) => <PersonChip user={p.owner} /> },
                   { key: 'start_date', label: 'Start date', render: (p) => fmtDate(p.start_date) || '—' },
@@ -90,6 +95,9 @@ export default function Projects({ mine }) {
       </div>
       {catForm && <FormModal title={catForm.id ? 'Edit category' : 'Add category'} initial={catForm} onClose={() => setCatForm(null)} onSubmit={(v) => (catForm.id ? cats.update(catForm.id, v) : cats.create(v))}
         fields={[{ key: 'name', label: 'Category name', required: true, autoFocus: true }, { key: 'color', label: 'Colour', type: 'color' }]} />}
+      {typeFor && <FormModal title={`Type for ${typeFor.name}`} initial={{ type: typeFor.type || '' }} onClose={() => setTypeFor(null)}
+        onSubmit={async (v) => { await api.patch(`/projects/${typeFor.id}`, { name: typeFor.name, type: v.type || null }); notify('Project type updated'); refresh() }}
+        fields={[{ key: 'type', label: 'Project type', type: 'select', options: Object.keys(TYPE_COLORS) }]} />}
       {setCatFor && <FormModal title={`Category for ${setCatFor.name}`} initial={{ category_id: setCatFor.category_id || '' }} onClose={() => setSetCatFor(null)}
         onSubmit={async (v) => { await api.patch(`/projects/${setCatFor.id}`, { name: setCatFor.name, category_id: v.category_id ? Number(v.category_id) : null }); notify('Category updated'); refresh() }}
         fields={[{ key: 'category_id', label: 'Category', type: 'select', options: (cats.rows || []).map((c) => [c.id, c.name]) }]} />}

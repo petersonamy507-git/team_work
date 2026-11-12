@@ -1,0 +1,11 @@
+{
+  "id": "s127",
+  "trigger": "open: J Julie",
+  "url": "https://marketingcorps.eu.teamwork.com/app/projects/622744/tasks/list",
+  "fingerprint": "1ff69b5a2699092b",
+  "folder": "snapshots/s127__marketingcorps.eu.teamwork.com_app_projects_622744_tasks_list",
+  "screenshot": "snapshots/s127__marketingcorps.eu.teamwork.com_app_projects_622744_tasks_list/page.png",
+  "html": "snapshots/s127__marketingcorps.eu.teamwork.com_app_projects_622744_tasks_list/page.html",
+  "a11y": "snapshots/s127__marketingcorps.eu.teamwork.com_app_projects_622744_tasks_list/a11y.json",
+  "urlFile": "snapshots/s127__marketingcorps.eu.teamwork.com_app_projects_622744_tasks_list/url.txt"
+}

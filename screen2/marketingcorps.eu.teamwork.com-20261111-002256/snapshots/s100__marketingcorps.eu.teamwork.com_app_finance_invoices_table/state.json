@@ -1,0 +1,11 @@
+{
+  "id": "s100",
+  "trigger": "open: Starred projects",
+  "url": "https://marketingcorps.eu.teamwork.com/app/finance/invoices/table",
+  "fingerprint": "78c10637a7c33b56",
+  "folder": "snapshots/s100__marketingcorps.eu.teamwork.com_app_finance_invoices_table",
+  "screenshot": "snapshots/s100__marketingcorps.eu.teamwork.com_app_finance_invoices_table/page.png",
+  "html": "snapshots/s100__marketingcorps.eu.teamwork.com_app_finance_invoices_table/page.html",
+  "a11y": "snapshots/s100__marketingcorps.eu.teamwork.com_app_finance_invoices_table/a11y.json",
+  "urlFile": "snapshots/s100__marketingcorps.eu.teamwork.com_app_finance_invoices_table/url.txt"
+}

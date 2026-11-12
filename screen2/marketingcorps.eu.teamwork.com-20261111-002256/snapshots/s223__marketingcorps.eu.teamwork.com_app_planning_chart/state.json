@@ -1,0 +1,11 @@
+{
+  "id": "s223",
+  "trigger": "open: Other apps",
+  "url": "https://marketingcorps.eu.teamwork.com/app/planning/chart",
+  "fingerprint": "cec9fdad7872cb6b",
+  "folder": "snapshots/s223__marketingcorps.eu.teamwork.com_app_planning_chart",
+  "screenshot": "snapshots/s223__marketingcorps.eu.teamwork.com_app_planning_chart/page.png",
+  "html": "snapshots/s223__marketingcorps.eu.teamwork.com_app_planning_chart/page.html",
+  "a11y": "snapshots/s223__marketingcorps.eu.teamwork.com_app_planning_chart/a11y.json",
+  "urlFile": "snapshots/s223__marketingcorps.eu.teamwork.com_app_planning_chart/url.txt"
+}

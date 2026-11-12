@@ -1,0 +1,11 @@
+{
+  "id": "s129",
+  "trigger": "open: Quick add",
+  "url": "https://marketingcorps.eu.teamwork.com/app/projects/622744/tasks/list",
+  "fingerprint": "8be75c283273b87d",
+  "folder": "snapshots/s129__marketingcorps.eu.teamwork.com_app_projects_622744_tasks_list",
+  "screenshot": "snapshots/s129__marketingcorps.eu.teamwork.com_app_projects_622744_tasks_list/page.png",
+  "html": "snapshots/s129__marketingcorps.eu.teamwork.com_app_projects_622744_tasks_list/page.html",
+  "a11y": "snapshots/s129__marketingcorps.eu.teamwork.com_app_projects_622744_tasks_list/a11y.json",
+  "urlFile": "snapshots/s129__marketingcorps.eu.teamwork.com_app_projects_622744_tasks_list/url.txt"
+}

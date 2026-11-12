@@ -1,0 +1,11 @@
+{
+  "id": "s011",
+  "trigger": "default",
+  "url": "https://marketingcorps.eu.teamwork.com/app/welcome/the-fundamentals",
+  "fingerprint": "c5c2b7ad83827442",
+  "folder": "snapshots/s011__marketingcorps.eu.teamwork.com_app_welcome_the-fundamentals",
+  "screenshot": "snapshots/s011__marketingcorps.eu.teamwork.com_app_welcome_the-fundamentals/page.png",
+  "html": "snapshots/s011__marketingcorps.eu.teamwork.com_app_welcome_the-fundamentals/page.html",
+  "a11y": "snapshots/s011__marketingcorps.eu.teamwork.com_app_welcome_the-fundamentals/a11y.json",
+  "urlFile": "snapshots/s011__marketingcorps.eu.teamwork.com_app_welcome_the-fundamentals/url.txt"
+}

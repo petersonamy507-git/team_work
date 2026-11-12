@@ -1,0 +1,11 @@
+{
+  "id": "s123",
+  "trigger": "open: Quick add",
+  "url": "https://marketingcorps.eu.teamwork.com/app/tasklists/2420320/list",
+  "fingerprint": "b8b8b920181d58c0",
+  "folder": "snapshots/s123__marketingcorps.eu.teamwork.com_app_tasklists_2420320_list",
+  "screenshot": "snapshots/s123__marketingcorps.eu.teamwork.com_app_tasklists_2420320_list/page.png",
+  "html": "snapshots/s123__marketingcorps.eu.teamwork.com_app_tasklists_2420320_list/page.html",
+  "a11y": "snapshots/s123__marketingcorps.eu.teamwork.com_app_tasklists_2420320_list/a11y.json",
+  "urlFile": "snapshots/s123__marketingcorps.eu.teamwork.com_app_tasklists_2420320_list/url.txt"
+}

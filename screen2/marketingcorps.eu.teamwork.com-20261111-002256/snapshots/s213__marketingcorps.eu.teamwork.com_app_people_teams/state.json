@@ -1,0 +1,11 @@
+{
+  "id": "s213",
+  "trigger": "open: Other apps",
+  "url": "https://marketingcorps.eu.teamwork.com/app/people/teams",
+  "fingerprint": "b6418fd7d01e42b2",
+  "folder": "snapshots/s213__marketingcorps.eu.teamwork.com_app_people_teams",
+  "screenshot": "snapshots/s213__marketingcorps.eu.teamwork.com_app_people_teams/page.png",
+  "html": "snapshots/s213__marketingcorps.eu.teamwork.com_app_people_teams/page.html",
+  "a11y": "snapshots/s213__marketingcorps.eu.teamwork.com_app_people_teams/a11y.json",
+  "urlFile": "snapshots/s213__marketingcorps.eu.teamwork.com_app_people_teams/url.txt"
+}

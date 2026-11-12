@@ -1,0 +1,11 @@
+{
+  "id": "s104",
+  "trigger": "open: Recent",
+  "url": "https://marketingcorps.eu.teamwork.com/app/finance/rates/people",
+  "fingerprint": "530c77a92e37d31c",
+  "folder": "snapshots/s104__marketingcorps.eu.teamwork.com_app_finance_rates_people",
+  "screenshot": "snapshots/s104__marketingcorps.eu.teamwork.com_app_finance_rates_people/page.png",
+  "html": "snapshots/s104__marketingcorps.eu.teamwork.com_app_finance_rates_people/page.html",
+  "a11y": "snapshots/s104__marketingcorps.eu.teamwork.com_app_finance_rates_people/a11y.json",
+  "urlFile": "snapshots/s104__marketingcorps.eu.teamwork.com_app_finance_rates_people/url.txt"
+}

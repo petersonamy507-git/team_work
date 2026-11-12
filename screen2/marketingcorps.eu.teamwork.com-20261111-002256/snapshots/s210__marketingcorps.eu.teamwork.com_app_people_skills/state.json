@@ -1,0 +1,11 @@
+{
+  "id": "s210",
+  "trigger": "open: Recent",
+  "url": "https://marketingcorps.eu.teamwork.com/app/people/skills",
+  "fingerprint": "5599591ddb0b6387",
+  "folder": "snapshots/s210__marketingcorps.eu.teamwork.com_app_people_skills",
+  "screenshot": "snapshots/s210__marketingcorps.eu.teamwork.com_app_people_skills/page.png",
+  "html": "snapshots/s210__marketingcorps.eu.teamwork.com_app_people_skills/page.html",
+  "a11y": "snapshots/s210__marketingcorps.eu.teamwork.com_app_people_skills/a11y.json",
+  "urlFile": "snapshots/s210__marketingcorps.eu.teamwork.com_app_people_skills/url.txt"
+}

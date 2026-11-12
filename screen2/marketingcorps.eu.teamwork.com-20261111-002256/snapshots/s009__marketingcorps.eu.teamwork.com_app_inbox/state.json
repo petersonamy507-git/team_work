@@ -1,0 +1,11 @@
+{
+  "id": "s009",
+  "trigger": "open: Quick add",
+  "url": "https://marketingcorps.eu.teamwork.com/app/inbox",
+  "fingerprint": "edbfe5b60c364d4c",
+  "folder": "snapshots/s009__marketingcorps.eu.teamwork.com_app_inbox",
+  "screenshot": "snapshots/s009__marketingcorps.eu.teamwork.com_app_inbox/page.png",
+  "html": "snapshots/s009__marketingcorps.eu.teamwork.com_app_inbox/page.html",
+  "a11y": "snapshots/s009__marketingcorps.eu.teamwork.com_app_inbox/a11y.json",
+  "urlFile": "snapshots/s009__marketingcorps.eu.teamwork.com_app_inbox/url.txt"
+}

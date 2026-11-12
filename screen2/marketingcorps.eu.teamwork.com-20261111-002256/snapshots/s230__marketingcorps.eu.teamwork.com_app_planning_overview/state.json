@@ -1,0 +1,11 @@
+{
+  "id": "s230",
+  "trigger": "open: Quick add",
+  "url": "https://marketingcorps.eu.teamwork.com/app/planning/overview",
+  "fingerprint": "1028ae8c7d98535e",
+  "folder": "snapshots/s230__marketingcorps.eu.teamwork.com_app_planning_overview",
+  "screenshot": "snapshots/s230__marketingcorps.eu.teamwork.com_app_planning_overview/page.png",
+  "html": "snapshots/s230__marketingcorps.eu.teamwork.com_app_planning_overview/page.html",
+  "a11y": "snapshots/s230__marketingcorps.eu.teamwork.com_app_planning_overview/a11y.json",
+  "urlFile": "snapshots/s230__marketingcorps.eu.teamwork.com_app_planning_overview/url.txt"
+}

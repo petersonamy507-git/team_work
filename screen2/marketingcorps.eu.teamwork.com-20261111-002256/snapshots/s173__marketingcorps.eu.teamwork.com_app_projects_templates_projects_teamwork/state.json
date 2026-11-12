@@ -1,0 +1,11 @@
+{
+  "id": "s173",
+  "trigger": "open: User menu",
+  "url": "https://marketingcorps.eu.teamwork.com/app/projects/templates/projects/teamwork",
+  "fingerprint": "632611332907247c",
+  "folder": "snapshots/s173__marketingcorps.eu.teamwork.com_app_projects_templates_projects_teamwork",
+  "screenshot": "snapshots/s173__marketingcorps.eu.teamwork.com_app_projects_templates_projects_teamwork/page.png",
+  "html": "snapshots/s173__marketingcorps.eu.teamwork.com_app_projects_templates_projects_teamwork/page.html",
+  "a11y": "snapshots/s173__marketingcorps.eu.teamwork.com_app_projects_templates_projects_teamwork/a11y.json",
+  "urlFile": "snapshots/s173__marketingcorps.eu.teamwork.com_app_projects_templates_projects_teamwork/url.txt"
+}

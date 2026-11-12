@@ -1,0 +1,11 @@
+{
+  "id": "s077",
+  "trigger": "open: Tasks",
+  "url": "https://marketingcorps.eu.teamwork.com/app/tasks/table",
+  "fingerprint": "3de89055b340af3d",
+  "folder": "snapshots/s077__marketingcorps.eu.teamwork.com_app_tasks_table",
+  "screenshot": "snapshots/s077__marketingcorps.eu.teamwork.com_app_tasks_table/page.png",
+  "html": "snapshots/s077__marketingcorps.eu.teamwork.com_app_tasks_table/page.html",
+  "a11y": "snapshots/s077__marketingcorps.eu.teamwork.com_app_tasks_table/a11y.json",
+  "urlFile": "snapshots/s077__marketingcorps.eu.teamwork.com_app_tasks_table/url.txt"
+}

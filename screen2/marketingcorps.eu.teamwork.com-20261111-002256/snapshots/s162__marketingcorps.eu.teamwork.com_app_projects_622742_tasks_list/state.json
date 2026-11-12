@@ -1,0 +1,11 @@
+{
+  "id": "s162",
+  "trigger": "open: C Charles Cooper",
+  "url": "https://marketingcorps.eu.teamwork.com/app/projects/622742/tasks/list",
+  "fingerprint": "30df95032cff8bdb",
+  "folder": "snapshots/s162__marketingcorps.eu.teamwork.com_app_projects_622742_tasks_list",
+  "screenshot": "snapshots/s162__marketingcorps.eu.teamwork.com_app_projects_622742_tasks_list/page.png",
+  "html": "snapshots/s162__marketingcorps.eu.teamwork.com_app_projects_622742_tasks_list/page.html",
+  "a11y": "snapshots/s162__marketingcorps.eu.teamwork.com_app_projects_622742_tasks_list/a11y.json",
+  "urlFile": "snapshots/s162__marketingcorps.eu.teamwork.com_app_projects_622742_tasks_list/url.txt"
+}

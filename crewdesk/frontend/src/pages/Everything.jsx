@@ -5,8 +5,10 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   LayoutGrid, Flag, MessageSquare, ClipboardList, AlertTriangle, BookOpen, Paperclip, Mail, Link2, Plus, Pencil,
   Trash2, CheckCircle2, Circle, Download, ExternalLink, Upload, Eye, Send, ToggleLeft, ToggleRight, ListPlus,
+  Smile, MoreVertical, MoreHorizontal, Search, ArrowDownUp, List, Table2, ChevronDown,
 } from 'lucide-react'
-import { api } from '../lib/api'
+import { api, getToken } from '../lib/api'
+import { useAuth } from '../lib/auth'
 import { useData, useUi } from '../lib/ui-context'
 import { fmtDate, timeAgo } from '../lib/format'
 import { Avatar, Menu, Modal } from '../components/ui'
@@ -76,24 +78,63 @@ export function MilestonesTab({ projectId }) {
 }
 
 /* ---------------- Comments ---------------- */
+const dayLabel = (iso) => { const d = new Date(iso.endsWith('Z') ? iso : iso + 'Z'); const t = new Date(); const y = new Date(Date.now() - 864e5)
+  return d.toDateString() === t.toDateString() ? 'Today' : d.toDateString() === y.toDateString() ? 'Yesterday' : d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }) }
+const byDay = (rows) => rows.reduce((g, r) => { const k = dayLabel(r.created_at); (g[k] = g[k] || []).push(r); return g }, {})
+const EMOJI = ['👍', '❤️', '🎉', '😄', '👀', '✅']
+
+export function Reactions({ kind, refId, all, reload }) {
+  const { user } = useAuth()
+  const mine = (all || []).filter((x) => x.kind === kind && x.ref_id === String(refId))
+  const counts = EMOJI.map((e) => [e, mine.filter((x) => x.emoji === e)]).filter(([, l]) => l.length)
+  const toggle = async (e) => { const own = mine.find((x) => x.emoji === e && x.user_id === user.id); if (own) await api.del(`/r/reactions/${own.id}`); else await api.post('/r/reactions', { kind, ref_id: String(refId), emoji: e }); reload() }
+  return (
+    <span className="row" style={{ gap: 4 }} onClick={(e) => e.stopPropagation()}>
+      {counts.map(([e, l]) => <button key={e} className={`react-chip ${l.some((x) => x.user_id === user.id) ? 'on' : ''}`} title={l.map((x) => x.user?.name).join(', ')} onClick={() => toggle(e)}>{e} {l.length}</button>)}
+      <Menu trigger={<button className="react-add" title="Add reaction"><Smile size={15} /></button>}>
+        <div className="row" style={{ gap: 2, padding: 4 }}>{EMOJI.map((e) => <button key={e} style={{ fontSize: 18, width: 34 }} onClick={() => toggle(e)}>{e}</button>)}</div>
+      </Menu>
+    </span>
+  )
+}
+
 export function CommentsTab({ projectId }) {
-  const { data } = useData('/everything/comments')
-  const { openTask } = useUi()
+  const { data, reload } = useData('/everything/comments')
+  const reacts = useRows('reactions')
+  const { openTask, notify } = useUi()
   const navigate = useNavigate()
-  const rows = (data || []).filter((c) => !projectId || c.project_id === projectId)
+  const [q, setQ] = useState('')
+  const [order, setOrder] = useState(-1)
+  const rows = (data || []).filter((c) => (!projectId || c.project_id === projectId) && (c.body + c.on).toLowerCase().includes(q.toLowerCase()))
+    .sort((a, b) => (a.created_at > b.created_at ? 1 : -1) * order)
+  const open = (c) => (c.kind === 'task' ? openTask(Number(c.link.split('/').pop())) : navigate(c.link))
+  const del = async (c) => { if (!confirm('Delete this comment?')) return; await api.del(c.kind === 'task' ? `/comments/${c.id.slice(1)}` : `/message-replies/${c.id.slice(1)}`); notify('Comment deleted'); reload() }
   return (
     <>
-      <div className="tw-toolbar"><h2>{projectId ? 'Comments' : 'All Comments'}</h2></div>
-      {data && !rows.length ? <EmptyState icon={MessageSquare} title="No comments yet" text="Comments on tasks and messages will show up here." /> : (
-        <div>{rows.map((c) => (
-          <div key={c.id} className="twrow" style={{ alignItems: 'flex-start', padding: '12px 10px' }} onClick={() => (c.kind === 'task' ? openTask(Number(c.link.split('/').pop())) : navigate(c.link))}>
-            <Avatar user={c.user} size={30} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="small"><b>{c.user?.name}</b> <span className="muted">commented on {c.kind}</span> <b>{c.on}</b>{!projectId && c.project_name && <span className="muted"> · {c.project_name}</span>}</div>
-              <div style={{ marginTop: 4, whiteSpace: 'pre-wrap' }}>{c.body}</div>
-            </div>
-            <span className="muted small">{timeAgo(c.created_at)}</span>
-          </div>))}</div>)}
+      <div className="tw-toolbar"><h2>{projectId ? 'Comments' : 'All Comments'}</h2><span className="spacer" />
+        <label className="kit-search"><Search size={14} /><input placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} /></label>
+        <button className="tb-btn" title="Sort" onClick={() => setOrder(-order)}><ArrowDownUp size={14} />{order < 0 ? 'Newest' : 'Oldest'}</button></div>
+      {data && !rows.length ? <EmptyState icon={MessageSquare} title="No comments yet" text="Comments on tasks and messages will show up here." /> : Object.entries(byDay(rows)).map(([day, list]) => (
+        <div key={day}><div className="ev-day">{day}</div>
+          {list.map((c) => (
+            <div key={c.id} className="ev-item" onClick={() => open(c)}>
+              <Avatar user={c.user} size={36} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div><b>{c.user?.name}</b> {c.project_name && <span className="muted small">({c.project_name})</span>}</div>
+                <div className="muted small">{c.project_name} › {c.kind === 'task' ? 'Task' : 'Message'}: {c.on}</div>
+                <div style={{ marginTop: 6, whiteSpace: 'pre-wrap' }}>{c.body.length > 300 ? c.body.slice(0, 300) + '…' : c.body}</div>
+              </div>
+              <div className="ev-side">
+                <span className="muted small">{timeAgo(c.created_at)}</span>
+                <span className="row" style={{ gap: 4 }}><Reactions kind={c.kind} refId={c.id} all={reacts.rows} reload={reacts.reload} />
+                  <span onClick={(e) => e.stopPropagation()}><Menu trigger={<button className="react-add"><MoreVertical size={15} /></button>}>
+                    <button onClick={() => open(c)}><ExternalLink size={14} />Open</button>
+                    <button onClick={() => { navigator.clipboard?.writeText(window.location.origin + c.link); notify('Link copied') }}><Link2 size={14} />Copy link</button>
+                    <button style={{ color: 'var(--danger)' }} onClick={() => del(c)}><Trash2 size={14} />Delete</button>
+                  </Menu></span></span>
+              </div>
+            </div>))}
+        </div>))}
     </>
   )
 }
@@ -301,13 +342,22 @@ export function NotebooksTab({ projectId }) {
 }
 
 /* ---------------- Files ---------------- */
-const fsize = (n) => (n > 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`)
+const fsize = (n) => (n > 1048576 ? `${(n / 1048576).toFixed(2)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`)
+const FTYPE = (name) => { const e = (name.split('.').pop() || '').toLowerCase()
+  return ['pdf'].includes(e) ? ['#d93a3a', 'PDF'] : ['doc', 'docx'].includes(e) ? ['#2f6fdb', 'W'] : ['xls', 'xlsx', 'csv'].includes(e) ? ['#1f8a4c', 'X'] : ['ppt', 'pptx'].includes(e) ? ['#d2691e', 'P'] : ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(e) ? ['#8b5cf6', 'IMG'] : ['zip', 'rar'].includes(e) ? ['#64748b', 'ZIP'] : ['#94a3b8', 'T'] }
 export function FilesTab({ projectId }) {
   const { data, reload } = useData(projectId ? `/projects/${projectId}/files` : '/everything/files')
   const { projects, notify, refresh } = useUi()
   const [pid, setPid] = useState(projectId || '')
+  const [q, setQ] = useState('')
+  const [view, setView] = useState('list')
   const input = useRef()
-  const rows = (data || []).map((f) => ({ ...f, name: f.name || f.original_name, project_name: f.project_name || projects.find((p) => p.id === f.project_id)?.name }))
+  const navigate = useNavigate()
+  const rows = (data || []).map((f) => ({ ...f, name: f.name || f.original_name, project_name: f.project_name || projects.find((p) => p.id === f.project_id)?.name, user: f.user || f.uploaded_by }))
+    .filter((f) => f.name.toLowerCase().includes(q.toLowerCase()))
+  const groups = projectId
+    ? Object.entries(rows.reduce((g, f) => { const k = f.name[0].toUpperCase(); (g[k] = g[k] || []).push(f); return g }, {})).sort()
+    : Object.entries(rows.reduce((g, f) => { const k = f.project_name || 'Other'; (g[k] = g[k] || []).push(f); return g }, {})).sort()
   const upload = async (e) => {
     const files = [...e.target.files]
     if (!pid) return notify('Choose a project first')
@@ -315,44 +365,81 @@ export function FilesTab({ projectId }) {
     e.target.value = ''; notify(`${files.length} file(s) uploaded`); reload(); refresh()
   }
   const del = async (f) => { if (confirm(`Delete ${f.name}?`)) { await api.del(`/files/${f.id}`); reload() } }
+  const preview = async (f) => {
+    const res = await fetch(`/api/files/${f.id}/download`, { headers: { Authorization: `Bearer ${getToken()}` } })
+    window.open(URL.createObjectURL(await res.blob()), '_blank')
+  }
   return (
     <>
       <div className="tw-toolbar"><h2>{projectId ? 'Files' : 'All Files'}</h2><span className="spacer" />
+        <label className="kit-search"><Search size={14} /><input placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} /></label>
+        <div className="scope-toggle"><button className={view === 'list' ? 'active' : ''} onClick={() => setView('list')}><List size={14} /></button><button className={view === 'table' ? 'active' : ''} onClick={() => setView('table')}><Table2 size={14} /></button></div>
         {!projectId && <select className="input" style={{ width: 200, height: 32 }} value={pid} onChange={(e) => setPid(e.target.value)}><option value="">Upload to project…</option>{projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select>}
         <button className="btn primary" onClick={() => (pid ? input.current.click() : notify('Choose a project first'))}><Upload size={15} />Upload files</button>
         <input ref={input} type="file" multiple hidden onChange={upload} /></div>
-      <DataTable rows={data ? rows : null} search={(f) => f.name}
-        empty={<EmptyState icon={Paperclip} title="No files yet" text="Files uploaded to projects and tasks appear here." />}
-        columns={[
-          { key: 'name', label: 'File name', render: (f) => <span className="row" style={{ gap: 8 }}><Paperclip size={15} className="muted" /><b>{f.name}</b></span> },
-          ...(projectId ? [] : [{ key: 'project_name', label: 'Project', render: ProjectCell }]),
-          { key: 'size', label: 'Size', render: (f) => fsize(f.size) },
-          { key: 'user', label: 'Uploaded by', render: (f) => <PersonChip user={f.user || f.uploaded_by} /> },
-          { key: 'created_at', label: 'Date', render: (f) => fmtDate(f.created_at, { day: 'numeric', month: 'short', year: 'numeric' }) },
-          { key: 'a', label: '', nosort: true, render: (f) => <span className="act" onClick={(e) => e.stopPropagation()}>
-            <button className="icon-btn" onClick={() => api.download(`/files/${f.id}/download`, f.name)}><Download size={14} /></button>
-            <button className="icon-btn" onClick={() => del(f)}><Trash2 size={14} /></button></span> },
-        ]} onRow={(f) => api.download(`/files/${f.id}/download`, f.name)} />
+      {data && !rows.length && <EmptyState icon={Paperclip} title="No files yet" text="Files uploaded to projects and tasks appear here." />}
+      {view === 'table' ? <DataTable rows={rows} columns={[
+        { key: 'name', label: 'File name', render: (f) => <b>{f.name}</b> }, ...(projectId ? [] : [{ key: 'project_name', label: 'Project', render: ProjectCell }]),
+        { key: 'size', label: 'Size', render: (f) => fsize(f.size) }, { key: 'user', label: 'Uploaded by', render: (f) => <PersonChip user={f.user} /> },
+        { key: 'created_at', label: 'Date', render: (f) => fmtDate(f.created_at, { day: 'numeric', month: 'short', year: 'numeric' }) }]} onRow={preview} />
+        : groups.map(([g, list]) => (
+          <div key={g} style={{ marginBottom: 10 }}>
+            <div className="ev-day">{projectId ? g : <>{g} <span className="muted small" style={{ fontWeight: 400 }}>– {list[0].client_name || projects.find((p) => p.id === list[0].project_id)?.client?.name || ''}</span></>}</div>
+            {list.map((f) => { const [c, t] = FTYPE(f.name)
+              return (
+                <div key={f.id} className="file-row">
+                  <span className="file-ic" style={{ background: c }}>{t}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}><b className="ellipsis" style={{ display: 'block' }}>{f.name}</b><span className="muted small">by {f.user?.name || 'someone'}, {timeAgo(f.created_at)} – {fsize(f.size)}</span></div>
+                  <button className="round-btn" title="Preview" onClick={() => preview(f)}><Search size={14} /></button>
+                  <button className="round-btn" title="Download" onClick={() => api.download(`/files/${f.id}/download`, f.name)}><Download size={14} /></button>
+                  <Menu trigger={<button className="round-btn"><ChevronDown size={14} /></button>}>
+                    <button onClick={() => preview(f)}><Eye size={14} />Preview</button>
+                    <button onClick={() => api.download(`/files/${f.id}/download`, f.name)}><Download size={14} />Download</button>
+                    {!projectId && <button onClick={() => navigate(`/projects/${f.project_id}/files`)}><ExternalLink size={14} />Go to project</button>}
+                    <button style={{ color: 'var(--danger)' }} onClick={() => del(f)}><Trash2 size={14} />Delete</button>
+                  </Menu>
+                </div>) })}
+          </div>))}
     </>
   )
 }
 
 /* ---------------- Messages ---------------- */
 export function MessagesTab() {
-  const { data } = useData('/everything/messages')
+  const { data, reload } = useData('/everything/messages')
+  const { projects, notify } = useUi()
   const navigate = useNavigate()
+  const [q, setQ] = useState('')
+  const [expanded, setExpanded] = useState(false)
+  const rows = (data || []).filter((m) => (m.title + m.body).toLowerCase().includes(q.toLowerCase()))
+  const client = (pid) => projects.find((p) => p.id === pid)?.client?.name
+  const del = async (m) => { if (confirm(`Delete message "${m.title}"?`)) { await api.del(`/messages/${m.id}`); notify('Message deleted'); reload() } }
   return (
     <>
-      <div className="tw-toolbar"><h2>All Messages</h2></div>
-      <DataTable rows={data} search={(m) => m.title + m.body}
-        empty={<EmptyState icon={Mail} title="No messages yet" text="Messages posted in projects appear here." />}
-        columns={[
-          { key: 'title', label: 'Message', render: (m) => <div><b>{m.title}</b><div className="muted small ellipsis" style={{ maxWidth: 480 }}>{m.body}</div></div> },
-          { key: 'project_name', label: 'Project', render: ProjectCell },
-          { key: 'user', label: 'Posted by', render: (m) => <PersonChip user={m.user} />, sort: (m) => m.user?.name },
-          { key: 'replies', label: 'Replies' },
-          { key: 'created_at', label: 'Posted', render: (m) => timeAgo(m.created_at) },
-        ]} onRow={(m) => navigate(`/projects/${m.project_id}/messages/${m.id}`)} />
+      <div className="tw-toolbar"><h2>All Messages</h2><span className="spacer" />
+        <label className="kit-search"><Search size={14} /><input placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} /></label>
+        <select className="input" style={{ width: 130, height: 32 }} value={expanded ? 'e' : 'c'} onChange={(e) => setExpanded(e.target.value === 'e')}><option value="c">Collapsed</option><option value="e">Expanded</option></select></div>
+      {data && !rows.length && <EmptyState icon={Mail} title="No messages yet" text="Messages posted in projects appear here." />}
+      {Object.entries(byDay(rows)).map(([day, list]) => (
+        <div key={day}><div className="ev-day">{day}</div>
+          {list.map((m) => (
+            <div key={m.id} className="ev-item" onClick={() => navigate(`/projects/${m.project_id}/messages/${m.id}`)}>
+              <Avatar user={m.user} size={30} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <b>{m.title}</b>
+                <div className="muted small">{m.user?.name} in <span className="dot" style={{ background: '#cbd5e1' }} /> No category ({m.project_name}{client(m.project_id) ? ` — ${client(m.project_id)}` : ''}){m.replies ? ` · ${m.replies} replies` : ''}</div>
+                {expanded && <div style={{ marginTop: 6, whiteSpace: 'pre-wrap' }}>{m.body}</div>}
+              </div>
+              <div className="ev-side" style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <span className="muted small">{new Date(m.created_at + 'Z').toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</span>
+                <span onClick={(e) => e.stopPropagation()}><Menu trigger={<button className="round-btn"><MoreHorizontal size={15} /></button>}>
+                  <button onClick={() => navigate(`/projects/${m.project_id}/messages/${m.id}`)}><ExternalLink size={14} />Open</button>
+                  <button onClick={() => { navigator.clipboard?.writeText(`${window.location.origin}/projects/${m.project_id}/messages/${m.id}`); notify('Link copied') }}><Link2 size={14} />Copy link</button>
+                  <button style={{ color: 'var(--danger)' }} onClick={() => del(m)}><Trash2 size={14} />Delete</button>
+                </Menu></span>
+              </div>
+            </div>))}
+        </div>))}
     </>
   )
 }

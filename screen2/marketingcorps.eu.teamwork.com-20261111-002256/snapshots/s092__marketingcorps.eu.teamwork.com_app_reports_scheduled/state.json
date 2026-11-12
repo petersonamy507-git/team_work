@@ -1,0 +1,11 @@
+{
+  "id": "s092",
+  "trigger": "open: Other apps",
+  "url": "https://marketingcorps.eu.teamwork.com/app/reports/scheduled",
+  "fingerprint": "fce4c32d23f5a706",
+  "folder": "snapshots/s092__marketingcorps.eu.teamwork.com_app_reports_scheduled",
+  "screenshot": "snapshots/s092__marketingcorps.eu.teamwork.com_app_reports_scheduled/page.png",
+  "html": "snapshots/s092__marketingcorps.eu.teamwork.com_app_reports_scheduled/page.html",
+  "a11y": "snapshots/s092__marketingcorps.eu.teamwork.com_app_reports_scheduled/a11y.json",
+  "urlFile": "snapshots/s092__marketingcorps.eu.teamwork.com_app_reports_scheduled/url.txt"
+}

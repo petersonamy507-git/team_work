@@ -1,0 +1,11 @@
+{
+  "id": "s238",
+  "trigger": "open: Other apps",
+  "url": "https://marketingcorps.eu.teamwork.com/app/planning/workload",
+  "fingerprint": "fc8395709d1b7a85",
+  "folder": "snapshots/s238__marketingcorps.eu.teamwork.com_app_planning_workload",
+  "screenshot": "snapshots/s238__marketingcorps.eu.teamwork.com_app_planning_workload/page.png",
+  "html": "snapshots/s238__marketingcorps.eu.teamwork.com_app_planning_workload/page.html",
+  "a11y": "snapshots/s238__marketingcorps.eu.teamwork.com_app_planning_workload/a11y.json",
+  "urlFile": "snapshots/s238__marketingcorps.eu.teamwork.com_app_planning_workload/url.txt"
+}

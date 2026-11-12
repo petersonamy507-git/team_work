@@ -1,0 +1,11 @@
+{
+  "id": "s157",
+  "trigger": "open: M Malcolm Hedding (Book Project)",
+  "url": "https://marketingcorps.eu.teamwork.com/app/tasklists/2420320/list",
+  "fingerprint": "36dc34f921db3cae",
+  "folder": "snapshots/s157__marketingcorps.eu.teamwork.com_app_tasklists_2420320_list",
+  "screenshot": "snapshots/s157__marketingcorps.eu.teamwork.com_app_tasklists_2420320_list/page.png",
+  "html": "snapshots/s157__marketingcorps.eu.teamwork.com_app_tasklists_2420320_list/page.html",
+  "a11y": "snapshots/s157__marketingcorps.eu.teamwork.com_app_tasklists_2420320_list/a11y.json",
+  "urlFile": "snapshots/s157__marketingcorps.eu.teamwork.com_app_tasklists_2420320_list/url.txt"
+}

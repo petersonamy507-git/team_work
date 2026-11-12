@@ -1,0 +1,11 @@
+{
+  "id": "s044",
+  "trigger": "open: User menu",
+  "url": "https://marketingcorps.eu.teamwork.com/app/work/timesheet",
+  "fingerprint": "57cba387c21b4482",
+  "folder": "snapshots/s044__marketingcorps.eu.teamwork.com_app_work_timesheet",
+  "screenshot": "snapshots/s044__marketingcorps.eu.teamwork.com_app_work_timesheet/page.png",
+  "html": "snapshots/s044__marketingcorps.eu.teamwork.com_app_work_timesheet/page.html",
+  "a11y": "snapshots/s044__marketingcorps.eu.teamwork.com_app_work_timesheet/a11y.json",
+  "urlFile": "snapshots/s044__marketingcorps.eu.teamwork.com_app_work_timesheet/url.txt"
+}

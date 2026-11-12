@@ -596,3 +596,26 @@ m [32mhmr update [39m[2m/src/components/Layout.jsx[22m
 [2m3:49:29 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ProjectExtras.jsx[22m
 [2m3:49:29 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/pages/ProjectExtras.jsx[22m Could not Fast Refresh (new export)
 [2m3:49:29 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/pages/Project.jsx[22m
+[2m3:49:41 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Home.jsx[22m
+[2m3:49:41 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ProjectExtras.jsx[22m
+[2m3:49:42 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/pages/ProjectExtras.jsx[22m Could not Fast Refresh ("PROJECT_MORE" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m3:49:42 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/pages/Project.jsx[22m
+[2m3:50:54 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Everything.jsx[22m
+[2m3:50:54 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/parity.css[22m
+[2m3:50:54 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/pages/Everything.jsx[22m Could not Fast Refresh (new export)
+[2m3:50:54 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/pages/ProjectExtras.jsx[22m
+[2m3:50:54 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/pages/ProjectExtras.jsx[22m Could not Fast Refresh ("PROJECT_MORE" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m3:50:54 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/pages/Project.jsx[22m
+[2m3:51:01 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Everything.jsx[22m
+[2m3:51:01 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/pages/Everything.jsx[22m Could not Fast Refresh ("EVERYTHING_TABS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m3:51:01 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/pages/ProjectExtras.jsx[22m
+[2m3:51:02 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/pages/ProjectExtras.jsx[22m Could not Fast Refresh ("PROJECT_MORE" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m3:51:02 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/pages/Project.jsx[22m
+[2m3:51:48 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Reporting.jsx[22m
+[2m3:51:48 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/parity.css[22m
+[2m3:51:48 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/pages/Reporting.jsx[22m Could not Fast Refresh ("LIBRARY" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m3:51:48 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx[22m
+[2m3:52:25 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Resourcing.jsx[22m
+[2m3:52:25 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/parity.css[22m
+[2m3:52:41 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Projects.jsx[22m
+[2m3:52:41 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/parity.css[22m

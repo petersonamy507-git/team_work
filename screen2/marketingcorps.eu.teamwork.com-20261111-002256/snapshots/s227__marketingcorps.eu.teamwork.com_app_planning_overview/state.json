@@ -1,0 +1,11 @@
+{
+  "id": "s227",
+  "trigger": "open: Resourcing",
+  "url": "https://marketingcorps.eu.teamwork.com/app/planning/overview",
+  "fingerprint": "cb86d36c6238728b",
+  "folder": "snapshots/s227__marketingcorps.eu.teamwork.com_app_planning_overview",
+  "screenshot": "snapshots/s227__marketingcorps.eu.teamwork.com_app_planning_overview/page.png",
+  "html": "snapshots/s227__marketingcorps.eu.teamwork.com_app_planning_overview/page.html",
+  "a11y": "snapshots/s227__marketingcorps.eu.teamwork.com_app_planning_overview/a11y.json",
+  "urlFile": "snapshots/s227__marketingcorps.eu.teamwork.com_app_planning_overview/url.txt"
+}

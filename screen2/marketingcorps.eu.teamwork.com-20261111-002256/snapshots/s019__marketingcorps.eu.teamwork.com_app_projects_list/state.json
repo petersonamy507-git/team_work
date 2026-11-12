@@ -1,0 +1,11 @@
+{
+  "id": "s019",
+  "trigger": "open: Quick add",
+  "url": "https://marketingcorps.eu.teamwork.com/app/projects/list",
+  "fingerprint": "deb6dc1524fca97c",
+  "folder": "snapshots/s019__marketingcorps.eu.teamwork.com_app_projects_list",
+  "screenshot": "snapshots/s019__marketingcorps.eu.teamwork.com_app_projects_list/page.png",
+  "html": "snapshots/s019__marketingcorps.eu.teamwork.com_app_projects_list/page.html",
+  "a11y": "snapshots/s019__marketingcorps.eu.teamwork.com_app_projects_list/a11y.json",
+  "urlFile": "snapshots/s019__marketingcorps.eu.teamwork.com_app_projects_list/url.txt"
+}

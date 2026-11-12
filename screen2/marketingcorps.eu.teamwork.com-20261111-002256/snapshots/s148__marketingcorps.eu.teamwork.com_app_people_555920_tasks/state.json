@@ -1,0 +1,11 @@
+{
+  "id": "s148",
+  "trigger": "open: User menu",
+  "url": "https://marketingcorps.eu.teamwork.com/app/people/555920/tasks",
+  "fingerprint": "83c6c1fecb933f49",
+  "folder": "snapshots/s148__marketingcorps.eu.teamwork.com_app_people_555920_tasks",
+  "screenshot": "snapshots/s148__marketingcorps.eu.teamwork.com_app_people_555920_tasks/page.png",
+  "html": "snapshots/s148__marketingcorps.eu.teamwork.com_app_people_555920_tasks/page.html",
+  "a11y": "snapshots/s148__marketingcorps.eu.teamwork.com_app_people_555920_tasks/a11y.json",
+  "urlFile": "snapshots/s148__marketingcorps.eu.teamwork.com_app_people_555920_tasks/url.txt"
+}

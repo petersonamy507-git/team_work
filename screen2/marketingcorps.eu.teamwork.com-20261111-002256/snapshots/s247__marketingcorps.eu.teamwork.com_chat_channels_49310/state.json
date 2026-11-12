@@ -1,0 +1,11 @@
+{
+  "id": "s247",
+  "trigger": "probe: button",
+  "url": "https://marketingcorps.eu.teamwork.com/chat/channels/49310",
+  "fingerprint": "e77f43bf22b361ea",
+  "folder": "snapshots/s247__marketingcorps.eu.teamwork.com_chat_channels_49310",
+  "screenshot": "snapshots/s247__marketingcorps.eu.teamwork.com_chat_channels_49310/page.png",
+  "html": "snapshots/s247__marketingcorps.eu.teamwork.com_chat_channels_49310/page.html",
+  "a11y": "snapshots/s247__marketingcorps.eu.teamwork.com_chat_channels_49310/a11y.json",
+  "urlFile": "snapshots/s247__marketingcorps.eu.teamwork.com_chat_channels_49310/url.txt"
+}

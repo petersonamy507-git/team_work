@@ -1,0 +1,11 @@
+{
+  "id": "s142",
+  "trigger": "open: Other apps",
+  "url": "https://marketingcorps.eu.teamwork.com/app/settings/subscription/plans",
+  "fingerprint": "d80f1ae4503bf797",
+  "folder": "snapshots/s142__marketingcorps.eu.teamwork.com_app_settings_subscription_plans",
+  "screenshot": "snapshots/s142__marketingcorps.eu.teamwork.com_app_settings_subscription_plans/page.png",
+  "html": "snapshots/s142__marketingcorps.eu.teamwork.com_app_settings_subscription_plans/page.html",
+  "a11y": "snapshots/s142__marketingcorps.eu.teamwork.com_app_settings_subscription_plans/a11y.json",
+  "urlFile": "snapshots/s142__marketingcorps.eu.teamwork.com_app_settings_subscription_plans/url.txt"
+}

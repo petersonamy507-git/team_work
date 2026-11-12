@@ -1,0 +1,11 @@
+{
+  "id": "s136",
+  "trigger": "default",
+  "url": "https://marketingcorps.eu.teamwork.com/app/settings/integrations/all",
+  "fingerprint": "b2fcc85d8251aa6f",
+  "folder": "snapshots/s136__marketingcorps.eu.teamwork.com_app_settings_integrations_all",
+  "screenshot": "snapshots/s136__marketingcorps.eu.teamwork.com_app_settings_integrations_all/page.png",
+  "html": "snapshots/s136__marketingcorps.eu.teamwork.com_app_settings_integrations_all/page.html",
+  "a11y": "snapshots/s136__marketingcorps.eu.teamwork.com_app_settings_integrations_all/a11y.json",
+  "urlFile": "snapshots/s136__marketingcorps.eu.teamwork.com_app_settings_integrations_all/url.txt"
+}

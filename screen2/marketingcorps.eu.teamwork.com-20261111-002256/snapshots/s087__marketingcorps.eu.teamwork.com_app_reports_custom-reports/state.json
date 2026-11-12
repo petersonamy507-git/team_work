@@ -1,0 +1,11 @@
+{
+  "id": "s087",
+  "trigger": "open: Other apps",
+  "url": "https://marketingcorps.eu.teamwork.com/app/reports/custom-reports",
+  "fingerprint": "cbbdf280e0e13dd6",
+  "folder": "snapshots/s087__marketingcorps.eu.teamwork.com_app_reports_custom-reports",
+  "screenshot": "snapshots/s087__marketingcorps.eu.teamwork.com_app_reports_custom-reports/page.png",
+  "html": "snapshots/s087__marketingcorps.eu.teamwork.com_app_reports_custom-reports/page.html",
+  "a11y": "snapshots/s087__marketingcorps.eu.teamwork.com_app_reports_custom-reports/a11y.json",
+  "urlFile": "snapshots/s087__marketingcorps.eu.teamwork.com_app_reports_custom-reports/url.txt"
+}

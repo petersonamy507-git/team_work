@@ -1,0 +1,11 @@
+{
+  "id": "s222",
+  "trigger": "open: Resourcing",
+  "url": "https://marketingcorps.eu.teamwork.com/app/planning/chart",
+  "fingerprint": "418e4cec7adb1bd9",
+  "folder": "snapshots/s222__marketingcorps.eu.teamwork.com_app_planning_chart",
+  "screenshot": "snapshots/s222__marketingcorps.eu.teamwork.com_app_planning_chart/page.png",
+  "html": "snapshots/s222__marketingcorps.eu.teamwork.com_app_planning_chart/page.html",
+  "a11y": "snapshots/s222__marketingcorps.eu.teamwork.com_app_planning_chart/a11y.json",
+  "urlFile": "snapshots/s222__marketingcorps.eu.teamwork.com_app_planning_chart/url.txt"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "s099",
+  "trigger": "open: More",
+  "url": "https://marketingcorps.eu.teamwork.com/app/finance/invoices/table",
+  "fingerprint": "6e0dc1090e547a3b",
+  "folder": "snapshots/s099__marketingcorps.eu.teamwork.com_app_finance_invoices_table",
+  "screenshot": "snapshots/s099__marketingcorps.eu.teamwork.com_app_finance_invoices_table/page.png",
+  "html": "snapshots/s099__marketingcorps.eu.teamwork.com_app_finance_invoices_table/page.html",
+  "a11y": "snapshots/s099__marketingcorps.eu.teamwork.com_app_finance_invoices_table/a11y.json",
+  "urlFile": "snapshots/s099__marketingcorps.eu.teamwork.com_app_finance_invoices_table/url.txt"
+}

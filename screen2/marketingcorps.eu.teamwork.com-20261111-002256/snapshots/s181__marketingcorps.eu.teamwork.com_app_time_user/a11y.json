@@ -1,0 +1,3 @@
+{
+  "aria": "- dialog:\n  - paragraph: 1 of 7\n  - heading \"Track time from your timesheet\" [level=2]:\n    - paragraph: Track time from your timesheet\n  - paragraph:\n    - text: Use\n    - strong: My timesheet\n    - text: to curate a custom set of tasks and projects you want to track time against on a weekly basis so that you receive the credit for all the work you've done.\n  - button \"Next\"\n  - button \"Close\": ×"
+}

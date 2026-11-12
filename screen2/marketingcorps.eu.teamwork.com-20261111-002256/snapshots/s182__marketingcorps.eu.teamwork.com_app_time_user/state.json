@@ -1,0 +1,11 @@
+{
+  "id": "s182",
+  "trigger": "open: Time",
+  "url": "https://marketingcorps.eu.teamwork.com/app/time/user",
+  "fingerprint": "136270eedd2de67b",
+  "folder": "snapshots/s182__marketingcorps.eu.teamwork.com_app_time_user",
+  "screenshot": "snapshots/s182__marketingcorps.eu.teamwork.com_app_time_user/page.png",
+  "html": "snapshots/s182__marketingcorps.eu.teamwork.com_app_time_user/page.html",
+  "a11y": "snapshots/s182__marketingcorps.eu.teamwork.com_app_time_user/a11y.json",
+  "urlFile": "snapshots/s182__marketingcorps.eu.teamwork.com_app_time_user/url.txt"
+}

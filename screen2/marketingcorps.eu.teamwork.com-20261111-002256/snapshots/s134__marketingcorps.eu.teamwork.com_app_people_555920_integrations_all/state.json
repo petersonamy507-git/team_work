@@ -1,0 +1,11 @@
+{
+  "id": "s134",
+  "trigger": "open: Quick add",
+  "url": "https://marketingcorps.eu.teamwork.com/app/people/555920/integrations/all",
+  "fingerprint": "85cd23f0005c6a48",
+  "folder": "snapshots/s134__marketingcorps.eu.teamwork.com_app_people_555920_integrations_all",
+  "screenshot": "snapshots/s134__marketingcorps.eu.teamwork.com_app_people_555920_integrations_all/page.png",
+  "html": "snapshots/s134__marketingcorps.eu.teamwork.com_app_people_555920_integrations_all/page.html",
+  "a11y": "snapshots/s134__marketingcorps.eu.teamwork.com_app_people_555920_integrations_all/a11y.json",
+  "urlFile": "snapshots/s134__marketingcorps.eu.teamwork.com_app_people_555920_integrations_all/url.txt"
+}

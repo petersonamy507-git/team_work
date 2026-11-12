@@ -1,0 +1,11 @@
+{
+  "id": "s106",
+  "trigger": "default",
+  "url": "https://marketingcorps.eu.teamwork.com/app/finance/budgets",
+  "fingerprint": "bb87a97aaca0a6bd",
+  "folder": "snapshots/s106__marketingcorps.eu.teamwork.com_app_finance_budgets",
+  "screenshot": "snapshots/s106__marketingcorps.eu.teamwork.com_app_finance_budgets/page.png",
+  "html": "snapshots/s106__marketingcorps.eu.teamwork.com_app_finance_budgets/page.html",
+  "a11y": "snapshots/s106__marketingcorps.eu.teamwork.com_app_finance_budgets/a11y.json",
+  "urlFile": "snapshots/s106__marketingcorps.eu.teamwork.com_app_finance_budgets/url.txt"
+}

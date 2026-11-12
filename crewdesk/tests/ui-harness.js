@@ -1,3 +1,4 @@
+// Paste into the browser console on http://localhost:5180 (signed in), then run steps with T.step(name, async () => {...}).
 window.T = (() => {
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
   const vis = (e) => e && e.offsetParent !== null
@@ -19,7 +20,6 @@ window.T = (() => {
     const proto = el.tagName === 'SELECT' ? HTMLSelectElement.prototype : el.tagName === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype
     Object.getOwnPropertyDescriptor(proto, 'value').set.call(el, v)
     el.dispatchEvent(new Event(el.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true }))
-    if (el.tagName === 'SELECT') el.dispatchEvent(new Event('input', { bubbles: true }))
   }
   async function fill(label, v) {
     const m = [...document.querySelectorAll('.modal')].pop() || document
@@ -37,5 +37,5 @@ window.T = (() => {
   }
   async function expect(cond, msg) { for (let i = 0; i < 12; i++) { if (cond()) return; await sleep(250) } throw new Error(msg) }
   const api = async (m, u, b) => { const r = await fetch('/api' + u, { method: m, headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('crewdesk_token') }, body: b ? JSON.stringify(b) : undefined }); return r.json() }
-  return { sleep, go, click, fill, has, step, expect, log, api, modalOpen, find, txt }
+  return { sleep, go, click, fill, has, step, expect, log, api, modalOpen, find, txt, setVal }
 })(); 'ok'

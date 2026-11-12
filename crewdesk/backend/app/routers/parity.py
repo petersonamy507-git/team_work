@@ -893,3 +893,13 @@ def import_people(body: dict = Body(...), db: Session = Depends(get_db), user=De
         added += 1
     db.commit()
     return {"added": added, "skipped": skipped}
+
+
+@router.delete("/message-replies/{rid}")
+def delete_reply(rid: int, db: Session = Depends(get_db), user=Depends(current_user)):
+    r = get_or_404(db, models.MessageReply, rid, "Reply")
+    if r.user_id != user.id and user.role != "admin":
+        raise HTTPException(403, "Not allowed")
+    db.delete(r)
+    db.commit()
+    return {"ok": True}

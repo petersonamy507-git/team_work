@@ -1,0 +1,11 @@
+{
+  "id": "s115",
+  "trigger": "open: Recent",
+  "url": "https://marketingcorps.eu.teamwork.com/app/finance/expenses",
+  "fingerprint": "536836c9158edb0a",
+  "folder": "snapshots/s115__marketingcorps.eu.teamwork.com_app_finance_expenses",
+  "screenshot": "snapshots/s115__marketingcorps.eu.teamwork.com_app_finance_expenses/page.png",
+  "html": "snapshots/s115__marketingcorps.eu.teamwork.com_app_finance_expenses/page.html",
+  "a11y": "snapshots/s115__marketingcorps.eu.teamwork.com_app_finance_expenses/a11y.json",
+  "urlFile": "snapshots/s115__marketingcorps.eu.teamwork.com_app_finance_expenses/url.txt"
+}

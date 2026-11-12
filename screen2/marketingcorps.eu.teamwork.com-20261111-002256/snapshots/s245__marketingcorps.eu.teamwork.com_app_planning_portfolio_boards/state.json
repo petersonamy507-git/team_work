@@ -1,0 +1,11 @@
+{
+  "id": "s245",
+  "trigger": "open: Quick add",
+  "url": "https://marketingcorps.eu.teamwork.com/app/planning/portfolio/boards",
+  "fingerprint": "89bd63b38082b121",
+  "folder": "snapshots/s245__marketingcorps.eu.teamwork.com_app_planning_portfolio_boards",
+  "screenshot": "snapshots/s245__marketingcorps.eu.teamwork.com_app_planning_portfolio_boards/page.png",
+  "html": "snapshots/s245__marketingcorps.eu.teamwork.com_app_planning_portfolio_boards/page.html",
+  "a11y": "snapshots/s245__marketingcorps.eu.teamwork.com_app_planning_portfolio_boards/a11y.json",
+  "urlFile": "snapshots/s245__marketingcorps.eu.teamwork.com_app_planning_portfolio_boards/url.txt"
+}

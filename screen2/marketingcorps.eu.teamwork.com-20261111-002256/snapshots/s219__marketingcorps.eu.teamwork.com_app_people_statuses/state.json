@@ -1,0 +1,11 @@
+{
+  "id": "s219",
+  "trigger": "open: User menu",
+  "url": "https://marketingcorps.eu.teamwork.com/app/people/statuses",
+  "fingerprint": "c99bb56ee5019a15",
+  "folder": "snapshots/s219__marketingcorps.eu.teamwork.com_app_people_statuses",
+  "screenshot": "snapshots/s219__marketingcorps.eu.teamwork.com_app_people_statuses/page.png",
+  "html": "snapshots/s219__marketingcorps.eu.teamwork.com_app_people_statuses/page.html",
+  "a11y": "snapshots/s219__marketingcorps.eu.teamwork.com_app_people_statuses/a11y.json",
+  "urlFile": "snapshots/s219__marketingcorps.eu.teamwork.com_app_people_statuses/url.txt"
+}

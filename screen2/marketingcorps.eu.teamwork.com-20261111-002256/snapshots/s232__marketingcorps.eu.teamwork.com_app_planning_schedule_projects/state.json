@@ -1,0 +1,11 @@
+{
+  "id": "s232",
+  "trigger": "open: Resourcing",
+  "url": "https://marketingcorps.eu.teamwork.com/app/planning/schedule/projects",
+  "fingerprint": "3624f1d5197c9b56",
+  "folder": "snapshots/s232__marketingcorps.eu.teamwork.com_app_planning_schedule_projects",
+  "screenshot": "snapshots/s232__marketingcorps.eu.teamwork.com_app_planning_schedule_projects/page.png",
+  "html": "snapshots/s232__marketingcorps.eu.teamwork.com_app_planning_schedule_projects/page.html",
+  "a11y": "snapshots/s232__marketingcorps.eu.teamwork.com_app_planning_schedule_projects/a11y.json",
+  "urlFile": "snapshots/s232__marketingcorps.eu.teamwork.com_app_planning_schedule_projects/url.txt"
+}

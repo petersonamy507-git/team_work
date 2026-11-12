@@ -1,0 +1,11 @@
+{
+  "id": "s054",
+  "trigger": "open: User menu",
+  "url": "https://marketingcorps.eu.teamwork.com/app/ai/ask",
+  "fingerprint": "e17417bab7c3c184",
+  "folder": "snapshots/s054__marketingcorps.eu.teamwork.com_app_ai_ask",
+  "screenshot": "snapshots/s054__marketingcorps.eu.teamwork.com_app_ai_ask/page.png",
+  "html": "snapshots/s054__marketingcorps.eu.teamwork.com_app_ai_ask/page.html",
+  "a11y": "snapshots/s054__marketingcorps.eu.teamwork.com_app_ai_ask/a11y.json",
+  "urlFile": "snapshots/s054__marketingcorps.eu.teamwork.com_app_ai_ask/url.txt"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "s242",
+  "trigger": "open: Resourcing",
+  "url": "https://marketingcorps.eu.teamwork.com/app/planning/portfolio/boards",
+  "fingerprint": "06e61121c6143bb0",
+  "folder": "snapshots/s242__marketingcorps.eu.teamwork.com_app_planning_portfolio_boards",
+  "screenshot": "snapshots/s242__marketingcorps.eu.teamwork.com_app_planning_portfolio_boards/page.png",
+  "html": "snapshots/s242__marketingcorps.eu.teamwork.com_app_planning_portfolio_boards/page.html",
+  "a11y": "snapshots/s242__marketingcorps.eu.teamwork.com_app_planning_portfolio_boards/a11y.json",
+  "urlFile": "snapshots/s242__marketingcorps.eu.teamwork.com_app_planning_portfolio_boards/url.txt"
+}

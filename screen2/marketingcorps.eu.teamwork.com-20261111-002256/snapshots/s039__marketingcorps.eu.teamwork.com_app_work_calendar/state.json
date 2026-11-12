@@ -1,0 +1,11 @@
+{
+  "id": "s039",
+  "trigger": "open: User menu",
+  "url": "https://marketingcorps.eu.teamwork.com/app/work/calendar",
+  "fingerprint": "a62a9eeb416dc16c",
+  "folder": "snapshots/s039__marketingcorps.eu.teamwork.com_app_work_calendar",
+  "screenshot": "snapshots/s039__marketingcorps.eu.teamwork.com_app_work_calendar/page.png",
+  "html": "snapshots/s039__marketingcorps.eu.teamwork.com_app_work_calendar/page.html",
+  "a11y": "snapshots/s039__marketingcorps.eu.teamwork.com_app_work_calendar/a11y.json",
+  "urlFile": "snapshots/s039__marketingcorps.eu.teamwork.com_app_work_calendar/url.txt"
+}

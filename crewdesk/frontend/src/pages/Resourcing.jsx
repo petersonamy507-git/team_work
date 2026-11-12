@@ -1,7 +1,7 @@
 // Plan & Insights › Resourcing: Overview, Schedule, Workload, Portfolio, Chart (Teamwork /app/planning/*)
 import { Fragment, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { CalendarRange, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, ChevronDown, ChevronRight as Chev, Kanban } from 'lucide-react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { CalendarRange, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, ChevronDown, ChevronRight as Chev, Kanban, Folder, X } from 'lucide-react'
 import { api, qs } from '../lib/api'
 import { useData, useUi } from '../lib/ui-context'
 import { fmtDate } from '../lib/format'
@@ -114,6 +114,10 @@ function Schedule() {
   const { rows, create, update, remove } = useRows('allocations')
   const { projects, people } = useUi()
   const N = 28
+  const [open, setOpen] = useState({})
+  const [banner, setBanner] = useState(() => { try { return localStorage.getItem('cd_sched_banner') !== '0' } catch { return true } })
+  const navigate = useNavigate()
+  const allocsOf = (g) => (rows || []).filter((a) => a[g.key] === g.id)
   const dates = Array.from({ length: N }, (_, i) => addDays(start, i))
   const W = 36
   const groups = by === 'projects' ? projects.map((p) => ({ id: p.id, name: p.name, sub: p.client?.name, color: p.color, key: 'project_id' }))
@@ -127,6 +131,9 @@ function Schedule() {
   const save = (v) => (form.id ? update(form.id, { ...v, minutes_per_day: Math.round(Number(v.hours) * 60) }) : create({ ...v, minutes_per_day: Math.round(Number(v.hours || 8) * 60) }))
   return (
     <>
+      {banner && <div className="scout-banner"><Sparkles size={18} color="#c03cc4" /><div style={{ flex: 1 }}><b>Save your scheduling sanity in 36 seconds</b><div>Smart scheduling finds the right person for every allocation and warns you about double bookings in the Workload view.</div></div>
+        <a style={{ color: 'var(--accent)', fontWeight: 600, cursor: 'pointer' }} onClick={() => navigate('/planning/workload')}>See how it works</a>
+        <button className="icon-btn" onClick={() => { setBanner(false); try { localStorage.setItem('cd_sched_banner', '0') } catch { /* ignore */ } }}><X size={15} /></button></div>}
       <div className="tw-toolbar">
         <Nav label={`${fmtDate(dates[0])} – ${fmtDate(dates[N - 1])}`} onToday={() => setStart(todayIso())} onPrev={() => setStart(addDays(start, -7))} onNext={() => setStart(addDays(start, 7))} />
         <div className="chips" style={{ marginLeft: 12 }}><button className={by === 'projects' ? 'on' : ''} onClick={() => setBy('projects')}>Projects</button><button className={by === 'people' ? 'on' : ''} onClick={() => setBy('people')}>People</button></div>
@@ -136,16 +143,26 @@ function Schedule() {
         <div style={{ display: 'flex', minWidth: 260 + N * W }}>
           <div style={{ width: 260, flexShrink: 0 }}>
             <div className="muted small" style={{ height: 36, borderBottom: '1px solid var(--border)', padding: '10px 6px' }}>{by === 'projects' ? `All projects ${groups.length}` : `All people ${groups.length}`}</div>
-            {groups.map((g) => <div key={g.id} className="sched-row" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 6px' }}>{g.user ? <Avatar user={g.user} size={24} /> : <span className="dot" style={{ background: g.color }} />}<div style={{ minWidth: 0 }}><div className="small ellipsis"><b>{g.name}</b></div>{g.sub && <div className="muted ellipsis" style={{ fontSize: 11 }}>{g.sub}</div>}</div></div>)}
+            {groups.map((g) => <Fragment key={g.id}>
+              <div className="sched-row" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 6px', cursor: 'pointer' }} onClick={() => setOpen({ ...open, [g.id]: !open[g.id] })}>
+                {open[g.id] ? <ChevronDown size={14} /> : <Chev size={14} />}
+                {g.user ? <Avatar user={g.user} size={24} /> : <span className="sched-folder"><Folder size={14} /></span>}<div style={{ minWidth: 0 }}><div className="small ellipsis"><b>{g.name}</b></div>{g.sub && <div className="muted ellipsis" style={{ fontSize: 11 }}>{g.sub}</div>}</div></div>
+              {open[g.id] && allocsOf(g).map((a) => <div key={a.id} className="sched-row small" style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 40 }}>{by === 'projects' ? <><Avatar user={people.find((u) => u.id === a.user_id)} size={20} />{people.find((u) => u.id === a.user_id)?.name}</> : a.project_name}</div>)}
+              {open[g.id] && !allocsOf(g).length && <div className="sched-row small muted" style={{ display: 'flex', alignItems: 'center', paddingLeft: 40 }}>No allocations</div>}
+            </Fragment>)}
           </div>
           <div>
             <div style={{ display: 'flex', height: 36, borderBottom: '1px solid var(--border)' }}>{dates.map((d) => <div key={d} style={{ width: W, textAlign: 'center', fontSize: 10, color: d === todayIso() ? 'var(--accent)' : 'var(--muted)', background: [0, 6].includes(dow(d)) ? '#fafafc' : '' }}>{'SMTWTFS'[dow(d)]}<br /><b>{d.slice(8)}</b></div>)}</div>
-            {groups.map((g) => (
-              <div key={g.id} className="sched-row" style={{ width: N * W, background: 'repeating-linear-gradient(90deg, transparent 0 35px, #f2f3f7 35px 36px)' }}
+            {groups.map((g) => (<Fragment key={g.id}>
+              <div className="sched-row" style={{ width: N * W, background: 'repeating-linear-gradient(90deg, transparent 0 35px, #f2f3f7 35px 36px)' }}
                 onDoubleClick={(e) => { const i = Math.floor((e.clientX - e.currentTarget.getBoundingClientRect().left) / W); setForm({ [g.key]: g.id, start_date: dates[i], end_date: dates[Math.min(N - 1, i + 4)], hours: 8 }) }}>
                 {(rows || []).filter((a) => a[g.key] === g.id).map((a) => { const b = bar(a); if (!b) return null; const other = by === 'projects' ? people.find((u) => u.id === a.user_id)?.name : a.project_name
                   return <div key={a.id} className="alloc-bar" style={{ ...b, background: by === 'projects' ? (a.project_color || '#4461d7') : (projects.find((p) => p.id === a.project_id)?.color || '#4461d7') }} onClick={() => setForm({ ...a, hours: a.minutes_per_day / 60 })}>{other} · {hrs(a.minutes_per_day)}/d</div> })}
-              </div>))}
+              </div>
+              {open[g.id] && allocsOf(g).map((a) => { const b = bar(a)
+                return <div key={a.id} className="sched-row" style={{ width: N * W, background: 'repeating-linear-gradient(90deg, transparent 0 35px, #f7f8fb 35px 36px)' }}>{b && <div className="alloc-bar" style={{ ...b, background: '#8ea2ef' }} onClick={() => setForm({ ...a, hours: a.minutes_per_day / 60 })}>{hrs(a.minutes_per_day)}/d{a.note ? ` · ${a.note}` : ''}</div>}</div> })}
+              {open[g.id] && !allocsOf(g).length && <div className="sched-row" style={{ width: N * W }} />}
+            </Fragment>))}
           </div>
         </div>
       </div>

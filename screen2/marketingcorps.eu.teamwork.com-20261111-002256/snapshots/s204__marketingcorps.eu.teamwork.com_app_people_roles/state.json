@@ -1,0 +1,11 @@
+{
+  "id": "s204",
+  "trigger": "open: User menu",
+  "url": "https://marketingcorps.eu.teamwork.com/app/people/roles",
+  "fingerprint": "a8fba012d916c579",
+  "folder": "snapshots/s204__marketingcorps.eu.teamwork.com_app_people_roles",
+  "screenshot": "snapshots/s204__marketingcorps.eu.teamwork.com_app_people_roles/page.png",
+  "html": "snapshots/s204__marketingcorps.eu.teamwork.com_app_people_roles/page.html",
+  "a11y": "snapshots/s204__marketingcorps.eu.teamwork.com_app_people_roles/a11y.json",
+  "urlFile": "snapshots/s204__marketingcorps.eu.teamwork.com_app_people_roles/url.txt"
+}

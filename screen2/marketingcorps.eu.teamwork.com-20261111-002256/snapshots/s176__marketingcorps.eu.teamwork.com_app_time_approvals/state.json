@@ -1,0 +1,11 @@
+{
+  "id": "s176",
+  "trigger": "default",
+  "url": "https://marketingcorps.eu.teamwork.com/app/time/approvals",
+  "fingerprint": "b6477fbe2218aae0",
+  "folder": "snapshots/s176__marketingcorps.eu.teamwork.com_app_time_approvals",
+  "screenshot": "snapshots/s176__marketingcorps.eu.teamwork.com_app_time_approvals/page.png",
+  "html": "snapshots/s176__marketingcorps.eu.teamwork.com_app_time_approvals/page.html",
+  "a11y": "snapshots/s176__marketingcorps.eu.teamwork.com_app_time_approvals/a11y.json",
+  "urlFile": "snapshots/s176__marketingcorps.eu.teamwork.com_app_time_approvals/url.txt"
+}
