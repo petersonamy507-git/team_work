@@ -1,0 +1,292 @@
+
+> crewdesk-frontend@1.0.0 dev
+> vite
+
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m259[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5180[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[2m1:10:54 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/TaskDrawer.jsx[22m
+[2m1:10:54 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/components/TaskDrawer.j[2m2:02:00 AM[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mindex.html[22m
+m [32mhmr update [39m[2m/src/components/Layout.jsx[22m
+[2m1:11:39 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/TaskDrawer.jsx[22m
+[2m1:11:39 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx[22m
+[2m1:11:39 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/components/TaskDrawer.jsx[22m Could not Fast Refresh (export removed)
+[2m1:11:39 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/Layout.jsx[22m
+[2m1:12:17 AM[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/main.jsx[22m
+[2m1:12:26 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/AllTasks.jsx[22m
+[2m1:37:04 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/TaskPickers.jsx[22m
+[2m1:37:04 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/components/TaskPickers.jsx[22m Could not Fast Refresh ("STATUS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m1:37:04 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/TaskDrawer.jsx, /src/pages/Tasks.jsx[22m
+[2m1:40:15 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Tasks.jsx[22m
+[2m1:40:15 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/pages/Tasks.jsx[22m Could not Fast Refresh (new export)
+[2m1:40:15 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx[22m
+[2m1:41:39 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/TaskDrawer.jsx[22m
+[2m1:41:39 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/components/TaskDrawer.jsx[22m Could not Fast Refresh (new export)
+[2m1:41:39 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/Layout.jsx[22m
+[2m1:41:45 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/TaskDrawer.jsx[22m
+[2m1:41:45 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Tasks.jsx[22m
+[2m1:41:45 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/components/TaskDrawer.jsx[22m Could not Fast Refresh (export removed)
+[2m1:41:45 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/Layout.jsx[22m
+[2m1:41:45 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/pages/Tasks.jsx[22m Could not Fast Refresh (export removed)
+[2m1:41:45 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx[22m
+[2m1:42:43 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/QuickAdd.jsx[22m
+[2m1:43:38 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/MyWork.jsx[22m
+[2m1:43:52 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Calendar.jsx[22m
+[2m1:43:52 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Time.jsx[22m
+[2m1:43:52 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx[22m
+[2m1:43:52 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Activity.jsx[22m
+[2m1:45:12 AM[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/main.jsx[22m
+[2m1:46:22 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Tasks.jsx[22m
+[2m1:46:22 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Tasks.jsx[22m
+[2m2:01:08 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/Layout.jsx[22m
+[2m2:02:00 AM[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mindex.html[22m
+[2m2:02:00 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/TaskList.jsx[22m
+[2m2:02:00 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Tasks.jsx[22m
+[2m2:02:00 AM[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/main.jsx[22m
+[2m2:02:00 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/MyWork.jsx[22m
+[2m2:02:01 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/components/TaskList.jsx[22m Could not Fast Refresh (new export)
+[2m2:02:01 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Tasks.jsx, /src/pages/MyWork.jsx[22m
+[2m2:02:57 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/teamwork-theme.css[22m
+[2m2:03:05 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/teamwork-theme.css[22m
+[2m2:03:38 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Tasks.jsx[22m
+[2m2:03:38 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/teamwork-theme.css[22m
+[2m2:26:36 AM[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/main.jsx[22m
+[2m2:28:18 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/TaskDrawer.jsx[22m
+[2m2:28:18 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Tasks.jsx[22m
+[2m2:28:18 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/AddTaskDialog.jsx[22m
+[2m2:28:18 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/teamwork-theme.css[22m
+[2m2:28:18 AM[22m [31m[1m[vite][22m[39m [31mInternal server error: E:\teamwork\crewdesk\frontend\src\pages\Tasks.jsx: Multiple default clauses. (301:4)
+
+[0m [90m 299 |[31m       [36mif[31m (k[33m.[31mstartsWith([32m'cf_'[31m) [33m&&[31m field) [36mreturn[31m [33m<[31m[33mFieldEditor[31m compact field[33m=[31m{field} value[33m=[31m{t[33m.[31mcustom[33m?[31m[33m.[31m[field[33m.[31mid]} onChange[33m=[31m{(v) [33m=>[31m api[33m.[31mput([32m`/tasks/${t.id}/custom`[31m[33m,[31m { values[33m:[31m { [field[33m.[31mid][33m:[31m v } })} [33m/[31m[33m>[31m
+ [90m 300 |[31m       [36mreturn[31m [36mnull[31m
+[31m[1m>[22m[31m[90m 301 |[31m     [36mdefault[31m[33m:[31m [36mreturn[31m [36mnull[31m
+ [90m     |[31m     [31m[1m^[22m[31m
+ [90m 302 |[31m   }
+ [90m 303 |[31m }
+ [90m 304 |[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mE:/teamwork/crewdesk/frontend/src/pages/Tasks.jsx[39m:301:4
+[33m  306|    const { openTask, refresh } = useUi()
+  307|    const groups = useMemo(() => groupBy(tasks, group, groupOrder), [tasks, group, groupOrder])
+  308|    const [closed, setClosed] = useState({})
+     |                         ^
+  309|    const patch = (t) => async (body) => { await api.patch(`/tasks/${t.id}`, body); reload(); refresh() }
+  310|    const fields = useCustomFields()[39m
+      at constructor (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at JSXParserMixin.raise (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:6632:19)
+      at JSXParserMixin.parseSwitchStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10206:18)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9827:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseStatementListItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9774:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:61)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseBlock (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10337:10)
+      at JSXParserMixin.parseFunctionBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9105:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9091:10)
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10486:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9413:14)
+      at JSXParserMixin.parseFunction (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10485:10)
+      at JSXParserMixin.parseFunctionStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10165:17)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9818:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseModuleItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9771:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:36)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseProgram (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9633:10)
+      at JSXParserMixin.parseTopLevel (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9623:25)
+      at JSXParserMixin.parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14896:25)
+      at parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14930:38)
+      at parser (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
+      at normalizeFile.next (<anonymous>)
+      at run (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:261:32)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:189:28
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:113:33
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:287:14)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+[2m2:28:18 AM[22m [31m[1m[vite][22m[39m [31mInternal server error: E:\teamwork\crewdesk\frontend\src\pages\Tasks.jsx: Multiple default clauses. (301:4)
+
+[0m [90m 299 |[31m       [36mif[31m (k[33m.[31mstartsWith([32m'cf_'[31m) [33m&&[31m field) [36mreturn[31m [33m<[31m[33mFieldEditor[31m compact field[33m=[31m{field} value[33m=[31m{t[33m.[31mcustom[33m?[31m[33m.[31m[field[33m.[31mid]} onChange[33m=[31m{(v) [33m=>[31m api[33m.[31mput([32m`/tasks/${t.id}/custom`[31m[33m,[31m { values[33m:[31m { [field[33m.[31mid][33m:[31m v } })} [33m/[31m[33m>[31m
+ [90m 300 |[31m       [36mreturn[31m [36mnull[31m
+[31m[1m>[22m[31m[90m 301 |[31m     [36mdefault[31m[33m:[31m [36mreturn[31m [36mnull[31m
+ [90m     |[31m     [31m[1m^[22m[31m
+ [90m 302 |[31m   }
+ [90m 303 |[31m }
+ [90m 304 |[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mE:/teamwork/crewdesk/frontend/src/pages/Tasks.jsx[39m:301:4
+[33m  306|    const { openTask, refresh } = useUi()
+  307|    const groups = useMemo(() => groupBy(tasks, group, groupOrder), [tasks, group, groupOrder])
+  308|    const [closed, setClosed] = useState({})
+     |                         ^
+  309|    const patch = (t) => async (body) => { await api.patch(`/tasks/${t.id}`, body); reload(); refresh() }
+  310|    const fields = useCustomFields()[39m
+      at constructor (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at JSXParserMixin.raise (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:6632:19)
+      at JSXParserMixin.parseSwitchStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10206:18)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9827:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseStatementListItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9774:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:61)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseBlock (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10337:10)
+      at JSXParserMixin.parseFunctionBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9105:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9091:10)
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10486:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9413:14)
+      at JSXParserMixin.parseFunction (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10485:10)
+      at JSXParserMixin.parseFunctionStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10165:17)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9818:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseModuleItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9771:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:36)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseProgram (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9633:10)
+      at JSXParserMixin.parseTopLevel (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9623:25)
+      at JSXParserMixin.parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14896:25)
+      at parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14930:38)
+      at parser (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
+      at normalizeFile.next (<anonymous>)
+      at run (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:261:32)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:189:28
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:113:33
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:287:14)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+[2m2:28:18 AM[22m [31m[1m[vite][22m[39m [31mInternal server error: E:\teamwork\crewdesk\frontend\src\pages\Tasks.jsx: Multiple default clauses. (301:4)
+
+[0m [90m 299 |[31m       [36mif[31m (k[33m.[31mstartsWith([32m'cf_'[31m) [33m&&[31m field) [36mreturn[31m [33m<[31m[33mFieldEditor[31m compact field[33m=[31m{field} value[33m=[31m{t[33m.[31mcustom[33m?[31m[33m.[31m[field[33m.[31mid]} onChange[33m=[31m{(v) [33m=>[31m api[33m.[31mput([32m`/tasks/${t.id}/custom`[31m[33m,[31m { values[33m:[31m { [field[33m.[31mid][33m:[31m v } })} [33m/[31m[33m>[31m
+ [90m 300 |[31m       [36mreturn[31m [36mnull[31m
+[31m[1m>[22m[31m[90m 301 |[31m     [36mdefault[31m[33m:[31m [36mreturn[31m [36mnull[31m
+ [90m     |[31m     [31m[1m^[22m[31m
+ [90m 302 |[31m   }
+ [90m 303 |[31m }
+ [90m 304 |[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mE:/teamwork/crewdesk/frontend/src/pages/Tasks.jsx[39m:301:4
+[33m  306|    const { openTask, refresh } = useUi()
+  307|    const groups = useMemo(() => groupBy(tasks, group, groupOrder), [tasks, group, groupOrder])
+  308|    const [closed, setClosed] = useState({})
+     |                         ^
+  309|    const patch = (t) => async (body) => { await api.patch(`/tasks/${t.id}`, body); reload(); refresh() }
+  310|    const fields = useCustomFields()[39m
+      at constructor (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at JSXParserMixin.raise (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:6632:19)
+      at JSXParserMixin.parseSwitchStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10206:18)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9827:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseStatementListItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9774:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:61)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseBlock (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10337:10)
+      at JSXParserMixin.parseFunctionBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9105:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9091:10)
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10486:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9413:14)
+      at JSXParserMixin.parseFunction (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10485:10)
+      at JSXParserMixin.parseFunctionStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10165:17)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9818:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseModuleItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9771:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:36)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseProgram (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9633:10)
+      at JSXParserMixin.parseTopLevel (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9623:25)
+      at JSXParserMixin.parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14896:25)
+      at parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14930:38)
+      at parser (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
+      at normalizeFile.next (<anonymous>)
+      at run (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:261:32)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:189:28
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:113:33
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:287:14)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+[2m2:28:18 AM[22m [31m[1m[vite][22m[39m [31mInternal server error: E:\teamwork\crewdesk\frontend\src\pages\Tasks.jsx: Multiple default clauses. (301:4)
+
+[0m [90m 299 |[31m       [36mif[31m (k[33m.[31mstartsWith([32m'cf_'[31m) [33m&&[31m field) [36mreturn[31m [33m<[31m[33mFieldEditor[31m compact field[33m=[31m{field} value[33m=[31m{t[33m.[31mcustom[33m?[31m[33m.[31m[field[33m.[31mid]} onChange[33m=[31m{(v) [33m=>[31m api[33m.[31mput([32m`/tasks/${t.id}/custom`[31m[33m,[31m { values[33m:[31m { [field[33m.[31mid][33m:[31m v } })} [33m/[31m[33m>[31m
+ [90m 300 |[31m       [36mreturn[31m [36mnull[31m
+[31m[1m>[22m[31m[90m 301 |[31m     [36mdefault[31m[33m:[31m [36mreturn[31m [36mnull[31m
+ [90m     |[31m     [31m[1m^[22m[31m
+ [90m 302 |[31m   }
+ [90m 303 |[31m }
+ [90m 304 |[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mE:/teamwork/crewdesk/frontend/src/pages/Tasks.jsx[39m:301:4
+[33m  306|    const { openTask, refresh } = useUi()
+  307|    const groups = useMemo(() => groupBy(tasks, group, groupOrder), [tasks, group, groupOrder])
+  308|    const [closed, setClosed] = useState({})
+     |                         ^
+  309|    const patch = (t) => async (body) => { await api.patch(`/tasks/${t.id}`, body); reload(); refresh() }
+  310|    const fields = useCustomFields()[39m
+      at constructor (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at JSXParserMixin.raise (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:6632:19)
+      at JSXParserMixin.parseSwitchStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10206:18)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9827:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseStatementListItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9774:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:61)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseBlock (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10337:10)
+      at JSXParserMixin.parseFunctionBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9105:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9091:10)
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10486:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9413:14)
+      at JSXParserMixin.parseFunction (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10485:10)
+      at JSXParserMixin.parseFunctionStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10165:17)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9818:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseModuleItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9771:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:36)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseProgram (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9633:10)
+      at JSXParserMixin.parseTopLevel (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9623:25)
+      at JSXParserMixin.parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14896:25)
+      at parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14930:38)
+      at parser (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
+      at normalizeFile.next (<anonymous>)
+      at run (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:261:32)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:189:28
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:113:33
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:287:14)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+[2m2:28:27 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Tasks.jsx[22m
