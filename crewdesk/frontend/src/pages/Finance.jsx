@@ -4,6 +4,7 @@ import { useParams, useSearchParams } from 'react-router-dom'
 import { DollarSign, Plus, Trash2, Receipt, Wallet, PiggyBank, Calculator, Download, Clock, Search, Zap } from 'lucide-react'
 import { api } from '../lib/api'
 import { useData, useUi } from '../lib/ui-context'
+import { Modal } from '../components/ui'
 import { fmtDate } from '../lib/format'
 import { Section, DataTable, EmptyState, FormModal, Pill, PersonChip, useRows, money, hrs, Meter, toCSV } from '../components/Kit'
 import { downloadText } from '../lib/taskFilters'
@@ -121,7 +122,12 @@ function InvoicesTab({ projectId }) {
   const list = (rows || []).map((i) => ({ ...i, status: i.status === 'open' && i.due_date && i.due_date < today ? 'overdue' : i.status }))
   const shown = list.filter((i) => status === 'all' || i.status === status)
   const totals = ['open', 'overdue', 'paid'].map((s) => [s, list.filter((i) => i.status === s).reduce((a, b) => a + b.amount, 0)])
-  const save = (v) => (form.id ? update(form.id, v) : create({ ...v, project_id: v.project_id || projectId }))
+  const save = async (v) => {
+    const body = { ...v, project_id: v.project_id || projectId }
+    const inv = form.id ? await update(form.id, body) : await create(body)
+    if (v.pricing === 'time' && !form.id) { await api.post(`/finance/invoices/${inv.id}/from-time`); reload() }
+    return inv
+  }
   return (
     <>
       <div className="dash-grid" style={{ marginBottom: 14 }}>{totals.map(([s, v]) => (
@@ -148,13 +154,7 @@ function InvoicesTab({ projectId }) {
             {i.status !== 'paid' && <button className="icon-btn" title="Mark paid" onClick={() => update(i.id, { status: 'paid' })}><Wallet size={14} /></button>}
             <button className="icon-btn" onClick={() => confirm('Delete invoice?') && remove(i.id)}><Trash2 size={14} /></button></span> },
         ]} onRow={(i) => setForm({ ...i, status: rows.find((r) => r.id === i.id).status })} />
-      {form && <FormModal title={form.id ? `Invoice ${form.number}` : 'Add invoice'} initial={form} onClose={() => setForm(null)} onSubmit={save}
-        fields={[...(!projectId && !form.id ? [{ key: 'project_id', label: 'Project', type: 'project', required: true }] : []),
-          { key: 'number', label: 'Invoice number', half: true, placeholder: 'Auto' }, { key: 'status', label: 'Status', type: 'select', half: true, required: true, options: [['draft', 'Draft'], ['open', 'Open'], ['paid', 'Paid']] },
-          { key: 'issue_date', label: 'Issue date', type: 'date', half: true }, { key: 'due_date', label: 'Due date', type: 'date', half: true },
-          { key: 'amount', label: 'Amount', type: 'number', half: true, help: 'Or use the calculator icon to total billable time.' },
-          { key: 'currency', label: 'Currency', type: 'select', half: true, default: 'USD', options: ['USD', 'EUR', 'GBP', 'PKR', 'AED', 'CAD', 'AUD'] },
-          { key: 'description', label: 'Description', type: 'textarea' }]} />}
+      {form && <InvoiceModal invoice={form} projectId={projectId} onClose={() => setForm(null)} onSave={save} />}
     </>
   )
 }
@@ -192,3 +192,41 @@ function ExpensesTab({ projectId }) {
 }
 
 export { Clock }
+
+const CURRENCIES = [['USD', 'US Dollar'], ['EUR', 'Euro'], ['GBP', 'British Pound'], ['PKR', 'Pakistani Rupee'], ['AED', 'UAE Dirham'], ['SAR', 'Saudi Riyal'], ['INR', 'Indian Rupee'], ['CAD', 'Canadian Dollar'], ['AUD', 'Australian Dollar']]
+function InvoiceModal({ invoice, projectId, onClose, onSave }) {
+  const { projects, notify } = useUi()
+  const [f, setF] = useState({ project_id: projectId || '', number: '', issue_date: new Date().toISOString().slice(0, 10), due_date: '', currency: '', pricing: 'time', amount: '', po_number: '', description: '', status: 'open', ...invoice })
+  const [adv, setAdv] = useState(!!(invoice.po_number || invoice.description))
+  const [busy, setBusy] = useState(false)
+  const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
+  const submit = async () => {
+    if (!f.project_id) return notify('Project is required')
+    if (!String(f.number || '').trim()) return notify('Invoice no./ID is required')
+    if (!f.issue_date) return notify('Issue date is required')
+    if (!f.currency) return notify('Select a currency')
+    if (f.pricing === 'fixed' && !f.amount) return notify('Enter the fixed price')
+    setBusy(true)
+    try { await onSave({ ...f, project_id: Number(f.project_id), amount: f.pricing === 'fixed' ? Number(f.amount) : (f.amount || 0), due_date: f.due_date || null }); onClose() } catch (e) { notify(e.message) } finally { setBusy(false) }
+  }
+  return (
+    <Modal title={invoice.id ? `Invoice ${invoice.number}` : 'Add invoice'} onClose={onClose} footer={<><button className="btn link-btn" onClick={onClose}>Cancel</button><span style={{ flex: 1 }} /><button className="btn primary" disabled={busy} onClick={submit}>{invoice.id ? 'Save invoice' : 'Add invoice'}</button></>}>
+      {!projectId && <label className="fl-field"><span>Project *</span><select value={f.project_id} onChange={set('project_id')} disabled={!!invoice.id}><option value="">Project</option>{projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>}
+      <label className="fl-field" style={{ maxWidth: 260 }}><span>Invoice no./ID *</span><input value={f.number || ''} onChange={set('number')} placeholder="INV-001" /></label>
+      <div className="row" style={{ gap: 12 }}>
+        <label className="fl-field" style={{ flex: 1 }}><span>Issue date *</span><input type="date" value={f.issue_date || ''} onChange={set('issue_date')} /></label>
+        <label className="fl-field" style={{ flex: 1 }}><span>Currency *</span><select value={f.currency} onChange={set('currency')}><option value="">Select a currency</option>{CURRENCIES.map(([k, l]) => <option key={k} value={k}>{k} – {l}</option>)}</select></label>
+      </div>
+      <label className="fl-field"><span>Pricing *</span><select value={f.pricing} onChange={set('pricing')}><option value="time">Price will be based on time & expenses</option><option value="fixed">Fixed price</option></select></label>
+      {f.pricing === 'fixed' && <label className="fl-field" style={{ maxWidth: 260 }}><span>Fixed price *</span><input type="number" min="0" step="0.01" value={f.amount} onChange={set('amount')} /></label>}
+      {invoice.id && <div className="row" style={{ gap: 12 }}>
+        <label className="fl-field" style={{ flex: 1 }}><span>Due date</span><input type="date" value={f.due_date || ''} onChange={set('due_date')} /></label>
+        <label className="fl-field" style={{ flex: 1 }}><span>Status</span><select value={f.status} onChange={set('status')}><option value="draft">Draft</option><option value="open">Open</option><option value="paid">Paid</option></select></label></div>}
+      <button className="tb-btn" style={{ color: 'var(--muted)', margin: '4px 0 8px' }} onClick={() => setAdv(!adv)}>{adv ? '⌃' : '⌄'} Advanced options</button>
+      {adv && <>
+        <label className="fl-field" style={{ maxWidth: 260 }}><span>PO / reference no.</span><input value={f.po_number || ''} onChange={set('po_number')} /></label>
+        <label className="fl-field"><span>Notes (displayed on invoice)</span><textarea rows={3} value={f.description || ''} onChange={set('description')} /></label>
+      </>}
+    </Modal>
+  )
+}

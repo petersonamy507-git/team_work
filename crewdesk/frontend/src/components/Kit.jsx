@@ -17,9 +17,16 @@ export function useRows(kind, params = {}) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kind, key])
   useEffect(() => { reload() }, [reload, version])
-  const create = async (body) => { const r = await api.post(`/r/${kind}`, { ...(params.project_id > 0 ? { project_id: params.project_id } : {}), ...body, ...(params.scope ? { scope: params.scope } : {}) }); reload(); return r }
-  const update = async (id, body) => { const r = await api.patch(`/r/${kind}/${id}`, body); reload(); return r }
-  const remove = async (id) => { await api.del(`/r/${kind}/${id}`); reload() }
+  const create = async (body) => { const r = await api.post(`/r/${kind}`, { ...(params.project_id > 0 ? { project_id: params.project_id } : {}), ...body, ...(params.scope ? { scope: params.scope } : {}) }); setRows((rs) => (rs ? [r, ...rs] : [r])); reload(); return r }
+  // optimistic: change the list right away, then confirm with the server
+  const update = async (id, body) => {
+    setRows((rs) => rs && rs.map((x) => (x.id === id ? { ...x, ...body } : x)))
+    try { const r = await api.patch(`/r/${kind}/${id}`, body); setRows((rs) => rs && rs.map((x) => (x.id === id ? r : x))); return r } catch (e) { reload(); throw e }
+  }
+  const remove = async (id) => {
+    setRows((rs) => rs && rs.filter((x) => x.id !== id))
+    try { await api.del(`/r/${kind}/${id}`) } catch (e) { reload(); throw e }
+  }
   return { rows, setRows, reload, create, update, remove }
 }
 

@@ -164,6 +164,8 @@ class Invoice(Base):
     amount: Mapped[int] = mapped_column(Integer, default=0)
     status: Mapped[str] = mapped_column(String(20), default="open")  # draft | open | paid | overdue
     currency: Mapped[str] = mapped_column(String(8), default="USD")
+    pricing: Mapped[str] = mapped_column(String(20), default="time")  # time | fixed
+    po_number: Mapped[str | None] = mapped_column(String(120), nullable=True)
     created_by_id: Mapped[int | None] = UID()
     created_at: Mapped[datetime] = NOW()
 
@@ -229,9 +231,11 @@ class Automation(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     project_id: Mapped[int | None] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), nullable=True)
     name: Mapped[str] = mapped_column(String(200))
-    trigger: Mapped[str] = mapped_column(String(60))  # task_created | task_completed | task_late
-    action: Mapped[str] = mapped_column(String(60))  # assign | set_priority | add_tag | notify | set_status
-    action_value: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    trigger: Mapped[str] = mapped_column(String(60))  # see AUTOMATION_TRIGGERS in routers/parity.py
+    trigger_value: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    action: Mapped[str] = mapped_column(String(60))  # see AUTOMATION_ACTIONS
+    action_value: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_run_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     run_count: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = NOW()
@@ -351,3 +355,13 @@ class ChatRead(Base):
     channel_id: Mapped[int] = mapped_column(ForeignKey("chat_channels.id", ondelete="CASCADE"), index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     last_read_id: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class AutomationRun(Base):
+    """One execution of an automation (Automations > Usage); also stops 'due date arrives' firing twice."""
+    __tablename__ = "automation_runs"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    automation_id: Mapped[int] = mapped_column(ForeignKey("automations.id", ondelete="CASCADE"), index=True)
+    task_id: Mapped[int | None] = mapped_column(ForeignKey("tasks.id", ondelete="SET NULL"), nullable=True)
+    result: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    created_at: Mapped[datetime] = NOW()

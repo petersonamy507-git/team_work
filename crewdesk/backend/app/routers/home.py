@@ -85,6 +85,8 @@ def notif_out(n: models.Notification):
 def inbox(filter: str = "all", db: Session = Depends(get_db), user=Depends(current_user)):
     from .mywork import fire_due_reminders
     fire_due_reminders(db, user)
+    from .parity import run_due_automations
+    run_due_automations(db, user)
     stmt = select(models.Notification).where(models.Notification.user_id == user.id)
     if filter == "unread":
         stmt = stmt.where(models.Notification.is_read.is_(False))

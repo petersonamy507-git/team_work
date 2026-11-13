@@ -18,20 +18,16 @@ def list_people(db: Session = Depends(get_db), user=Depends(current_user)):
     people = db.scalars(select(models.User).order_by(models.User.name)).all()
     today = date.today()
     week_start = today - timedelta(days=today.weekday())
-    out = []
-    for p in people:
-        open_tasks = db.scalar(select(func.count(models.Task.id)).where(
-            models.Task.assignee_id == p.id, models.Task.status != "completed")) or 0
-        late = db.scalar(select(func.count(models.Task.id)).where(
-            models.Task.assignee_id == p.id, models.Task.status != "completed",
-            models.Task.due_date < today)) or 0
-        week_minutes = db.scalar(select(func.coalesce(func.sum(models.TimeEntry.minutes), 0)).where(
-            models.TimeEntry.user_id == p.id, models.TimeEntry.date >= week_start)) or 0
-        projects = db.scalar(select(func.count(models.ProjectMember.id)).where(
-            models.ProjectMember.user_id == p.id)) or 0
-        out.append({**schemas.user_out(p), "open_tasks": open_tasks, "late_tasks": late,
-                    "week_minutes": int(week_minutes), "project_count": projects})
-    return out
+    T = models.Task
+    open_ = dict(db.execute(select(T.assignee_id, func.count(T.id)).where(T.status != "completed").group_by(T.assignee_id)).all())
+    late = dict(db.execute(select(T.assignee_id, func.count(T.id)).where(T.status != "completed", T.due_date < today)
+                           .group_by(T.assignee_id)).all())
+    week = dict(db.execute(select(models.TimeEntry.user_id, func.coalesce(func.sum(models.TimeEntry.minutes), 0))
+                           .where(models.TimeEntry.date >= week_start).group_by(models.TimeEntry.user_id)).all())
+    projs = dict(db.execute(select(models.ProjectMember.user_id, func.count(models.ProjectMember.id))
+                            .group_by(models.ProjectMember.user_id)).all())
+    return [{**schemas.user_out(p), "open_tasks": open_.get(p.id, 0), "late_tasks": late.get(p.id, 0),
+             "week_minutes": int(week.get(p.id, 0)), "project_count": projs.get(p.id, 0)} for p in people]
 
 
 @router.post("/people")

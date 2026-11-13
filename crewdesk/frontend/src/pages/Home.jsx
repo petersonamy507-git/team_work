@@ -1,7 +1,8 @@
 // Home (Teamwork /app/home): greeting, dashboard tabs (+), Add widget library, widget menus (filter, rename, duplicate, delete)
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, MoreVertical, Trash2, Pencil, MessageSquare, Copy, Filter, Search, X, RotateCcw, GripVertical } from 'lucide-react'
+import { Plus, MoreVertical, Trash2, Pencil, MessageSquare, Copy, Filter, Search, X, RotateCcw, GripVertical, ArrowLeftRight, HeartPulse, CheckCircle2, Clock, DollarSign, AlertTriangle, List, FileCheck2, Code2 } from 'lucide-react'
+import { api } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { useData, useUi } from '../lib/ui-context'
 import { Menu, Modal } from '../components/ui'
@@ -40,23 +41,56 @@ function Widget({ w, data, range, setRange, onChange, onRemove, onDuplicate, dra
   )
 }
 
-function Library({ have, onAdd, onClose }) {
-  const [cat, setCat] = useState(CATEGORIES[0])
-  const [q, setQ] = useState('')
-  const list = Object.entries(WIDGETS).filter(([, w]) => (q ? (w.name + w.text).toLowerCase().includes(q.toLowerCase()) : w.cat === cat))
+const CAT_ICON = { 'Project health': HeartPulse, Tasks: CheckCircle2, Time: Clock, 'Revenue & invoicing': DollarSign, Risks: AlertTriangle, Activity: List, Proofs: FileCheck2, 'Embed & notes': Code2 }
+const CAT_BG = { 'Project health': '#cdeafc', Tasks: '#e2dcfb', Time: '#cdeffa', 'Revenue & invoicing': '#d8f3e3', Risks: '#fde3dc', Activity: '#e2dcfb', Proofs: '#fbe2ef', 'Embed & notes': '#cdf1ef' }
+const PREVIEW = { current_projects: 'num', late_projects: 'numred', projects_by_category: 'donut', projects_by_health: 'donut', budget_usage: 'ring', workflow_stages: 'donut', active_risks: 'donut',
+  logged_by_project: 'donut', time_distribution: 'donut', my_logged: 'ring', logged_weekday: 'bars', my_logged_weekday: 'bars', billable_trend: 'bars', late_by_project: 'hbars', non_billable: 'num', profitability: 'num', embedded: 'embed', private_notes: 'note' }
+function Preview({ k }) {
+  const t = PREVIEW[k] || 'list'
   return (
-    <Modal wide title="Add widget" onClose={onClose}>
-      <div style={{ display: 'flex', gap: 16, minHeight: 420 }}>
-        <div style={{ width: 170, flexShrink: 0 }} className="proj-cats"><div className="muted small" style={{ padding: '0 8px 6px' }}>Categories</div>
-          {CATEGORIES.map((c) => <button key={c} className={!q && cat === c ? 'on' : ''} onClick={() => { setQ(''); setCat(c) }}>{c}</button>)}</div>
-        <div style={{ flex: 1 }}>
-          <div className="row" style={{ justifyContent: 'space-between', marginBottom: 10 }}><b>Widget library</b><label className="kit-search"><Search size={14} /><input placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} />{q && <X size={13} onClick={() => setQ('')} />}</label></div>
-          <div className="muted small" style={{ marginBottom: 8 }}>{q ? 'Search results' : cat}</div>
-          <div className="widget-picker" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))' }}>{list.map(([k, w]) => (
-            <button key={k} onClick={() => onAdd(k)}><b>{w.name}{have.includes(k) && <span className="kit-pill blue" style={{ marginLeft: 6, fontSize: 9 }}>ADDED</span>}</b><span>{w.text}</span><span style={{ color: 'var(--accent)', marginTop: 4 }}>+ Add</span></button>))}</div>
+    <div className="wp-doc">
+      <i className="wp-line" style={{ width: '45%' }} />
+      {t === 'num' && <div className="wp-num">13</div>}
+      {t === 'numred' && <><div className="wp-num" style={{ color: '#e2667a' }}>8</div><div className="wp-bar"><i style={{ width: '40%', background: '#e2667a' }} /></div></>}
+      {(t === 'donut' || t === 'ring') && <svg viewBox="0 0 42 42" className="wp-donut"><circle cx="21" cy="21" r="15.9" fill="none" stroke="#8ab4f8" strokeWidth={t === 'ring' ? 6 : 12} strokeDasharray="45 55" /><circle cx="21" cy="21" r="15.9" fill="none" stroke="#f28b82" strokeWidth={t === 'ring' ? 6 : 12} strokeDasharray="25 75" strokeDashoffset="-45" /><circle cx="21" cy="21" r="15.9" fill="none" stroke="#fdd663" strokeWidth={t === 'ring' ? 6 : 12} strokeDasharray="30 70" strokeDashoffset="-70" /></svg>}
+      {t === 'bars' && <div className="wp-bars">{[40, 70, 55, 85, 30].map((h, i) => <i key={i} style={{ height: `${h}%` }} />)}</div>}
+      {t === 'hbars' && [80, 55, 35].map((w, i) => <div key={i} className="wp-bar"><i style={{ width: `${w}%`, background: '#f28b82' }} /></div>)}
+      {t === 'list' && [0, 1, 2].map((i) => <div key={i} className="wp-row"><span className="wp-dot" style={{ background: ['#c7d7fb', '#fbd3c1', '#fbe7b4'][i] }} /><i className="wp-line" style={{ width: `${70 - i * 12}%` }} /></div>)}
+      {t === 'embed' && <div className="wp-embed">▶</div>}
+      {t === 'note' && [80, 65, 72, 40].map((w, i) => <i key={i} className="wp-line" style={{ width: `${w}%`, display: 'block', margin: '6px 0' }} />)}
+    </div>
+  )
+}
+
+function Library({ have, onAdd, onClose }) {
+  const [q, setQ] = useState('')
+  const [cat, setCat] = useState(CATEGORIES[0])
+  const scroll = (c) => { setCat(c); document.getElementById(`wl-${c}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
+  const match = (w) => !q || (w.name + w.text).toLowerCase().includes(q.toLowerCase())
+  return (
+    <div className="overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="wl-modal">
+        <div className="wl-head"><h2>Add widget</h2><button className="icon-btn" onClick={onClose}><X size={20} /></button></div>
+        <div className="wl-body">
+          <div className="wl-cats"><b>Categories</b>{CATEGORIES.map((c) => { const I = CAT_ICON[c] || List; return <button key={c} className={cat === c && !q ? 'on' : ''} onClick={() => scroll(c)}><I size={17} />{c}</button> })}</div>
+          <div className="wl-main">
+            <div className="row" style={{ justifyContent: 'space-between', marginBottom: 6, position: 'sticky', top: 0, background: '#fff', zIndex: 2, padding: '4px 0 10px' }}><h3 style={{ fontSize: 20 }}>Widget library</h3>
+              <label className="kit-search"><Search size={14} /><input placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} />{q && <X size={13} onClick={() => setQ('')} />}</label></div>
+            {CATEGORIES.map((c) => { const list = Object.entries(WIDGETS).filter(([, w]) => w.cat === c && match(w)); if (!list.length) return null; const I = CAT_ICON[c] || List
+              return (
+                <div key={c} id={`wl-${c}`} style={{ marginBottom: 24 }}>
+                  <h4 className="row" style={{ gap: 8, fontSize: 17, margin: '8px 0 14px' }}><I size={17} className="muted" />{c}</h4>
+                  <div className="wl-grid">{list.map(([k, w]) => (
+                    <button key={k} className="wl-card" onClick={() => onAdd(k)}>
+                      <div className="wl-prev" style={{ background: CAT_BG[c] || '#e2e8f6' }}><Preview k={k} />{have.includes(k) && <span className="wl-added">ADDED</span>}</div>
+                      <span className="wl-logo">c<i>.</i></span>
+                      <div className="wl-text"><b>{w.name}</b><span>{w.text}</span></div>
+                    </button>))}</div>
+                </div>) })}
+          </div>
         </div>
       </div>
-    </Modal>
+    </div>
   )
 }
 
@@ -73,7 +107,15 @@ export function Dashboard({ scope = 'home', header, defaults, projectId, compact
   useEffect(() => {
     if (dash.rows && !dash.rows.length && !creating.current) { creating.current = true; dash.create({ scope, name: compact ? 'Summary' : 'Overview', widgets: (defaults || (scope === 'home' ? DEFAULT : MYWORK)).map((k) => mk(k, projectId)) }) }
   }, [dash.rows]) // eslint-disable-line react-hooks/exhaustive-deps
-  const board = dash.rows?.find((d) => d.id === cur) || dash.rows?.[0]
+  const ordered = [...(dash.rows || [])].sort((x, y) => (x.position || 0) - (y.position || 0) || x.id - y.id)
+  const board = ordered.find((d) => d.id === cur) || ordered[0]
+  const moveTab = async (d, dir) => {
+    const i = ordered.indexOf(d); const j = i + dir
+    if (j < 0 || j >= ordered.length) return
+    const next = [...ordered]; [next[i], next[j]] = [next[j], next[i]]
+    await Promise.all(next.map((x, k) => (x.position !== k ? api.patch(`/r/dashboards/${x.id}`, { position: k }) : null)))
+    dash.reload()
+  }
   const widgets = norm(board?.widgets)
   const save = (w) => dash.update(board.id, { widgets: w })
   const patch = (id, p) => save(widgets.map((w) => (w.id === id ? { ...w, ...p } : w)))
@@ -84,7 +126,16 @@ export function Dashboard({ scope = 'home', header, defaults, projectId, compact
       <div className={compact ? '' : 'tw-head'} style={{ flexDirection: 'column', alignItems: 'stretch', gap: 6, display: 'flex', borderBottom: compact ? '1px solid var(--border)' : undefined }}>
         {header}
         <div className="row" style={{ alignItems: 'flex-end' }}>
-          <nav className="tw-tabs">{(dash.rows || []).map((d) => <a key={d.id} className={board?.id === d.id ? 'active' : ''} onClick={() => setCur(d.id)} onDoubleClick={() => setTabForm(d)}>{d.name}</a>)}
+          <nav className="tw-tabs dash-tabs">{ordered.slice(0, 4).map((d) => (
+            <a key={d.id} className={board?.id === d.id ? 'active' : ''} onClick={() => setCur(d.id)} onDoubleClick={() => setTabForm(d)}>{d.name}
+              {board?.id === d.id && <span onClick={(e) => e.stopPropagation()}><Menu trigger={<button className="tab-opt" title="Options"><MoreVertical size={14} /></button>}>
+                <button onClick={() => setTabForm(d)}><Pencil size={14} />Rename</button>
+                <button onClick={duplicateBoard}><Copy size={14} />Duplicate</button>
+                <button disabled={ordered.indexOf(d) === 0} onClick={() => moveTab(d, -1)}><ArrowLeftRight size={14} />Move left</button>
+                <button disabled={ordered.indexOf(d) === ordered.length - 1} onClick={() => moveTab(d, 1)}><ArrowLeftRight size={14} />Move right</button>
+                {ordered.length > 1 && <button style={{ color: 'var(--danger)' }} onClick={() => { if (confirm(`Delete dashboard "${d.name}"?`)) { dash.remove(d.id); setCur(null) } }}><Trash2 size={14} />Delete dashboard</button>}
+              </Menu></span>}</a>))}
+            {ordered.length > 4 && <Menu trigger={<a className={ordered.slice(4).some((d) => d.id === board?.id) ? 'active' : ''}>More…</a>}>{ordered.slice(4).map((d) => <button key={d.id} onClick={() => setCur(d.id)}>{d.name}</button>)}</Menu>}
             <a title="Add dashboard" onClick={() => setTabForm({})}><Plus size={15} /></a></nav>
           <span style={{ flex: 1 }} />
           <div style={{ paddingBottom: 8, display: 'flex', gap: 6 }}>

@@ -46,7 +46,31 @@ def list_projects(status: str = "active", q: str | None = None, db: Session = De
     if q:
         stmt = stmt.where(models.Project.name.ilike(f"%{q}%"))
     projects = db.scalars(stmt.order_by(models.Project.is_starred.desc(), models.Project.name)).all()
-    return [schemas.project_out(p, project_stats(db, p)) for p in projects]
+    return [schemas.project_out(p, st) for p, st in zip(projects, bulk_stats(db, projects))]
+
+
+def bulk_stats(db: Session, projects):
+    """project_stats for many projects in 4 queries total."""
+    ids = [p.id for p in projects] or [0]
+    today = date.today()
+    T = models.Task
+    total = dict(db.execute(select(T.project_id, func.count(T.id)).where(T.project_id.in_(ids)).group_by(T.project_id)).all())
+    done = dict(db.execute(select(T.project_id, func.count(T.id)).where(T.project_id.in_(ids), T.status == "completed").group_by(T.project_id)).all())
+    late = dict(db.execute(select(T.project_id, func.count(T.id)).where(T.project_id.in_(ids), T.status != "completed",
+                                                                        T.due_date < today).group_by(T.project_id)).all())
+    mins = dict(db.execute(select(models.TimeEntry.project_id, func.coalesce(func.sum(models.TimeEntry.minutes), 0))
+                           .where(models.TimeEntry.project_id.in_(ids)).group_by(models.TimeEntry.project_id)).all())
+    members = {}
+    for pid, u in db.execute(select(models.ProjectMember.project_id, models.User).join(
+            models.User, models.User.id == models.ProjectMember.user_id).where(models.ProjectMember.project_id.in_(ids))).all():
+        members.setdefault(pid, []).append(schemas.user_brief(u))
+    out = []
+    for p in projects:
+        t, d = total.get(p.id, 0), done.get(p.id, 0)
+        out.append({"task_count": t, "completed_count": d, "late_count": late.get(p.id, 0),
+                    "progress": round(d * 100 / t) if t else 0, "logged_minutes": int(mins.get(p.id, 0)),
+                    "members": members.get(p.id, [])})
+    return out
 
 
 @router.post("")

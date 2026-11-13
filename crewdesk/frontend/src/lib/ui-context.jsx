@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { api } from './api'
 
 const UiCtx = createContext(null)
@@ -13,12 +13,18 @@ export function UiProvider({ children }) {
   const [projects, setProjects] = useState([])
   const [unread, setUnread] = useState(0)
 
-  const refresh = useCallback(() => setVersion((v) => v + 1), [])
+  // several actions often call refresh() back to back; coalesce them into one reload
+  const timer = useRef()
+  const refresh = useCallback(() => { clearTimeout(timer.current); timer.current = setTimeout(() => setVersion((v) => v + 1), 60) }, [])
 
+  const lastLookup = useRef(0)
   const loadLookups = useCallback(() => {
+    api.get('/inbox/count').then((r) => setUnread(r.unread)).catch(() => {})
+    // people / projects change rarely; refetch at most every 5 seconds
+    if (Date.now() - lastLookup.current < 5000) return
+    lastLookup.current = Date.now()
     api.get('/people').then(setPeople).catch(() => {})
     api.get('/projects?status=active').then(setProjects).catch(() => {})
-    api.get('/inbox?filter=unread').then((r) => setUnread(r.unread)).catch(() => {})
   }, [])
 
   useEffect(() => { loadLookups() }, [loadLookups, version])

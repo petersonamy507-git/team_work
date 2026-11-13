@@ -39,6 +39,15 @@ def log_time(body: schemas.TimeIn, db: Session = Depends(get_db), user=Depends(c
     e = models.TimeEntry(user_id=user.id, **body.model_dump())
     db.add(e)
     log(db, user, f"logged {body.minutes // 60}h {body.minutes % 60}m", body.project_id)
+    if body.task_id:  # Automations: time logged / logged time exceeds estimate
+        from sqlalchemy import func as _f
+        from .parity import run_automations
+        t = db.get(models.Task, body.task_id)
+        if t:
+            run_automations(db, t, "time_logged", user)
+            total = (db.scalar(select(_f.coalesce(_f.sum(models.TimeEntry.minutes), 0)).where(models.TimeEntry.task_id == t.id)) or 0) + body.minutes
+            if t.estimate_minutes and total > t.estimate_minutes >= total - body.minutes:
+                run_automations(db, t, "time_exceeds", user)
     db.commit()
     db.refresh(e)
     return schemas.time_out(e)

@@ -209,19 +209,36 @@ function ListGroups({ tasks, reload, selecting, sel, toggleSel, setSel }) {
 }
 
 /* ---------- Board tab: workflow stages ---------- */
-function StageBoard({ tasks, reload }) {
-  const { openTask, refresh } = useUi()
+function StageBoard({ tasks: rawTasks, reload }) {
+  const { openTask, refresh, notify } = useUi()
   const [drag, setDrag] = useState(null)
   const [over, setOver] = useState(null)
   const [adding, setAdding] = useState(null)
   const [colQ, setColQ] = useState({})
+  const [moved, setMoved] = useState({}) // optimistic stage changes so cards move instantly
+  // colour each card so they are easy to tell apart (saved per browser)
+  const [colorBy, setColorBy] = useState(() => { try { return localStorage.getItem('cd_card_color') || 'project' } catch { return 'project' } })
+  const pickColor = (v) => { setColorBy(v); try { localStorage.setItem('cd_card_color', v) } catch { /* ignore */ } }
+  const cardStyle = (t) => {
+    const c = colorBy === 'project' ? t.project_color
+      : colorBy === 'priority' ? ({ high: '#e2445c', medium: '#f0a500', low: '#22b573' }[t.priority])
+        : colorBy === 'stage' ? ({ backlog: '#94a3b8', new: '#e8378f', in_progress: '#f0a500', completed: '#22b573' }[t.status])
+          : colorBy === 'due' ? (t.status !== 'completed' && t.due_date && t.due_date < new Date().toISOString().slice(0, 10) ? '#e2445c' : t.due_date ? '#4461d7' : '#94a3b8') : null
+    return c ? { '--card-c': c } : undefined
+  }
+  const tasks = rawTasks.map((t) => (moved[t.id] && moved[t.id] !== t.status ? { ...t, status: moved[t.id] } : t))
   const drop = async (k) => {
     setOver(null)
     if (!drag || drag.status === k) return
-    await api.patch(`/tasks/${drag.id}`, { status: k })
+    const id = drag.id
+    setMoved((m) => ({ ...m, [id]: k })); setDrag(null)
+    try { await api.patch(`/tasks/${id}`, { status: k }) } catch (e) { setMoved((m) => { const n = { ...m }; delete n[id]; return n }); notify(e.message); return }
     reload(); refresh()
   }
   return (
+    <>
+    <div className="card-color-bar"><span className="muted small">Colour cards by</span>
+      {[['project', 'Project'], ['priority', 'Priority'], ['stage', 'Stage'], ['due', 'Due date'], ['none', 'None']].map(([k, l]) => <button key={k} className={colorBy === k ? 'on' : ''} onClick={() => pickColor(k)}>{l}</button>)}</div>
     <div className="board tw-board">
       {Object.entries(STATUS).map(([k, s]) => {
         const items = tasks.filter((t) => t.status === k && (!colQ[k] || t.title.toLowerCase().includes(colQ[k].toLowerCase())))
@@ -240,7 +257,7 @@ function StageBoard({ tasks, reload }) {
               {items.map((t) => {
                 const ds = dueState(t)
                 return (
-                  <div key={t.id} className="bcard tw-card" draggable onDragStart={() => setDrag(t)} onDragEnd={() => setDrag(null)} onClick={() => openTask(t.id)}>
+                  <div key={t.id} className="bcard tw-card colored" style={cardStyle(t)} draggable onDragStart={() => setDrag(t)} onDragEnd={() => setDrag(null)} onClick={() => openTask(t.id)}>
                     <div className="row" style={{ gap: 8, alignItems: 'flex-start' }}><CheckButton task={t} onChange={() => { reload(); refresh() }} /><div className="t">{t.title}</div></div>
                     <div className="small muted ellipsis crumbs-line">{t.project_name}{t.tasklist_name && <> › {t.tasklist_name}</>}</div>
                     <div className="m">
@@ -258,6 +275,7 @@ function StageBoard({ tasks, reload }) {
         )
       })}
     </div>
+    </>
   )
 }
 

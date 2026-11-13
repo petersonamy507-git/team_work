@@ -437,6 +437,8 @@ def next_occurrence(d: date | None, rule: str):
 def apply_update(db, t, data: dict, user):
     old_assignees = set(assignee_ids_of(db, t))
     old_status = t.status
+    _old = {"priority": t.priority, "tags": set(x for x in (t.tags or "").split(",") if x), "due": t.due_date,
+            "progress": t.progress}  # for Automations triggers
     assignee_ids = data.pop("assignee_ids", None)
     follower_ids = data.pop("follower_ids", None)
     for k in ("depends_on_ids", "reminders", "notify", "custom"):
@@ -512,6 +514,21 @@ def apply_update(db, t, data: dict, user):
                 log(db, user, f"set status to {data['status'].replace('_', ' ')}", t.project_id, t.id)
     if changed:
         log(db, user, "changed " + ", ".join(FIELD_LABELS[c] for c in changed), t.project_id, t.id)
+    # Automations: fire change triggers (More > Automate)
+    from .parity import run_automations
+    if t.status != old_status:
+        run_automations(db, t, "stage_changed", user, t.status)
+    if t.priority != _old["priority"]:
+        run_automations(db, t, "priority_changed", user, t.priority)
+    new_tags = set(x for x in (t.tags or "").split(",") if x) - _old["tags"]
+    if new_tags:
+        run_automations(db, t, "tag_added", user, ",".join(new_tags))
+    if t.due_date != _old["due"]:
+        run_automations(db, t, "due_changed", user)
+    if t.progress != _old["progress"]:
+        run_automations(db, t, "progress_changed", user, str(t.progress))
+    if assignee_ids is not None and set(i for i in assignee_ids if i) != old_assignees:
+        run_automations(db, t, "assignee_changed", user)
 
 
 @router.patch("/tasks/{tid}")
@@ -646,6 +663,8 @@ def add_comment(tid: int, body: schemas.CommentIn, db: Session = Depends(get_db)
     for uid in {t.created_by_id, *assignee_ids_of(db, t), *followers}:
         notify(db, uid, user, f"{user.name} commented on \"{t.title}\"", f"/tasks/{t.id}", "comment")
     log(db, user, "commented", t.project_id, t.id)
+    from .parity import run_automations
+    run_automations(db, t, "comment_added", user)
     db.commit()
     return task_full(db, t, user)
 

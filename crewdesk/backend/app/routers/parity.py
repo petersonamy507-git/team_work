@@ -806,27 +806,172 @@ def ai_ask(body: dict = Body(...), db: Session = Depends(get_db), user=Depends(c
 
 
 # ---------------------------------------------------------------- Automations
-def run_automations(db: Session, task: models.Task, trigger: str, actor: models.User):
+AUTOMATION_TRIGGERS = {
+    "task_created": "Task added", "task_completed": "Task completed", "stage_changed": "Task stage changes",
+    "tag_added": "Task tag added", "time_logged": "Task time logged", "time_exceeds": "Task logged time exceeds estimated",
+    "assignee_changed": "Task assignees change", "due_arrives": "Task due date arrives", "due_changed": "Task due date changes",
+    "progress_changed": "Task progress changes", "priority_changed": "Task priority changes", "comment_added": "Task comment added",
+}
+AUTOMATION_ACTIONS = {
+    "notify": "Notify people", "assign": "Change task assignees", "add_tag": "Change task tags", "set_priority": "Change task priority",
+    "move_list": "Move to task list", "copy_list": "Copy to task list", "add_task": "Add task", "add_subtask": "Add subtask",
+    "complete": "Complete task", "set_due": "Change task due date", "set_start": "Change task start date",
+    "set_progress": "Change task progress", "add_comment": "Add task comment", "add_followers": "Change task followers",
+    "set_estimate": "Change task estimated time", "set_status": "Move task to stage", "log_time": "Log task time",
+}
+
+
+def _ids(v):
+    return [int(x) for x in re.split(r"[,\s]+", str(v or "")) if x.strip().isdigit()]
+
+
+def _apply_action(db, r, task, actor):
+    v = r.action_value or ""
+    a = r.action
+    if a == "notify":
+        for uid in _ids(v) or [task.assignee_id]:
+            if uid:
+                db.add(models.Notification(user_id=uid, actor_id=actor.id, kind="automation",
+                                           message=f"Automation \"{r.name}\": {task.title}", link=f"/tasks/{task.id}"))
+        return "notified people"
+    if a == "assign" and _ids(v):
+        ids = _ids(v)
+        task.assignee_id = ids[0]
+        db.execute(models.TaskAssignee.__table__.delete().where(models.TaskAssignee.task_id == task.id))
+        for uid in ids[1:]:
+            db.add(models.TaskAssignee(task_id=task.id, user_id=uid))
+        return f"assigned {len(ids)} people"
+    if a == "add_tag" and v:
+        tags = [x for x in (task.tags or "").split(",") if x]
+        for t in [x.strip() for x in v.split(",") if x.strip()]:
+            if t not in tags:
+                tags.append(t)
+        task.tags = ",".join(tags)
+        return f"tagged {v}"
+    if a == "set_priority" and v in ("low", "medium", "high", "none"):
+        task.priority = v
+        return f"priority {v}"
+    if a in ("move_list", "copy_list") and v.isdigit():
+        tl = db.get(models.TaskList, int(v))
+        if not tl:
+            return "task list not found"
+        if a == "move_list":
+            task.tasklist_id = tl.id
+            task.project_id = tl.project_id
+            return f"moved to {tl.name}"
+        db.add(models.Task(project_id=tl.project_id, tasklist_id=tl.id, title=task.title, description=task.description,
+                           priority=task.priority, assignee_id=task.assignee_id, created_by_id=actor.id,
+                           due_date=task.due_date, start_date=task.start_date, tags=task.tags))
+        return f"copied to {tl.name}"
+    if a in ("add_task", "add_subtask"):
+        db.add(models.Task(project_id=task.project_id, tasklist_id=task.tasklist_id, title=(v or f"Follow up: {task.title}")[:300],
+                           created_by_id=actor.id, parent_id=task.id if a == "add_subtask" else None))
+        return "added task"
+    if a == "complete":
+        task.status = "completed"
+        task.progress = 100
+        task.completed_at = datetime.utcnow()
+        return "completed task"
+    if a in ("set_due", "set_start"):
+        try:
+            days = int(v or 0)
+        except ValueError:
+            return "bad value"
+        d = date.today() + timedelta(days=days)
+        if a == "set_due":
+            task.due_date = d
+        else:
+            task.start_date = d
+        return f"{'due' if a == 'set_due' else 'start'} date {d.isoformat()}"
+    if a == "set_progress" and v.isdigit():
+        task.progress = max(0, min(100, int(v)))
+        return f"progress {task.progress}%"
+    if a == "add_comment" and v:
+        db.add(models.Comment(task_id=task.id, user_id=actor.id, body=v))
+        return "added comment"
+    if a == "add_followers":
+        have = set(db.scalars(select(models.TaskFollower.user_id).where(models.TaskFollower.task_id == task.id)))
+        for uid in _ids(v):
+            if uid not in have:
+                db.add(models.TaskFollower(task_id=task.id, user_id=uid))
+        return "added followers"
+    if a == "set_estimate" and v.isdigit():
+        task.estimate_minutes = int(v)
+        return f"estimate {v} min"
+    if a == "set_status" and v in ("new", "in_progress", "completed", "backlog"):
+        task.status = v
+        if v == "completed":
+            task.completed_at = datetime.utcnow()
+        return f"stage {v}"
+    if a == "log_time" and v.isdigit():
+        db.add(models.TimeEntry(user_id=task.assignee_id or actor.id, project_id=task.project_id, task_id=task.id,
+                                date=date.today(), minutes=int(v), description=f"Automation: {r.name}", billable=True))
+        return f"logged {v} min"
+    return "nothing to do"
+
+
+def run_automations(db: Session, task: models.Task, trigger: str, actor: models.User, value: str | None = None):
+    """Run every active rule for this trigger. value is matched against trigger_value (stage, tag, priority...)."""
     rules = db.scalars(select(models.Automation).where(models.Automation.is_active.is_(True),
                                                        models.Automation.trigger == trigger,
                                                        or_(models.Automation.project_id.is_(None),
                                                            models.Automation.project_id == task.project_id))).all()
     for r in rules:
-        v = r.action_value or ""
-        if r.action == "assign" and v.isdigit():
-            task.assignee_id = int(v)
-        elif r.action == "set_priority" and v in ("low", "medium", "high", "none"):
-            task.priority = v
-        elif r.action == "add_tag" and v:
-            tags = [x for x in (task.tags or "").split(",") if x]
-            if v not in tags:
-                task.tags = ",".join(tags + [v])
-        elif r.action == "set_status" and v in ("new", "in_progress", "completed", "backlog"):
-            task.status = v
-        elif r.action == "notify" and v.isdigit():
-            db.add(models.Notification(user_id=int(v), actor_id=actor.id, kind="automation",
-                                       message=f"Automation \"{r.name}\": {task.title}", link=f"/tasks/{task.id}"))
+        tv = (r.trigger_value or "").strip().lower()
+        if tv and value is not None and tv not in [x.strip().lower() for x in str(value).split(",")]:
+            continue
+        try:
+            result = _apply_action(db, r, task, actor)
+        except Exception as e:  # never break the user's request because of a rule
+            result = f"error: {e}"[:300]
         r.run_count = (r.run_count or 0) + 1
+        r.last_run_at = datetime.utcnow()
+        db.add(models.AutomationRun(automation_id=r.id, task_id=task.id, result=result))
+
+
+def run_due_automations(db: Session, actor: models.User):
+    """'Task due date arrives': fire once per task per rule on/after the due date."""
+    rules = db.scalars(select(models.Automation).where(models.Automation.is_active.is_(True),
+                                                       models.Automation.trigger == "due_arrives")).all()
+    if not rules:
+        return
+    tasks = db.scalars(select(models.Task).where(models.Task.status != "completed", models.Task.due_date.is_not(None),
+                                                 models.Task.due_date <= date.today())).all()
+    for r in rules:
+        done = set(db.scalars(select(models.AutomationRun.task_id).where(models.AutomationRun.automation_id == r.id)))
+        for t in tasks:
+            if t.id in done or (r.project_id and t.project_id != r.project_id):
+                continue
+            result = _apply_action(db, r, t, actor)
+            r.run_count = (r.run_count or 0) + 1
+            r.last_run_at = datetime.utcnow()
+            db.add(models.AutomationRun(automation_id=r.id, task_id=t.id, result=result))
+    db.commit()
+
+
+@router.get("/automations/meta")
+def automations_meta(user=Depends(current_user)):
+    return {"triggers": AUTOMATION_TRIGGERS, "actions": AUTOMATION_ACTIONS}
+
+
+@router.get("/automations/usage")
+def automations_usage(db: Session = Depends(get_db), user=Depends(current_user)):
+    runs = db.scalars(select(models.AutomationRun).order_by(models.AutomationRun.id.desc()).limit(200)).all()
+    autos = {a.id: a for a in db.scalars(select(models.Automation))}
+    tasks = {t.id: t.title for t in db.scalars(select(models.Task).where(models.Task.id.in_([r.task_id for r in runs if r.task_id] or [0])))}
+    month = date.today().replace(day=1)
+    this_month = db.scalar(select(func.count(models.AutomationRun.id)).where(models.AutomationRun.created_at >= month)) or 0
+    return {"this_month": this_month, "total": db.scalar(select(func.count(models.AutomationRun.id))) or 0,
+            "active": sum(1 for a in autos.values() if a.is_active),
+            "runs": [{"id": r.id, "automation": autos[r.automation_id].name if r.automation_id in autos else "Deleted",
+                      "task": tasks.get(r.task_id), "task_id": r.task_id, "result": r.result,
+                      "created_at": schemas.d(r.created_at)} for r in runs]}
+
+
+@router.post("/automations/run-due")
+def automations_run_due(db: Session = Depends(get_db), user=Depends(current_user)):
+    run_due_automations(db, user)
+    return {"ok": True}
 
 
 # ---------------------------------------------------------------- Inbox (Teamwork-style list + preview)
@@ -1135,3 +1280,132 @@ def chat_bookmarks(db: Session = Depends(get_db), user=Depends(current_user)):
 @router.get("/chat/unread")
 def chat_unread(db: Session = Depends(get_db), user=Depends(current_user)):
     return {"unread": sum(c["unread"] for c in chat_channels(db, user))}
+
+
+# ---------------------------------------------------------------- Clients import / export (CSV + XLSX)
+from fastapi import File, UploadFile  # noqa: E402
+from fastapi.responses import Response  # noqa: E402
+
+CLIENT_COLS = [("Name", "name"), ("Website", "website"), ("Email", "email"), ("Phone", "phone"), ("Address 1", "address"),
+               ("Address 2", "address2"), ("City", "city"), ("State", "state"), ("Postcode", "postcode")]
+
+
+def _xlsx_rows(data: bytes):
+    import io
+    import zipfile
+    import xml.etree.ElementTree as ET
+    ns = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
+    z = zipfile.ZipFile(io.BytesIO(data))
+    shared = []
+    if "xl/sharedStrings.xml" in z.namelist():
+        for si in ET.fromstring(z.read("xl/sharedStrings.xml")).findall("m:si", ns):
+            shared.append("".join(t.text or "" for t in si.iter("{%s}t" % ns["m"])))
+    sheet = sorted(n for n in z.namelist() if n.startswith("xl/worksheets/sheet"))[0]
+    rows = []
+    for r in ET.fromstring(z.read(sheet)).iter("{%s}row" % ns["m"]):
+        row = {}
+        for c in r.findall("m:c", ns):
+            ref = re.match(r"([A-Z]+)", c.get("r", "A")).group(1)
+            col = 0
+            for ch in ref:
+                col = col * 26 + ord(ch) - 64
+            v = c.find("m:v", ns)
+            is_ = c.find("m:is", ns)
+            if c.get("t") == "s" and v is not None:
+                val = shared[int(v.text)]
+            elif is_ is not None:
+                val = "".join(t.text or "" for t in is_.iter("{%s}t" % ns["m"]))
+            else:
+                val = v.text if v is not None else ""
+            row[col - 1] = val
+        if row:
+            rows.append([row.get(i, "") for i in range(max(row) + 1)])
+    return rows
+
+
+def _xlsx_bytes(rows):
+    import io
+    import zipfile
+    from xml.sax.saxutils import escape
+
+    def cell(i, j, v):
+        ref = ""
+        n = j + 1
+        while n:
+            n, rem = divmod(n - 1, 26)
+            ref = chr(65 + rem) + ref
+        return f'<c r="{ref}{i + 1}" t="inlineStr"><is><t>{escape(str(v if v is not None else ""))}</t></is></c>'
+    sheet = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'
+             + "".join(f'<row r="{i + 1}">' + "".join(cell(i, j, v) for j, v in enumerate(r)) + "</row>" for i, r in enumerate(rows))
+             + "</sheetData></worksheet>")
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("[Content_Types].xml", '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>')
+        z.writestr("_rels/.rels", '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>')
+        z.writestr("xl/workbook.xml", '<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Clients" sheetId="1" r:id="rId1"/></sheets></workbook>')
+        z.writestr("xl/_rels/workbook.xml.rels", '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>')
+        z.writestr("xl/worksheets/sheet1.xml", sheet)
+    return buf.getvalue()
+
+
+@router.post("/clients/import")
+async def import_clients(file: UploadFile = File(...), db: Session = Depends(get_db), user=Depends(current_user)):
+    import csv
+    import io
+    data = await file.read()
+    name = (file.filename or "").lower()
+    if name.endswith(".xlsx"):
+        rows = _xlsx_rows(data)
+    elif name.endswith(".csv"):
+        rows = list(csv.reader(io.StringIO(data.decode("utf-8-sig", errors="replace"))))
+    else:
+        raise HTTPException(400, "Please upload a .csv or .xlsx file")
+    if not rows:
+        raise HTTPException(400, "The file is empty")
+    head = [h.strip().lower() for h in rows[0]]
+    idx = {key: head.index(label.lower()) for label, key in CLIENT_COLS if label.lower() in head}
+    if "name" not in idx:
+        raise HTTPException(400, "The file needs a 'Name' column")
+    existing = {c.name.strip().lower() for c in db.scalars(select(models.Client))}
+    added, skipped = 0, []
+    for r in rows[1:]:
+        vals = {k: (r[i].strip() if i < len(r) else "") for k, i in idx.items()}
+        if not vals.get("name"):
+            continue
+        if vals["name"].lower() in existing:
+            skipped.append(vals["name"])
+            continue
+        db.add(models.Client(**{k: v or None for k, v in vals.items()}))
+        existing.add(vals["name"].lower())
+        added += 1
+    db.commit()
+    return {"added": added, "skipped": skipped}
+
+
+@router.get("/clients/export")
+def export_clients(format: str = "csv", sample: bool = False, db: Session = Depends(get_db), user=Depends(current_user)):
+    import csv
+    import io
+    header = [label for label, _ in CLIENT_COLS]
+    if sample:
+        body = [["Acme Corp", "https://acme.example", "contact@acme.example", "555-0100", "123 Business Rd", "Suite 100", "New York", "NY", "10001"],
+                ["TechStart", "https://techstart.example", "hello@techstart.example", "555-0101", "456 Innovation Ave", "", "San Francisco", "CA", "94102"]]
+    else:
+        body = [[getattr(c, key) or "" for _, key in CLIENT_COLS] for c in db.scalars(select(models.Client).order_by(models.Client.name))]
+    rows = [header] + body
+    fname = "crewdesk-client-import-sample" if sample else "clients"
+    if format == "xlsx":
+        return Response(_xlsx_bytes(rows), media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        headers={"Content-Disposition": f'attachment; filename="{fname}.xlsx"'})
+    buf = io.StringIO()
+    csv.writer(buf).writerows(rows)
+    return Response(buf.getvalue(), media_type="text/csv", headers={"Content-Disposition": f'attachment; filename="{fname}.csv"'})
+
+
+@router.get("/inbox/count")
+def inbox_count(db: Session = Depends(get_db), user=Depends(current_user)):
+    """Cheap unread badge count (the full /inbox call also fires reminders and automations)."""
+    n = db.scalar(select(func.count(models.Notification.id)).where(
+        models.Notification.user_id == user.id, models.Notification.is_read.is_(False),
+        models.Notification.is_archived.is_(False))) or 0
+    return {"unread": n}

@@ -19,6 +19,7 @@ import ActivityPage from './Activity'
 import { MyTimesheet } from './TimeHub'
 import { Dashboard } from './Home'
 import { Sparkles } from 'lucide-react'
+import { ALL_TABS, useMyWorkTabs, TabManager, MyActivity, MyEvents, MyHealth, MyWorkload } from '../components/MyWorkExtras'
 
 const STORE = 'cd_mywork_v1'
 const TABS = [['tasks', 'My tasks'], ['calendar', 'My calendar'], ['timesheet', 'My timesheet'], ['projects', 'My projects'], ['activity', 'Activity'], ['dashboards', 'Dashboards']]
@@ -31,6 +32,7 @@ function loadPrefs() {
 export default function MyWork() {
   const { user } = useAuth()
   const loc = useLocation()
+  const [myTabs, setMyTabs] = useMyWorkTabs()
   const nav = useNavigate()
   const [tab, setTabState] = useState(() => new URLSearchParams(location.search).get('tab') || 'tasks')
   useEffect(() => { setTabState(new URLSearchParams(loc.search).get('tab') || 'tasks') }, [loc.search])
@@ -45,11 +47,12 @@ export default function MyWork() {
 
   return (
     <div className="tw-page">
-      <Crumbs items={[['Home', '/'], ['My work', '/my-work'], [TABS.find((t) => t[0] === tab)?.[1]]]} />
+      <Crumbs items={[['Home', '/'], ['My work', '/my-work'], [ALL_TABS.find((t) => t[0] === tab)?.[1]]]} />
       <div className="tw-head">
         <h1><CheckCircle2 size={20} />My work</h1>
         <nav className="tw-tabs">
-          {TABS.map(([k, l]) => <a key={k} className={tab === k ? 'active' : ''} onClick={() => setTab(k)}>{l}</a>)}
+          {myTabs.map((k) => ALL_TABS.find((t) => t[0] === k)).filter(Boolean).map(([k, l]) => <a key={k} className={tab === k ? 'active' : ''} onClick={() => setTab(k)}>{l}</a>)}
+          <TabManager tabs={myTabs} setTabs={setMyTabs} />
         </nav>
         <span className="spacer" />
         {tab === 'tasks' && (
@@ -73,7 +76,10 @@ export default function MyWork() {
         {tab === 'timesheet' && <MyTimesheet />}
         {tab === 'dashboards' && <Dashboard scope="mywork" header={null} />}
         {tab === 'projects' && <MyProjects />}
-        {tab === 'activity' && <ActivityPage embedded />}
+        {tab === 'activity' && <MyActivity />}
+        {tab === 'events' && <MyEvents />}
+        {tab === 'health' && <MyHealth />}
+        {tab === 'workload' && <MyWorkload />}
       </div>
     </div>
   )

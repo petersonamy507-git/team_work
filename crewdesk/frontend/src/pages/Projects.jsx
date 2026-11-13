@@ -1,7 +1,8 @@
 // Manage › Projects (Teamwork /app/projects/list): categories sidebar, table/cards, status filter
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Plus, Star, Folder, LayoutGrid, List, FolderPlus, Tag, Trash2, Download, ChevronDown, LayoutTemplate, Pencil } from 'lucide-react'
+import { Plus, Star, Folder, LayoutGrid, List, FolderPlus, Tag, Trash2, Download, ChevronDown, LayoutTemplate, Pencil, MoreVertical, Copy, Sparkles, PiggyBank, Archive, CheckCircle2, ChevronRight, CheckSquare, Flag, MessageSquare, Clock, Paperclip, CalendarDays, RotateCcw } from 'lucide-react'
+import { ProjectForm } from '../components/QuickAdd'
 import { api } from '../lib/api'
 import { useData, useUi } from '../lib/ui-context'
 import { fmtDate, fmtMinutes } from '../lib/format'
@@ -30,6 +31,8 @@ export default function Projects({ mine }) {
   const [setCatFor, setSetCatFor] = useState(null)
   const [typeFor, setTypeFor] = useState(null)
   const { data } = useData(`/projects?status=${status}`, [status])
+  const { data: acts } = useData('/activity')
+  const lastAct = (pid) => (acts || []).find((a) => a.project_id === pid)
   const { data: me } = useData('/auth/me')
   const cats = useRows('categories')
   const setV = (v) => { try { localStorage.setItem('cd_pview', v) } catch { /* ignore */ } setView(v) }
@@ -90,6 +93,10 @@ export default function Projects({ mine }) {
                   { key: 'progress', label: 'Progress', render: (p) => <div className="row" style={{ gap: 6, minWidth: 120 }}><div style={{ flex: 1 }}><Progress value={p.progress} /></div><span className="small muted">{p.progress}%</span></div> },
                   { key: 'logged_minutes', label: 'Time logged', render: (p) => fmtMinutes(p.logged_minutes) },
                   { key: 'members', label: 'People', nosort: true, render: (p) => <AvatarStack users={p.members} size={24} /> },
+                  { key: 'activity', label: 'Activity', sort: (p) => lastAct(p.id)?.created_at, render: (p) => <span className="ellipsis muted small" style={{ maxWidth: 200, display: 'inline-block' }}>{lastAct(p.id) ? `${lastAct(p.id).user?.name?.split(' ')[0]} ${lastAct(p.id).action}` : '—'}</span> },
+                  { key: 'latest', label: 'Latest update', render: (p) => <span className="muted small">{p.health !== 'none' ? p.health.replace('_', ' ') : '—'}</span> },
+                  { key: 'last_active', label: 'Last active', sort: (p) => lastAct(p.id)?.created_at, render: (p) => (lastAct(p.id) ? fmtDate(lastAct(p.id).created_at, { day: 'numeric', month: 'short', year: 'numeric' }) : '—') },
+                  { key: 'menu', label: '', nosort: true, render: (p) => <span onClick={(e) => e.stopPropagation()}><ProjectRowMenu p={p} /></span> },
                 ]} />)}
         </div>
       </div>
@@ -102,5 +109,46 @@ export default function Projects({ mine }) {
         onSubmit={async (v) => { await api.patch(`/projects/${setCatFor.id}`, { name: setCatFor.name, category_id: v.category_id ? Number(v.category_id) : null }); notify('Category updated'); refresh() }}
         fields={[{ key: 'category_id', label: 'Category', type: 'select', options: (cats.rows || []).map((c) => [c.id, c.name]) }]} />}
     </Section>
+  )
+}
+
+export function ProjectRowMenu({ p }) {
+  const { notify, refresh, setQuickAdd } = useUi()
+  const navigate = useNavigate()
+  const [mode, setMode] = useState('manage')
+  const [more, setMore] = useState(false)
+  const [edit, setEdit] = useState(false)
+  const status = async (st) => { await api.patch(`/projects/${p.id}`, { name: p.name, status: st }); notify(`Project ${st === 'active' ? 'reactivated' : st}`); refresh() }
+  const copy = async () => { const r = await api.post(`/projects/${p.id}/copy`); notify('Project copied'); refresh(); navigate(`/projects/${r.id}`) }
+  const del = async () => { if (confirm(`Delete project "${p.name}" and everything in it?`)) { await api.del(`/projects/${p.id}`); notify('Project deleted'); refresh() } }
+  return (
+    <>
+      <Menu trigger={<button className="icon-btn" title="Project options"><MoreVertical size={16} /></button>}>
+        <div className="seg-toggle" onClick={(e) => e.stopPropagation()}><button className={mode === 'manage' ? 'on' : ''} onClick={() => setMode('manage')}>Manage</button><button className={mode === 'quick' ? 'on' : ''} onClick={() => setMode('quick')}>Quick add</button></div>
+        {mode === 'manage' ? <>
+          <button onClick={() => setEdit(true)}><Pencil size={14} />Edit project</button>
+          <button onClick={copy}><Copy size={14} />Copy project</button>
+          <button onClick={() => navigate(`/ai/ask?prompt=${encodeURIComponent('project ' + p.name)}`)}><Sparkles size={14} />Ask AI about this project</button>
+          <button onClick={() => navigate(`/projects/${p.id}/finance`)}><PiggyBank size={14} />Budget</button>
+          <button onClick={() => status('archived')}><Trash2 size={14} />Trash can (archive)</button>
+          <button onClick={(e) => { e.stopPropagation(); setMore(!more) }}><ChevronRight size={14} />More options</button>
+          {more && <>
+            {p.status === 'active' ? <button style={{ paddingLeft: 30 }} onClick={() => status('completed')}><CheckCircle2 size={14} />Mark complete</button> : <button style={{ paddingLeft: 30 }} onClick={() => status('active')}><RotateCcw size={14} />Reactivate</button>}
+            <button style={{ paddingLeft: 30 }} onClick={async () => { await api.post(`/projects/${p.id}/save-as-template`); notify('Saved as a template') }}><LayoutTemplate size={14} />Save as template</button>
+            <button style={{ paddingLeft: 30 }} onClick={() => navigate(`/projects/${p.id}/x/settings`)}><Archive size={14} />Project settings</button>
+          </>}
+          <div style={{ borderTop: '1px solid var(--border)', margin: '4px 0' }} />
+          <button style={{ color: 'var(--danger)' }} onClick={del}><Trash2 size={14} />Delete project</button>
+        </> : <>
+          <button onClick={() => setQuickAdd({ kind: 'task', project_id: p.id })}><CheckSquare size={14} />Task</button>
+          <button onClick={() => setQuickAdd('milestone')}><Flag size={14} />Milestone</button>
+          <button onClick={() => setQuickAdd('message')}><MessageSquare size={14} />Message</button>
+          <button onClick={() => setQuickAdd('time')}><Clock size={14} />Time entry</button>
+          <button onClick={() => navigate(`/projects/${p.id}/files`)}><Paperclip size={14} />File</button>
+          <button onClick={() => setQuickAdd('event')}><CalendarDays size={14} />Event</button>
+        </>}
+      </Menu>
+      {edit && <ProjectForm project={p} onDone={() => { setEdit(false); refresh() }} onCancel={() => setEdit(false)} />}
+    </>
   )
 }

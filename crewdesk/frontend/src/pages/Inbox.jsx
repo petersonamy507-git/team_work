@@ -1,7 +1,8 @@
 // Inbox (Teamwork /app/inbox): searchable list + preview pane, filters, options menu, mark read / archive
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Filter, MoreVertical, Check, CheckCheck, Archive, ArchiveRestore, Mail, MessageSquare, CheckSquare, Bell, ExternalLink, Send } from 'lucide-react'
+import { Search, Filter, MoreVertical, Check, CheckCheck, Archive, ArchiveRestore, Mail, MessageSquare, CheckSquare, Bell, ExternalLink, Send, ArrowUp, ArrowDown } from 'lucide-react'
+import { useAuth } from '../lib/auth'
 import { api, qs } from '../lib/api'
 import { useData, useUi } from '../lib/ui-context'
 import { timeAgo, fmtDate } from '../lib/format'
@@ -12,31 +13,75 @@ const KINDS = [['task', 'Tasks'], ['message', 'Messages'], ['comment', 'Comments
 const ICON = { message: Mail, comment: MessageSquare, task: CheckSquare }
 const pref = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v === '1' } catch { return d } }
 
-function Preview({ item }) {
+function Post({ who, when, body, highlight, sub }) {
+  return (
+    <div className={`ib-post ${highlight ? 'hl' : ''}`}>
+      <Avatar user={who} size={34} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="row" style={{ gap: 6 }}><b>{who?.name || 'Crewdesk'}</b><span className="spacer" style={{ flex: 1 }} /><span className="muted small">{timeAgo(when)}</span></div>
+        {sub && <div className="muted small">{sub}</div>}
+        <div className="ib-body">{body}</div>
+      </div>
+    </div>
+  )
+}
+
+function Preview({ item, onNav, onAct }) {
   const { openTask, refresh, notify } = useUi()
+  const { user } = useAuth()
   const navigate = useNavigate()
-  const link = item.link || ''
+  // older notifications point at /my-work; find the task they talk about from the quoted title
+  const quoted = (item.message.match(/"([^"]+)"/) || [])[1]
+  const [found, setFound] = useState(null)
+  useEffect(() => {
+    if (/^\/(tasks|projects|chat)\//.test(item.link || '') || !quoted) return
+    api.get(`/search?q=${encodeURIComponent(quoted)}`).then((r) => { const t = r.tasks.find((x) => x.title === quoted) || r.tasks[0]; if (t) setFound(`/tasks/${t.id}`) }).catch(() => {})
+  }, [item.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const link = found || item.link || ''
   const task = link.match(/^\/tasks\/(\d+)/)
   const msg = link.match(/^\/projects\/(\d+)\/messages\/(\d+)/)
-  const { data: t } = useData(task ? `/tasks/${task[1]}` : null, [link])
-  const { data: m, reload } = useData(msg ? `/messages/${msg[2]}` : null, [link])
+  const chat = link.match(/^\/chat\/(\d+)/)
+  const { data: t, error: terr, reload: reloadT } = useData(task ? `/tasks/${task[1]}` : null, [link])
+  const { data: m, error: merr, reload: reloadM } = useData(msg ? `/messages/${msg[2]}` : null, [link])
   const [reply, setReply] = useState('')
-  const send = async () => { if (!reply.trim()) return; await api.post(`/messages/${msg[2]}/replies`, { body: reply }); setReply(''); notify('Reply posted'); reload(); refresh() }
+  const end = useRef()
+  useEffect(() => { end.current?.scrollIntoView({ block: 'end' }) }, [t?.comments?.length, m?.replies?.length])
+  const send = async () => {
+    if (!reply.trim()) return
+    if (msg) { await api.post(`/messages/${msg[2]}/replies`, { body: reply }); reloadM() } else if (task) { await api.post(`/tasks/${task[1]}/comments`, { body: reply }); reloadT() }
+    setReply(''); notify('Reply posted'); refresh()
+  }
+  const crumbs = t ? [t.project_name, 'Tasks', t.title] : m ? [m.project_name || 'Project', 'Messages', m.title] : [item.kind]
+  const canReply = (task && t) || (msg && m)
   return (
-    <div style={{ padding: 24, overflow: 'auto', flex: 1 }}>
-      <div className="row" style={{ gap: 10, marginBottom: 12 }}><Avatar user={item.actor} size={34} /><div style={{ flex: 1 }}><div className="small muted">{timeAgo(item.created_at)}</div><b>{item.message}</b></div>
-        {link && <button className="btn" onClick={() => (task ? openTask(Number(task[1])) : navigate(link))}><ExternalLink size={14} />Open</button>}</div>
-      {t && <div className="card" style={{ padding: 16 }}>
-        <div className="muted small">{t.project_name} · {t.tasklist_name}</div><h2 style={{ fontSize: 18, margin: '4px 0 10px' }}>{t.title}</h2>
-        <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}><Pill tone={t.status === 'completed' ? 'green' : 'blue'}>{t.status.replace('_', ' ')}</Pill>{t.due_date && <Pill tone="amber">Due {fmtDate(t.due_date)}</Pill>}{(t.assignees || []).map((a) => <span key={a.id} className="kit-person"><Avatar user={a} size={20} />{a.name}</span>)}</div>
-        {t.description && <p style={{ marginTop: 12, whiteSpace: 'pre-wrap' }}>{t.description}</p>}
-        {(t.comments || []).slice(-5).map((c) => <div key={c.id} className="row" style={{ gap: 8, marginTop: 10, alignItems: 'flex-start' }}><Avatar user={c.user} size={24} /><div><b className="small">{c.user?.name}</b> <span className="muted small">{timeAgo(c.created_at)}</span><div>{c.body}</div></div></div>)}
-      </div>}
-      {m && <div className="card" style={{ padding: 16 }}>
-        <h2 style={{ fontSize: 18, marginBottom: 8 }}>{m.title}</h2><p style={{ whiteSpace: 'pre-wrap' }}>{m.body}</p>
-        {(m.replies || []).map((r) => <div key={r.id} className="row" style={{ gap: 8, marginTop: 12, alignItems: 'flex-start' }}><Avatar user={r.user} size={24} /><div><b className="small">{r.user?.name}</b> <span className="muted small">{timeAgo(r.created_at)}</span><div style={{ whiteSpace: 'pre-wrap' }}>{r.body}</div></div></div>)}
-        <div className="row" style={{ gap: 8, marginTop: 14 }}><textarea className="input" rows={2} placeholder="Write a reply…" value={reply} onChange={(e) => setReply(e.target.value)} /><button className="btn primary" onClick={send}><Send size={14} /></button></div>
-      </div>}
+    <div className="ib-preview">
+      <div className="ib-bar">
+        <span className="muted small ellipsis" style={{ flex: 1 }}>{crumbs.filter(Boolean).join(' › ')}</span>
+        <button className="icon-btn" title={item.is_read ? 'Mark as unread' : 'Mark as read'} onClick={() => onAct(`/inbox/${item.id}/read?read=${!item.is_read}`)}><CheckCheck size={16} /></button>
+        <button className="icon-btn" title="Archive" onClick={() => onAct(`/inbox/${item.id}/archive?archived=${!item.is_archived}`)}><Archive size={16} /></button>
+        <button className="icon-btn" title="Previous" onClick={() => onNav(-1)}><ArrowUp size={16} /></button>
+        <button className="icon-btn" title="Next" onClick={() => onNav(1)}><ArrowDown size={16} /></button>
+        {(link || chat) && <button className="icon-btn" title="Open" onClick={() => (task ? openTask(Number(task[1])) : navigate(link))}><ExternalLink size={16} /></button>}
+      </div>
+      <div className="ib-thread">
+        {(terr || merr) && <div className="kit-empty"><b>This item is no longer available</b><span>It may have been deleted.</span></div>}
+        {t && <>
+          <div className="ib-title"><h2>{t.title}</h2><div className="row" style={{ gap: 6, flexWrap: 'wrap' }}><Pill tone={t.status === 'completed' ? 'green' : 'blue'}>{t.status.replace('_', ' ')}</Pill>{t.due_date && <Pill tone="amber">Due {fmtDate(t.due_date)}</Pill>}{(t.assignees || []).map((a) => <span key={a.id} className="kit-person small"><Avatar user={a} size={18} />{a.name}</span>)}</div></div>
+          {t.description && <Post who={t.created_by} when={t.created_at} body={t.description} sub="created the task" />}
+          {(t.comments || []).map((c) => <Post key={c.id} who={c.user} when={c.created_at} body={c.body} highlight={item.kind === 'comment' && c === t.comments[t.comments.length - 1]} />)}
+          {!(t.comments || []).length && !t.description && <div className="muted small" style={{ padding: 20 }}>No comments yet. Start the conversation below.</div>}
+        </>}
+        {m && <>
+          <div className="ib-title"><h2>{m.title}</h2></div>
+          <Post who={m.user} when={m.created_at} body={m.body} highlight={!m.replies.length} />
+          {m.replies.map((r, k) => <Post key={r.id} who={r.user} when={r.created_at} body={r.body} highlight={k === m.replies.length - 1} />)}
+        </>}
+        {!t && !m && !terr && !merr && <Post who={item.actor} when={item.created_at} body={item.message} highlight />}
+        <div ref={end} />
+      </div>
+      {canReply && <div className="ib-reply"><Avatar user={user} size={32} />
+        <textarea rows={1} placeholder={msg ? 'Reply to message' : 'Add a comment'} value={reply} onChange={(e) => setReply(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send() }} />
+        <button className="btn primary" disabled={!reply.trim()} onClick={send}><Send size={14} /></button></div>}
     </div>
   )
 }
@@ -99,7 +144,7 @@ export default function InboxPage() {
               </div>) })}
         </div>
       </div>
-      {cur ? <Preview item={cur} /> : (
+      {cur ? <Preview key={cur.id} item={cur} onAct={(u) => act(u)} onNav={(d) => { const i = groups.findIndex((n) => n.id === cur.id); const n = groups[i + d]; if (n) setSel(n.id) }} /> : (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <EmptyState icon={Mail} title="Nothing to preview" text="Your inbox is a central hub for managing communications that are important to you. To preview, respond or react to updates without leaving your inbox, just select an item and view it in this panel." />
         </div>)}

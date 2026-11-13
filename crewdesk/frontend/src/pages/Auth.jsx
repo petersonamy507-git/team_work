@@ -4,12 +4,13 @@ import { useAuth } from '../lib/auth'
 
 function AuthShell({ title, children }) {
   return (
-    <div className="auth-wrap">
+    <div className="auth-wrap auth-bg">
       <div className="auth-card">
         <div className="brand"><img src="/logo.svg" width="32" alt="" />Crewdesk</div>
         <h2 style={{ marginBottom: 16 }}>{title}</h2>
         {children}
       </div>
+      <div className="auth-tagline">Plan projects, track time and deliver together.</div>
     </div>
   )
 }

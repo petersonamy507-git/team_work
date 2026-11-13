@@ -28,6 +28,7 @@ import { ProjectSection, ProjectDashboard } from './pages/ProjectExtras'
 import { Section } from './components/Kit'
 import { Clock as ClockIcon } from 'lucide-react'
 import ChatPage from './pages/Chat'
+import Automations from './pages/Automations'
 import SiteSettings from './pages/SiteSettings'
 import Welcome from './pages/Welcome'
 import Profile from './pages/Profile'
@@ -82,7 +83,8 @@ export default function App() {
         <Route path="work/dashboards" element={<Navigate to="/my-work?tab=dashboards" replace />} />
         <Route path="templates" element={<Templates />} />
         <Route path="proofs" element={<Proofs />} />
-        <Route path="automate" element={<Automate />} />
+        <Route path="automate" element={<Automations />} />
+        <Route path="automations" element={<Automations />} />
         <Route path="everything" element={<Navigate to="/everything/milestones" replace />} />
         <Route path="everything/:tab" element={<Everything />} />
         <Route path="people" element={<Navigate to="/people/people" replace />} />

@@ -5,14 +5,18 @@ import { Avatar, Due, PriorityPill } from './ui'
 
 const COLS = [['new', 'To do', '#94a3b8'], ['in_progress', 'In progress', '#3b82f6'], ['completed', 'Completed', '#10b981']]
 
-export default function BoardByStatus({ tasks }) {
+export default function BoardByStatus({ tasks: rawTasks }) {
   const { openTask, refresh } = useUi()
   const [drag, setDrag] = useState(null)
   const [over, setOver] = useState(null)
+  const [moved, setMoved] = useState({}) // optimistic: move the card before the server answers
+  const tasks = rawTasks.map((t) => (moved[t.id] ? { ...t, status: moved[t.id] } : t))
   const drop = async (status) => {
     setOver(null)
     if (!drag || drag.status === status) return
-    await api.patch(`/tasks/${drag.id}`, { status })
+    const id = drag.id
+    setMoved((m) => ({ ...m, [id]: status })); setDrag(null)
+    await api.patch(`/tasks/${id}`, { status }).catch(() => setMoved((m) => { const n = { ...m }; delete n[id]; return n }))
     refresh()
   }
   return (

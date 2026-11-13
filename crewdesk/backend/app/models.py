@@ -32,7 +32,16 @@ class Client(Base):
     phone: Mapped[str | None] = mapped_column(String(60), nullable=True)
     owner_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     address: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    address2: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    city: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    state: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    postcode: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    country: Mapped[str | None] = mapped_column(String(120), nullable=True)
     industry: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    logo: Mapped[str | None] = mapped_column(Text, nullable=True)  # data URL
+    internal_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    client_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    domains: Mapped[str | None] = mapped_column(String(500), nullable=True)  # comma separated
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
 

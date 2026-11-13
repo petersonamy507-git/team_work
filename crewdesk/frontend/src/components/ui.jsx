@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { X, Inbox } from 'lucide-react'
 import { PRIORITY, HEALTH, fmtDate, dueState } from '../lib/format'
 
@@ -77,18 +78,43 @@ export function Loading() {
   return <div className="empty">Loading…</div>
 }
 
+// Dropdown menu rendered in a portal with fixed positioning, so it is never cut off by
+// scrolling tables, sidebars or the window edge (flips left/up when there is no room).
 export function Menu({ trigger, children }) {
   const [open, setOpen] = useState(false)
+  const [pos, setPos] = useState(null)
   const ref = useRef()
+  const menuRef = useRef()
   useEffect(() => {
-    const h = (e) => ref.current && !ref.current.contains(e.target) && setOpen(false)
+    if (!open) return
+    const h = (e) => !ref.current?.contains(e.target) && !menuRef.current?.contains(e.target) && setOpen(false)
+    const close = (e) => { if (menuRef.current?.contains(e.target)) return; setOpen(false) }
+    const esc = (e) => e.key === 'Escape' && setOpen(false)
     document.addEventListener('mousedown', h)
-    return () => document.removeEventListener('mousedown', h)
-  }, [])
+    window.addEventListener('resize', close)
+    window.addEventListener('scroll', close, true)
+    window.addEventListener('keydown', esc)
+    return () => { document.removeEventListener('mousedown', h); window.removeEventListener('resize', close); window.removeEventListener('scroll', close, true); window.removeEventListener('keydown', esc) }
+  }, [open])
+  useLayoutEffect(() => {
+    if (!open || !ref.current || !menuRef.current) return
+    const t = ref.current.getBoundingClientRect()
+    const m = menuRef.current.getBoundingClientRect()
+    const vw = window.innerWidth, vh = window.innerHeight, pad = 8
+    // triggers on the left half open to the right, on the right half open to the left
+    let left = t.left + t.width / 2 < vw / 2 ? t.left : t.right - m.width
+    left = Math.max(pad, Math.min(left, vw - m.width - pad))
+    let top = t.bottom + 4
+    if (top + m.height > vh - pad && t.top - m.height - 4 > pad) top = t.top - m.height - 4 // flip up
+    top = Math.max(pad, Math.min(top, vh - m.height - pad))
+    setPos({ left, top })
+  }, [open])
   return (
     <span className="rel" ref={ref}>
-      <span onClick={(e) => { e.stopPropagation(); setOpen(!open) }}>{trigger}</span>
-      {open && <div className="menu" style={{ right: 0, top: '100%' }} onClick={() => setOpen(false)}>{children}</div>}
+      <span onClick={(e) => { e.stopPropagation(); setPos(null); setOpen(!open) }}>{trigger}</span>
+      {open && createPortal(
+        <div ref={menuRef} className="menu menu-float" style={{ position: 'fixed', left: pos?.left ?? -9999, top: pos?.top ?? -9999, maxHeight: 'calc(100vh - 16px)', overflowY: 'auto' }}
+          onMouseDown={(e) => e.stopPropagation()} onClick={() => setOpen(false)}>{children}</div>, document.body)}
     </span>
   )
 }

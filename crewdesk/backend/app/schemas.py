@@ -47,6 +47,15 @@ class ClientIn(BaseModel):
     owner_id: Optional[int] = None
     address: Optional[str] = None
     industry: Optional[str] = None
+    address2: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    postcode: Optional[str] = None
+    country: Optional[str] = None
+    logo: Optional[str] = None
+    internal_notes: Optional[str] = None
+    client_notes: Optional[str] = None
+    domains: Optional[str] = None
 
 
 class ProjectIn(BaseModel):
@@ -195,7 +204,10 @@ def user_brief(u: models.User | None):
 
 
 def client_out(c: models.Client):
-    return {"id": c.id, "name": c.name, "website": c.website, "email": c.email, "phone": c.phone}
+    return {"id": c.id, "name": c.name, "website": c.website, "email": c.email, "phone": c.phone,
+            "address": c.address, "address2": c.address2, "city": c.city, "state": c.state, "postcode": c.postcode,
+            "country": c.country, "industry": c.industry, "logo": c.logo, "internal_notes": c.internal_notes,
+            "client_notes": c.client_notes, "domains": c.domains, "owner_id": c.owner_id}
 
 
 def project_out(p: models.Project, extra: dict | None = None):

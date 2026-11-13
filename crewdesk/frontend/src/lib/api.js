@@ -3,7 +3,17 @@ const TOKEN_KEY = 'crewdesk_token'
 export const getToken = () => localStorage.getItem(TOKEN_KEY)
 export const setToken = (t) => (t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY))
 
+// thin progress bar at the top while a save (POST/PATCH/DELETE) is in flight
+let writes = 0
+const mark = () => typeof document !== 'undefined' && document.documentElement.classList.toggle('api-busy', writes > 0)
+
 async function request(method, url, body, isForm = false) {
+  const write = method !== 'GET'
+  if (write) { writes++; mark() }
+  try { return await doRequest(method, url, body, isForm) } finally { if (write) { writes--; mark() } }
+}
+
+async function doRequest(method, url, body, isForm = false) {
   const headers = {}
   const token = getToken()
   if (token) headers.Authorization = `Bearer ${token}`
