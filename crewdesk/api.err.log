@@ -1,14 +1,6 @@
 INFO:     Will watch for changes in these directories: ['E:\\teamwork\\crewdesk\\backend']
 INFO:     Uvicorn running on http://127.0.0.1:8010 (Press CTRL+C to quit)
-INFO:     Started reloader process [18048] using WatchFiles
-INFO:     Started server process [37360]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-WARNING:  WatchFiles detected changes in 'app\routers\parity.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [37360]
-INFO:     Started server process [37768]
+INFO:     Started reloader process [26684] using WatchFiles
+INFO:     Started server process [5404]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.

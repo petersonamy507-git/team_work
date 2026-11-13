@@ -304,3 +304,50 @@ class Reaction(Base):
     kind: Mapped[str] = mapped_column(String(20))
     ref_id: Mapped[str] = mapped_column(String(40), index=True)
     emoji: Mapped[str] = mapped_column(String(16))
+
+
+class SiteSetting(Base):
+    """Company-wide settings (Settings > General, Projects, Currencies, Time, Logo, Working hours, Appearance, Integrations)."""
+    __tablename__ = "site_settings"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    key: Mapped[str] = mapped_column(String(80), unique=True)
+    value: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON
+
+
+class UserPref(Base):
+    """Per-user preferences (welcome checklist, followed messages, dismissed banners...)."""
+    __tablename__ = "user_prefs"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    key: Mapped[str] = mapped_column(String(80))
+    value: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON
+
+
+class ChatChannel(Base):
+    __tablename__ = "chat_channels"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(120))
+    description: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    is_dm: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_private: Mapped[bool] = mapped_column(Boolean, default=False)
+    member_ids: Mapped[str | None] = mapped_column(Text, nullable=True)  # comma separated
+    created_by_id: Mapped[int | None] = UID()
+    created_at: Mapped[datetime] = NOW()
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    channel_id: Mapped[int] = mapped_column(ForeignKey("chat_channels.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[int | None] = UID()
+    body: Mapped[str] = mapped_column(Text)
+    is_bookmarked: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = NOW()
+
+
+class ChatRead(Base):
+    __tablename__ = "chat_reads"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    channel_id: Mapped[int] = mapped_column(ForeignKey("chat_channels.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    last_read_id: Mapped[int] = mapped_column(Integer, default=0)

@@ -27,6 +27,11 @@ import { Dashboard } from './pages/Home'
 import { ProjectSection, ProjectDashboard } from './pages/ProjectExtras'
 import { Section } from './components/Kit'
 import { Clock as ClockIcon } from 'lucide-react'
+import ChatPage from './pages/Chat'
+import SiteSettings from './pages/SiteSettings'
+import Welcome from './pages/Welcome'
+import Profile from './pages/Profile'
+import { ProjectTimeline, ProjectSchedule, MessagePage } from './pages/ProjectExtras'
 
 function Protected({ children }) {
   const { user, loading } = useAuth()
@@ -53,12 +58,15 @@ export default function App() {
           <Route path="table" element={<ProjectTable />} />
           <Route path="milestones" element={<ProjectMilestones />} />
           <Route path="messages" element={<ProjectMessages />} />
-          <Route path="messages/:mid" element={<MessageDetail />} />
+          <Route path="messages/:mid" element={<MessagePage />} />
           <Route path="files" element={<ProjectFiles />} />
           <Route path="time" element={<ProjectTime />} />
           <Route path="people" element={<ProjectPeople />} />
           <Route path="activity" element={<ProjectActivity />} />
           <Route path="x/:section" element={<ProjectSection />} />
+          <Route path="timeline" element={<ProjectTimeline />} />
+          <Route path="schedule" element={<ProjectSchedule />} />
+          <Route path="finance" element={<ProjectSection section="finance" />} />
         </Route>
         <Route path="tasks" element={<AllTasks />} />
         <Route path="tasks/board" element={<AllTasks />} />
@@ -79,7 +87,13 @@ export default function App() {
         <Route path="everything/:tab" element={<Everything />} />
         <Route path="people" element={<Navigate to="/people/people" replace />} />
         <Route path="people/:tab" element={<PeopleHub />} />
-        <Route path="people/person/:id" element={<PersonDetail />} />
+        <Route path="people/person/:id" element={<Profile />} />
+        <Route path="people/person/:id/:tab" element={<Profile />} />
+        <Route path="welcome" element={<Welcome />} />
+        <Route path="chat" element={<ChatPage />} />
+        <Route path="chat/v/:view" element={<ChatPage />} />
+        <Route path="chat/:cid" element={<ChatPage />} />
+        <Route path="settings/:tab" element={<SiteSettings />} />
         <Route path="finance" element={<Navigate to="/finance/budgets" replace />} />
         <Route path="finance/:tab" element={<Finance />} />
         <Route path="planning" element={<Navigate to="/planning/workload" replace />} />
@@ -95,7 +109,8 @@ export default function App() {
 
         <Route path="clients" element={<Clients />} />
         <Route path="activity" element={<ActivityPage />} />
-        <Route path="settings" element={<SettingsPage />} />
+        <Route path="settings" element={<Navigate to="/settings/general" replace />} />
+        <Route path="profile" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

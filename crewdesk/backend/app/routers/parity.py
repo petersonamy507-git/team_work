@@ -903,3 +903,235 @@ def delete_reply(rid: int, db: Session = Depends(get_db), user=Depends(current_u
     db.delete(r)
     db.commit()
     return {"ok": True}
+
+
+# ---------------------------------------------------------------- Settings + user prefs
+def _jload(v, default=None):
+    try:
+        return json.loads(v) if v else default
+    except ValueError:
+        return default
+
+
+@router.get("/settings")
+def get_settings(db: Session = Depends(get_db), user=Depends(current_user)):
+    return {r.key: _jload(r.value) for r in db.scalars(select(models.SiteSetting))}
+
+
+@router.patch("/settings")
+def set_settings(body: dict = Body(...), db: Session = Depends(get_db), user=Depends(current_user)):
+    if user.role != "admin":
+        raise HTTPException(403, "Only admins can change site settings")
+    for k, v in body.items():
+        row = db.scalar(select(models.SiteSetting).where(models.SiteSetting.key == k))
+        if not row:
+            row = models.SiteSetting(key=k[:80])
+            db.add(row)
+        row.value = json.dumps(v)
+    db.commit()
+    return get_settings(db, user)
+
+
+@router.get("/prefs")
+def get_prefs(db: Session = Depends(get_db), user=Depends(current_user)):
+    return {r.key: _jload(r.value) for r in db.scalars(select(models.UserPref).where(models.UserPref.user_id == user.id))}
+
+
+@router.patch("/prefs")
+def set_prefs(body: dict = Body(...), db: Session = Depends(get_db), user=Depends(current_user)):
+    for k, v in body.items():
+        row = db.scalar(select(models.UserPref).where(models.UserPref.user_id == user.id, models.UserPref.key == k))
+        if not row:
+            row = models.UserPref(user_id=user.id, key=k[:80])
+            db.add(row)
+        row.value = json.dumps(v)
+    db.commit()
+    return get_prefs(db, user)
+
+
+@router.patch("/messages/{mid}")
+def edit_message(mid: int, body: dict = Body(...), db: Session = Depends(get_db), user=Depends(current_user)):
+    m = get_or_404(db, models.Message, mid, "Message")
+    if m.user_id != user.id and user.role != "admin":
+        raise HTTPException(403, "Only the author can edit this message")
+    if body.get("title"):
+        m.title = body["title"][:250]
+    if "body" in body:
+        m.body = body["body"] or ""
+    log(db, user, f"edited message {m.title}", m.project_id)
+    db.commit()
+    return {"ok": True}
+
+
+# ---------------------------------------------------------------- Chat
+def _members(c):
+    return [int(x) for x in (c.member_ids or "").split(",") if x.strip().isdigit()]
+
+
+def _visible(c, uid):
+    return not (c.is_dm or c.is_private) or uid in _members(c)
+
+
+def _chan_out(db, c, uid):
+    last = db.scalar(select(models.ChatMessage).where(models.ChatMessage.channel_id == c.id)
+                     .order_by(models.ChatMessage.id.desc()).limit(1))
+    read = db.scalar(select(models.ChatRead).where(models.ChatRead.channel_id == c.id, models.ChatRead.user_id == uid))
+    unread = db.scalar(select(func.count(models.ChatMessage.id)).where(
+        models.ChatMessage.channel_id == c.id, models.ChatMessage.id > (read.last_read_id if read else 0),
+        models.ChatMessage.user_id != uid)) or 0
+    mem = _members(c)
+    name = c.name
+    other = None
+    if c.is_dm:
+        oid = next((m for m in mem if m != uid), uid)
+        other = db.get(models.User, oid)
+        name = other.name if other else c.name
+    return {"id": c.id, "name": name, "description": c.description, "is_dm": c.is_dm, "is_private": c.is_private,
+            "member_ids": mem, "member_count": len(mem) if mem else db.scalar(select(func.count(models.User.id))) or 0,
+            "is_member": not mem or uid in mem, "other": schemas.user_brief(other),
+            "last": {"body": last.body[:120], "user": schemas.user_brief(last.user_ref) if False else
+                     schemas.user_brief(db.get(models.User, last.user_id)) if last.user_id else None,
+                     "created_at": schemas.d(last.created_at)} if last else None,
+            "unread": unread, "created_at": schemas.d(c.created_at)}
+
+
+@router.get("/chat/channels")
+def chat_channels(db: Session = Depends(get_db), user=Depends(current_user)):
+    if not db.scalar(select(models.ChatChannel).limit(1)):
+        db.add(models.ChatChannel(name="General", description="Company-wide announcements and chat", created_by_id=user.id))
+        db.commit()
+    rows = [c for c in db.scalars(select(models.ChatChannel)) if _visible(c, user.id)]
+    out = [_chan_out(db, c, user.id) for c in rows]
+    out.sort(key=lambda c: (c["last"] or {}).get("created_at") or c["created_at"] or "", reverse=True)
+    return out
+
+
+@router.post("/chat/channels")
+def chat_create(body: dict = Body(...), db: Session = Depends(get_db), user=Depends(current_user)):
+    name = (body.get("name") or "").strip()
+    if not name:
+        raise HTTPException(400, "Channel name is required")
+    ids = sorted({int(i) for i in body.get("member_ids") or []} | ({user.id} if body.get("is_private") else set()))
+    c = models.ChatChannel(name=name[:120], description=body.get("description"), is_private=bool(body.get("is_private")),
+                           member_ids=",".join(map(str, ids)) if body.get("is_private") else None, created_by_id=user.id)
+    db.add(c)
+    db.flush()
+    db.add(models.ChatMessage(channel_id=c.id, user_id=user.id, body=f"{user.name} created the channel."))
+    db.commit()
+    return _chan_out(db, c, user.id)
+
+
+@router.post("/chat/dm/{uid}")
+def chat_dm(uid: int, db: Session = Depends(get_db), user=Depends(current_user)):
+    other = get_or_404(db, models.User, uid, "Person")
+    key = ",".join(map(str, sorted({user.id, other.id})))
+    c = db.scalar(select(models.ChatChannel).where(models.ChatChannel.is_dm.is_(True), models.ChatChannel.member_ids == key))
+    if not c:
+        c = models.ChatChannel(name=f"dm:{key}", is_dm=True, member_ids=key, created_by_id=user.id)
+        db.add(c)
+        db.commit()
+    return _chan_out(db, c, user.id)
+
+
+@router.patch("/chat/channels/{cid}")
+def chat_update(cid: int, body: dict = Body(...), db: Session = Depends(get_db), user=Depends(current_user)):
+    c = get_or_404(db, models.ChatChannel, cid, "Channel")
+    if body.get("name"):
+        c.name = body["name"][:120]
+    if "description" in body:
+        c.description = body["description"]
+    if "join" in body and not c.is_dm:
+        mem = set(_members(c))
+        if mem:
+            mem = mem | {user.id} if body["join"] else mem - {user.id}
+            c.member_ids = ",".join(map(str, sorted(mem)))
+    db.commit()
+    return _chan_out(db, c, user.id)
+
+
+@router.delete("/chat/channels/{cid}")
+def chat_delete(cid: int, db: Session = Depends(get_db), user=Depends(current_user)):
+    c = get_or_404(db, models.ChatChannel, cid, "Channel")
+    if c.created_by_id != user.id and user.role != "admin":
+        raise HTTPException(403, "Only the creator can delete this channel")
+    db.delete(c)
+    db.commit()
+    return {"ok": True}
+
+
+def _msg_out(db, m, users):
+    return {"id": m.id, "channel_id": m.channel_id, "body": m.body, "user": users.get(m.user_id),
+            "is_bookmarked": m.is_bookmarked, "created_at": schemas.d(m.created_at)}
+
+
+@router.get("/chat/channels/{cid}/messages")
+def chat_messages(cid: int, after: int = 0, db: Session = Depends(get_db), user=Depends(current_user)):
+    c = get_or_404(db, models.ChatChannel, cid, "Channel")
+    if not _visible(c, user.id):
+        raise HTTPException(403, "Not a member of this channel")
+    rows = db.scalars(select(models.ChatMessage).where(models.ChatMessage.channel_id == cid, models.ChatMessage.id > after)
+                      .order_by(models.ChatMessage.id.desc()).limit(200)).all()[::-1]
+    users = _names(db, [m.user_id for m in rows])
+    if rows:
+        read = db.scalar(select(models.ChatRead).where(models.ChatRead.channel_id == cid, models.ChatRead.user_id == user.id))
+        if not read:
+            read = models.ChatRead(channel_id=cid, user_id=user.id)
+            db.add(read)
+        read.last_read_id = max(read.last_read_id or 0, rows[-1].id)
+        db.commit()
+    return [_msg_out(db, m, users) for m in rows]
+
+
+@router.post("/chat/channels/{cid}/messages")
+def chat_send(cid: int, body: dict = Body(...), db: Session = Depends(get_db), user=Depends(current_user)):
+    c = get_or_404(db, models.ChatChannel, cid, "Channel")
+    if not _visible(c, user.id):
+        raise HTTPException(403, "Not a member of this channel")
+    text = (body.get("body") or "").strip()
+    if not text:
+        raise HTTPException(400, "Message is empty")
+    m = models.ChatMessage(channel_id=cid, user_id=user.id, body=text[:5000])
+    db.add(m)
+    if c.is_dm:
+        for uid in _members(c):
+            notify(db, uid, user, f"{user.name} sent you a chat message: {text[:80]}", f"/chat/{cid}", "chat")
+    db.commit()
+    return _msg_out(db, m, _names(db, [user.id]))
+
+
+@router.patch("/chat/messages/{mid}")
+def chat_edit(mid: int, body: dict = Body(...), db: Session = Depends(get_db), user=Depends(current_user)):
+    m = get_or_404(db, models.ChatMessage, mid, "Message")
+    if "is_bookmarked" in body:
+        m.is_bookmarked = bool(body["is_bookmarked"])
+    if "body" in body:
+        if m.user_id != user.id:
+            raise HTTPException(403, "You can only edit your own messages")
+        m.body = (body["body"] or "")[:5000]
+    db.commit()
+    return _msg_out(db, m, _names(db, [m.user_id]))
+
+
+@router.delete("/chat/messages/{mid}")
+def chat_del(mid: int, db: Session = Depends(get_db), user=Depends(current_user)):
+    m = get_or_404(db, models.ChatMessage, mid, "Message")
+    if m.user_id != user.id and user.role != "admin":
+        raise HTTPException(403, "Not allowed")
+    db.delete(m)
+    db.commit()
+    return {"ok": True}
+
+
+@router.get("/chat/bookmarks")
+def chat_bookmarks(db: Session = Depends(get_db), user=Depends(current_user)):
+    rows = db.scalars(select(models.ChatMessage).where(models.ChatMessage.is_bookmarked.is_(True))
+                      .order_by(models.ChatMessage.id.desc()).limit(100)).all()
+    users = _names(db, [m.user_id for m in rows])
+    chans = {c.id: c for c in db.scalars(select(models.ChatChannel))}
+    return [{**_msg_out(db, m, users), "channel_name": _chan_out(db, chans[m.channel_id], user.id)["name"]}
+            for m in rows if m.channel_id in chans and _visible(chans[m.channel_id], user.id)]
+
+
+@router.get("/chat/unread")
+def chat_unread(db: Session = Depends(get_db), user=Depends(current_user)):
+    return {"unread": sum(c["unread"] for c in chat_channels(db, user))}

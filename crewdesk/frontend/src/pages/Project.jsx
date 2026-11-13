@@ -14,8 +14,9 @@ import { StarButton } from './Projects'
 import { PROJECT_MORE } from './ProjectExtras'
 
 // Teamwork project tabs: Dashboard, List, Board, Table, Files, Messages, Comments, then the rest under More…
-const TABS = [['', 'Dashboard'], ['tasks', 'List'], ['board', 'Board'], ['table', 'Table'], ['files', 'Files'], ['messages', 'Messages'], ['x/comments', 'Comments']]
-const MORE_TABS = [['milestones', 'Milestones'], ['time', 'Time'], ['people', 'People'], ['activity', 'Activity'], ['overview', 'Overview']]
+const TABS = [['', 'Dashboard'], ['tasks', 'List'], ['board', 'Board'], ['table', 'Table'], ['timeline', 'Timeline'], ['time', 'Time'], ['finance', 'Finance'], ['schedule', 'Schedule'],
+  ['files', 'Files'], ['messages', 'Messages'], ['x/comments', 'Comments']]
+const MORE_TABS = [['milestones', 'Milestones'], ['people', 'People'], ['activity', 'Activity'], ['overview', 'Overview']]
 
 export default function ProjectLayout() {
   const { pid } = useParams()
@@ -67,7 +68,7 @@ export default function ProjectLayout() {
         {TABS.map(([path, label]) => (
           <NavLink key={path} end={path === ''} to={`/projects/${pid}${path ? '/' + path : ''}`} className={({ isActive }) => `tab ${isActive ? 'active' : ''}`}>{label}</NavLink>
         ))}
-        <Menu trigger={<button className={`tab ${/\/(x\/(?!comments)|milestones|time|people|activity|overview)/.test(window.location.pathname) ? 'active' : ''}`}>More…</button>}>
+        <Menu trigger={<button className={`tab ${/\/(x\/(?!comments)|milestones|people|activity|overview)/.test(window.location.pathname) ? 'active' : ''}`}>More…</button>}>
           {MORE_TABS.map(([k, l]) => <button key={k} onClick={() => navigate(`/projects/${pid}/${k}`)}>{l}</button>)}
           {PROJECT_MORE.filter(([k]) => k !== 'comments').map(([k, l]) => <button key={k} onClick={() => navigate(`/projects/${pid}/x/${k}`)}>{l}</button>)}
         </Menu>

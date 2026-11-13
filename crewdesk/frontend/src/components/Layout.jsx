@@ -4,6 +4,7 @@ import {
   Home, CheckCircle2, Inbox, Folder, Clock, Users, BarChart3, Flag, CalendarDays, Building2, Activity,
   Plus, Search, LogOut, ChevronsLeft, ChevronsRight, Star, Settings, ListChecks, MessageSquare, FolderPlus, Timer,
   Menu as MenuIcon, Bell, HelpCircle, ChevronRight, CheckSquare, Sparkles, DollarSign, Grid3x3,
+  MessageCircle, Bot, BookOpen, Pencil, CreditCard, Gift, Palette as PaletteIcon, Rocket, Keyboard,
 } from 'lucide-react'
 import { useAuth } from '../lib/auth'
 import { useUi } from '../lib/ui-context'
@@ -12,6 +13,7 @@ import { Avatar, Menu, Toast } from './ui'
 import TaskDrawer from './TaskDrawer'
 import QuickAdd from './QuickAdd'
 import SideNav from './SideNav'
+import { GettingStarted } from '../pages/Welcome'
 
 // Quick add items as in Teamwork: [key, label, icon, quickAdd kind or route, keyboard shortcut]
 const QUICK = [
@@ -106,6 +108,10 @@ export default function Layout() {
     return () => window.removeEventListener('keydown', k)
   })
 
+  const [chatUnread, setChatUnread] = useState(0)
+  useEffect(() => { const f = () => api.get('/chat/unread').then((r) => setChatUnread(r.unread)).catch(() => {}); f(); const t = setInterval(f, 15000); return () => clearInterval(t) }, [])
+  const [logo, setLogo] = useState(null)
+  useEffect(() => { api.get('/settings').then((st) => setLogo(st.logo?.data || null)).catch(() => {}) }, [])
   const toggle = () => { localStorage.setItem('cd_side', collapsed ? '0' : '1'); setCollapsed(!collapsed) }
   const starred = projects.filter((p) => p.is_starred)
 
@@ -114,24 +120,36 @@ export default function Layout() {
       <header className="tw-topbar">
         <div className="tt-left">
           <button className="tt-icon" title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={toggle}><MenuIcon size={18} /></button>
-          <NavLink to="/" className="tt-logo" title="Crewdesk home"><img src="/logo.svg" alt="Crewdesk" /></NavLink>
+          <NavLink to="/" className="tt-logo" title="Crewdesk home"><img src={logo || "/logo.svg"} alt="Crewdesk" /></NavLink>
         </div>
         <button className="tt-search" onClick={() => setPaletteOpen(true)}><Search size={14} />Search<kbd>Ctrl + K</kbd></button>
         <div className="tt-right">
-          <button className="tt-icon" title="Log time" onClick={() => setQuickAdd('time')}><Timer size={17} /></button>
+          <button className="tt-icon" title="Start a new timer" onClick={() => runQuick('timer')}><Timer size={17} /></button>
+          <button className="tt-upgrade" onClick={() => navigate('/settings/subscription')}>Plan</button>
           <button className="tt-icon rel" title="Notifications" onClick={() => navigate('/inbox')}><Bell size={17} />{unread > 0 && <span className="tt-badge">{unread > 99 ? '99+' : unread}</span>}</button>
-          <button className="tt-icon" title="Help" onClick={() => notify('Press Ctrl+K to search, or T, P, L, M, E, N, B, S for Quick add')}><HelpCircle size={17} /></button>
-          <Menu trigger={<button className="tt-icon" title="Apps"><Grid3x3 size={17} /></button>}>
-            <button onClick={() => navigate('/settings')}><Settings size={15} />Settings</button>
-            <button onClick={() => navigate('/automate')}><Activity size={15} />Automate</button>
-            <button onClick={() => navigate('/proofs')}><CheckSquare size={15} />Proofs</button>
-            <button onClick={() => navigate('/planning/workload')}><Users size={15} />Resourcing</button>
+          <button className="tt-icon rel" title="Chat" onClick={() => navigate('/chat')}><MessageCircle size={17} />{chatUnread > 0 && <span className="tt-badge">{chatUnread}</span>}</button>
+          <Menu trigger={<button className="tt-icon" title="Help"><HelpCircle size={17} /></button>}>
+            <button onClick={() => navigate('/welcome')}><Rocket size={15} />Getting started</button>
+            <button onClick={() => notify('Shortcuts: Ctrl+K search · T task · P project · L log time · S timer · M milestone · E event · N message · B budget')}><Keyboard size={15} />Keyboard shortcuts</button>
+            <button onClick={() => navigate('/ai/ask')}><Sparkles size={15} />Ask AI for help</button>
+          </Menu>
+          <button className="tt-icon" title="Automations" onClick={() => navigate('/automate')}><Bot size={17} /></button>
+          <Menu trigger={<button className="tt-icon" title="Other apps"><Grid3x3 size={17} /></button>}>
+            <button onClick={() => navigate('/chat')}><MessageCircle size={15} />Crewdesk Chat</button>
+            <button onClick={() => navigate('/everything/notebooks')}><BookOpen size={15} />Crewdesk Spaces (Notebooks)</button>
+            <button onClick={() => navigate('/settings/integrations')}><Settings size={15} />Manage apps</button>
           </Menu>
           <button className="tt-ask" onClick={() => navigate('/ai/ask')}><Sparkles size={13} />Ask AI</button>
           <Menu trigger={<button className="tt-avatar"><Avatar user={user} size={24} /></button>}>
-            <div style={{ padding: '8px 10px' }}><b>{user.name}</b><div className="muted small">{user.email}</div></div>
-            <button onClick={() => navigate('/settings')}><Settings size={15} />Profile and settings</button>
-            <button onClick={() => { logout(); navigate('/login') }}><LogOut size={15} />Sign out</button>
+            <div className="row" style={{ padding: '8px 10px', gap: 10, cursor: 'pointer' }} onClick={() => navigate(`/people/person/${user.id}/details`)}><Avatar user={user} size={34} /><div><b>{user.name}</b><div className="small" style={{ color: 'var(--accent)' }}>View profile</div></div></div>
+            <button onClick={() => navigate('/settings/profile')}><Pencil size={15} />Edit my details</button>
+            <button onClick={() => navigate('/settings/general')}><Settings size={15} />Settings</button>
+            <button onClick={() => navigate('/settings/subscription')}><CreditCard size={15} />Subscription</button>
+            <button onClick={() => navigate('/my-work')}><CheckSquare size={15} />My tasks</button>
+            <button onClick={() => navigate('/settings/integrations')}><Grid3x3 size={15} />Apps and integrations</button>
+            <button onClick={() => navigate('/activity')}><Gift size={15} />What's new?</button>
+            <button onClick={() => navigate('/settings/appearance')}><PaletteIcon size={15} />Appearance</button>
+            <button onClick={() => { logout(); navigate('/login') }}><LogOut size={15} />Logout</button>
           </Menu>
         </div>
       </header>
@@ -149,6 +167,7 @@ export default function Layout() {
       </div>
       <TaskDrawer />
       <QuickAdd />
+      <GettingStarted />
       <Palette />
       {toast && <Toast text={toast} onDone={() => notify(null)} />}
     </div>

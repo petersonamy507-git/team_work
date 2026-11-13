@@ -619,3 +619,488 @@ m [32mhmr update [39m[2m/src/components/Layout.jsx[22m
 [2m3:52:25 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/parity.css[22m
 [2m3:52:41 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Projects.jsx[22m
 [2m3:52:41 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/parity.css[22m
+[2m4:16:53 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/parity.css[22m
+[2m4:19:02 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/parity.css[22m
+[2m4:19:30 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx[22m
+[2m4:19:30 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/Layout.jsx[22m
+[2m4:19:30 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/SideNav.jsx[22m
+[2m4:19:30 AM[22m [31m[1m[vite][22m[39m [31mInternal server error: E:\teamwork\crewdesk\frontend\src\components\Layout.jsx: Identifier 'Palette' has already been declared. (44:9)
+
+[0m [90m 42 |[31m ]
+ [90m 43 |[31m
+[31m[1m>[22m[31m[90m 44 |[31m [36mfunction[31m [33mPalette[31m() {
+ [90m    |[31m          [31m[1m^[22m[31m
+ [90m 45 |[31m   [36mconst[31m { paletteOpen[33m,[31m setPaletteOpen[33m,[31m openTask } [33m=[31m useUi()
+ [90m 46 |[31m   [36mconst[31m navigate [33m=[31m useNavigate()
+ [90m 47 |[31m   [36mconst[31m [q[33m,[31m setQ] [33m=[31m useState([32m''[31m)[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mE:/teamwork/crewdesk/frontend/src/components/Layout.jsx[39m:44:9
+[33m  43 |  
+  44 |  function Palette() {
+  45 |    const { paletteOpen, setPaletteOpen, openTask } = useUi()
+     |                                 ^
+  46 |    const navigate = useNavigate()
+  47 |    const [q, setQ] = useState('')[39m
+      at constructor (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at JSXParserMixin.raise (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:6632:19)
+      at ScopeHandler.checkRedeclarationInScope (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1626:19)
+      at ScopeHandler.declareName (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1592:12)
+      at JSXParserMixin.registerFunctionStatementId (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10507:16)
+      at JSXParserMixin.parseFunction (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10491:12)
+      at JSXParserMixin.parseFunctionStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10165:17)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9818:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseModuleItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9771:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:36)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseProgram (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9633:10)
+      at JSXParserMixin.parseTopLevel (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9623:25)
+      at JSXParserMixin.parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14896:25)
+      at parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14930:38)
+      at parser (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
+      at normalizeFile.next (<anonymous>)
+      at run (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:261:32)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:189:28
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:113:33
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:287:14)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+[2m4:19:30 AM[22m [31m[1m[vite][22m[39m [31mInternal server error: E:\teamwork\crewdesk\frontend\src\components\Layout.jsx: Identifier 'Palette' has already been declared. (44:9)
+
+[0m [90m 42 |[31m ]
+ [90m 43 |[31m
+[31m[1m>[22m[31m[90m 44 |[31m [36mfunction[31m [33mPalette[31m() {
+ [90m    |[31m          [31m[1m^[22m[31m
+ [90m 45 |[31m   [36mconst[31m { paletteOpen[33m,[31m setPaletteOpen[33m,[31m openTask } [33m=[31m useUi()
+ [90m 46 |[31m   [36mconst[31m navigate [33m=[31m useNavigate()
+ [90m 47 |[31m   [36mconst[31m [q[33m,[31m setQ] [33m=[31m useState([32m''[31m)[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mE:/teamwork/crewdesk/frontend/src/components/Layout.jsx[39m:44:9
+[33m  43 |  
+  44 |  function Palette() {
+  45 |    const { paletteOpen, setPaletteOpen, openTask } = useUi()
+     |                                 ^
+  46 |    const navigate = useNavigate()
+  47 |    const [q, setQ] = useState('')[39m
+      at constructor (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at JSXParserMixin.raise (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:6632:19)
+      at ScopeHandler.checkRedeclarationInScope (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1626:19)
+      at ScopeHandler.declareName (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1592:12)
+      at JSXParserMixin.registerFunctionStatementId (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10507:16)
+      at JSXParserMixin.parseFunction (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10491:12)
+      at JSXParserMixin.parseFunctionStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10165:17)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9818:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseModuleItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9771:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:36)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseProgram (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9633:10)
+      at JSXParserMixin.parseTopLevel (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9623:25)
+      at JSXParserMixin.parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14896:25)
+      at parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14930:38)
+      at parser (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
+      at normalizeFile.next (<anonymous>)
+      at run (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:261:32)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:189:28
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:113:33
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:287:14)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+[2m4:19:30 AM[22m [31m[1m[vite][22m[39m Pre-transform error: E:\teamwork\crewdesk\frontend\src\components\Layout.jsx: Identifier 'Palette' has already been declared. (44:9)
+
+[0m [90m 42 |[39m ]
+ [90m 43 |[39m
+[31m[1m>[22m[39m[90m 44 |[39m [36mfunction[39m [33mPalette[39m() {
+ [90m    |[39m          [31m[1m^[22m[39m
+ [90m 45 |[39m   [36mconst[39m { paletteOpen[33m,[39m setPaletteOpen[33m,[39m openTask } [33m=[39m useUi()
+ [90m 46 |[39m   [36mconst[39m navigate [33m=[39m useNavigate()
+ [90m 47 |[39m   [36mconst[39m [q[33m,[39m setQ] [33m=[39m useState([32m''[39m)[0m
+[2m4:19:30 AM[22m [31m[1m[vite][22m[39m [31mInternal server error: E:\teamwork\crewdesk\frontend\src\components\Layout.jsx: Identifier 'Palette' has already been declared. (44:9)
+
+[0m [90m 42 |[31m ]
+ [90m 43 |[31m
+[31m[1m>[22m[31m[90m 44 |[31m [36mfunction[31m [33mPalette[31m() {
+ [90m    |[31m          [31m[1m^[22m[31m
+ [90m 45 |[31m   [36mconst[31m { paletteOpen[33m,[31m setPaletteOpen[33m,[31m openTask } [33m=[31m useUi()
+ [90m 46 |[31m   [36mconst[31m navigate [33m=[31m useNavigate()
+ [90m 47 |[31m   [36mconst[31m [q[33m,[31m setQ] [33m=[31m useState([32m''[31m)[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mE:/teamwork/crewdesk/frontend/src/components/Layout.jsx[39m:44:9
+[33m  43 |  
+  44 |  function Palette() {
+  45 |    const { paletteOpen, setPaletteOpen, openTask } = useUi()
+     |                                 ^
+  46 |    const navigate = useNavigate()
+  47 |    const [q, setQ] = useState('')[39m
+      at constructor (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at JSXParserMixin.raise (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:6632:19)
+      at ScopeHandler.checkRedeclarationInScope (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1626:19)
+      at ScopeHandler.declareName (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1592:12)
+      at JSXParserMixin.registerFunctionStatementId (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10507:16)
+      at JSXParserMixin.parseFunction (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10491:12)
+      at JSXParserMixin.parseFunctionStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10165:17)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9818:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseModuleItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9771:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:36)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseProgram (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9633:10)
+      at JSXParserMixin.parseTopLevel (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9623:25)
+      at JSXParserMixin.parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14896:25)
+      at parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14930:38)
+      at parser (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
+      at normalizeFile.next (<anonymous>)
+      at run (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:261:32)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:189:28
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:113:33
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:287:14)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+[2m4:19:30 AM[22m [31m[1m[vite][22m[39m [31mInternal server error: E:\teamwork\crewdesk\frontend\src\components\Layout.jsx: Identifier 'Palette' has already been declared. (44:9)
+
+[0m [90m 42 |[31m ]
+ [90m 43 |[31m
+[31m[1m>[22m[31m[90m 44 |[31m [36mfunction[31m [33mPalette[31m() {
+ [90m    |[31m          [31m[1m^[22m[31m
+ [90m 45 |[31m   [36mconst[31m { paletteOpen[33m,[31m setPaletteOpen[33m,[31m openTask } [33m=[31m useUi()
+ [90m 46 |[31m   [36mconst[31m navigate [33m=[31m useNavigate()
+ [90m 47 |[31m   [36mconst[31m [q[33m,[31m setQ] [33m=[31m useState([32m''[31m)[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mE:/teamwork/crewdesk/frontend/src/components/Layout.jsx[39m:44:9
+[33m  43 |  
+  44 |  function Palette() {
+  45 |    const { paletteOpen, setPaletteOpen, openTask } = useUi()
+     |                                 ^
+  46 |    const navigate = useNavigate()
+  47 |    const [q, setQ] = useState('')[39m
+      at constructor (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at JSXParserMixin.raise (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:6632:19)
+      at ScopeHandler.checkRedeclarationInScope (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1626:19)
+      at ScopeHandler.declareName (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1592:12)
+      at JSXParserMixin.registerFunctionStatementId (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10507:16)
+      at JSXParserMixin.parseFunction (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10491:12)
+      at JSXParserMixin.parseFunctionStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10165:17)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9818:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseModuleItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9771:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:36)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseProgram (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9633:10)
+      at JSXParserMixin.parseTopLevel (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9623:25)
+      at JSXParserMixin.parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14896:25)
+      at parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14930:38)
+      at parser (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
+      at normalizeFile.next (<anonymous>)
+      at run (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:261:32)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:189:28
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:113:33
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:287:14)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+[2m4:19:30 AM[22m [31m[1m[vite][22m[39m [31mInternal server error: E:\teamwork\crewdesk\frontend\src\components\Layout.jsx: Identifier 'Palette' has already been declared. (44:9)
+
+[0m [90m 42 |[31m ]
+ [90m 43 |[31m
+[31m[1m>[22m[31m[90m 44 |[31m [36mfunction[31m [33mPalette[31m() {
+ [90m    |[31m          [31m[1m^[22m[31m
+ [90m 45 |[31m   [36mconst[31m { paletteOpen[33m,[31m setPaletteOpen[33m,[31m openTask } [33m=[31m useUi()
+ [90m 46 |[31m   [36mconst[31m navigate [33m=[31m useNavigate()
+ [90m 47 |[31m   [36mconst[31m [q[33m,[31m setQ] [33m=[31m useState([32m''[31m)[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mE:/teamwork/crewdesk/frontend/src/components/Layout.jsx[39m:44:9
+[33m  43 |  
+  44 |  function Palette() {
+  45 |    const { paletteOpen, setPaletteOpen, openTask } = useUi()
+     |                                 ^
+  46 |    const navigate = useNavigate()
+  47 |    const [q, setQ] = useState('')[39m
+      at constructor (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at JSXParserMixin.raise (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:6632:19)
+      at ScopeHandler.checkRedeclarationInScope (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1626:19)
+      at ScopeHandler.declareName (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1592:12)
+      at JSXParserMixin.registerFunctionStatementId (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10507:16)
+      at JSXParserMixin.parseFunction (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10491:12)
+      at JSXParserMixin.parseFunctionStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10165:17)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9818:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseModuleItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9771:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:36)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseProgram (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9633:10)
+      at JSXParserMixin.parseTopLevel (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9623:25)
+      at JSXParserMixin.parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14896:25)
+      at parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14930:38)
+      at parser (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
+      at normalizeFile.next (<anonymous>)
+      at run (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:261:32)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:189:28
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:113:33
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:287:14)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+[2m4:19:30 AM[22m [31m[1m[vite][22m[39m [31mInternal server error: E:\teamwork\crewdesk\frontend\src\components\Layout.jsx: Identifier 'Palette' has already been declared. (44:9)
+
+[0m [90m 42 |[31m ]
+ [90m 43 |[31m
+[31m[1m>[22m[31m[90m 44 |[31m [36mfunction[31m [33mPalette[31m() {
+ [90m    |[31m          [31m[1m^[22m[31m
+ [90m 45 |[31m   [36mconst[31m { paletteOpen[33m,[31m setPaletteOpen[33m,[31m openTask } [33m=[31m useUi()
+ [90m 46 |[31m   [36mconst[31m navigate [33m=[31m useNavigate()
+ [90m 47 |[31m   [36mconst[31m [q[33m,[31m setQ] [33m=[31m useState([32m''[31m)[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mE:/teamwork/crewdesk/frontend/src/components/Layout.jsx[39m:44:9
+[33m  43 |  
+  44 |  function Palette() {
+  45 |    const { paletteOpen, setPaletteOpen, openTask } = useUi()
+     |                                 ^
+  46 |    const navigate = useNavigate()
+  47 |    const [q, setQ] = useState('')[39m
+      at constructor (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at JSXParserMixin.raise (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:6632:19)
+      at ScopeHandler.checkRedeclarationInScope (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1626:19)
+      at ScopeHandler.declareName (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1592:12)
+      at JSXParserMixin.registerFunctionStatementId (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10507:16)
+      at JSXParserMixin.parseFunction (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10491:12)
+      at JSXParserMixin.parseFunctionStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10165:17)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9818:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseModuleItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9771:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:36)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseProgram (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9633:10)
+      at JSXParserMixin.parseTopLevel (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9623:25)
+      at JSXParserMixin.parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14896:25)
+      at parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14930:38)
+      at parser (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
+      at normalizeFile.next (<anonymous>)
+      at run (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:261:32)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:189:28
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:113:33
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:287:14)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+[2m4:20:10 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Project.jsx[22m
+[2m4:20:10 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ProjectExtras.jsx[22m
+[2m4:20:10 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/parity.css[22m
+[2m4:20:11 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/pages/ProjectExtras.jsx[22m Could not Fast Refresh (new export)
+[2m4:20:11 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/pages/Project.jsx[22m
+[2m4:20:11 AM[22m [31m[1m[vite][22m[39m Pre-transform error: E:\teamwork\crewdesk\frontend\src\components\Layout.jsx: Identifier 'Palette' has already been declared. (44:9)
+
+[0m [90m 42 |[39m ]
+ [90m 43 |[39m
+[31m[1m>[22m[39m[90m 44 |[39m [36mfunction[39m [33mPalette[39m() {
+ [90m    |[39m          [31m[1m^[22m[39m
+ [90m 45 |[39m   [36mconst[39m { paletteOpen[33m,[39m setPaletteOpen[33m,[39m openTask } [33m=[39m useUi()
+ [90m 46 |[39m   [36mconst[39m navigate [33m=[39m useNavigate()
+ [90m 47 |[39m   [36mconst[39m [q[33m,[39m setQ] [33m=[39m useState([32m''[39m)[0m
+[2m4:20:11 AM[22m [31m[1m[vite][22m[39m [31mInternal server error: E:\teamwork\crewdesk\frontend\src\components\Layout.jsx: Identifier 'Palette' has already been declared. (44:9)
+
+[0m [90m 42 |[31m ]
+ [90m 43 |[31m
+[31m[1m>[22m[31m[90m 44 |[31m [36mfunction[31m [33mPalette[31m() {
+ [90m    |[31m          [31m[1m^[22m[31m
+ [90m 45 |[31m   [36mconst[31m { paletteOpen[33m,[31m setPaletteOpen[33m,[31m openTask } [33m=[31m useUi()
+ [90m 46 |[31m   [36mconst[31m navigate [33m=[31m useNavigate()
+ [90m 47 |[31m   [36mconst[31m [q[33m,[31m setQ] [33m=[31m useState([32m''[31m)[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mE:/teamwork/crewdesk/frontend/src/components/Layout.jsx[39m:44:9
+[33m  43 |  
+  44 |  function Palette() {
+  45 |    const { paletteOpen, setPaletteOpen, openTask } = useUi()
+     |                                 ^
+  46 |    const navigate = useNavigate()
+  47 |    const [q, setQ] = useState('')[39m
+      at constructor (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at JSXParserMixin.raise (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:6632:19)
+      at ScopeHandler.checkRedeclarationInScope (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1626:19)
+      at ScopeHandler.declareName (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1592:12)
+      at JSXParserMixin.registerFunctionStatementId (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10507:16)
+      at JSXParserMixin.parseFunction (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10491:12)
+      at JSXParserMixin.parseFunctionStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10165:17)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9818:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseModuleItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9771:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:36)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseProgram (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9633:10)
+      at JSXParserMixin.parseTopLevel (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9623:25)
+      at JSXParserMixin.parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14896:25)
+      at parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14930:38)
+      at parser (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
+      at normalizeFile.next (<anonymous>)
+      at run (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:261:32)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:189:28
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:113:33
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:287:14)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+[2m4:20:11 AM[22m [31m[1m[vite][22m[39m [31mInternal server error: E:\teamwork\crewdesk\frontend\src\components\Layout.jsx: Identifier 'Palette' has already been declared. (44:9)
+
+[0m [90m 42 |[31m ]
+ [90m 43 |[31m
+[31m[1m>[22m[31m[90m 44 |[31m [36mfunction[31m [33mPalette[31m() {
+ [90m    |[31m          [31m[1m^[22m[31m
+ [90m 45 |[31m   [36mconst[31m { paletteOpen[33m,[31m setPaletteOpen[33m,[31m openTask } [33m=[31m useUi()
+ [90m 46 |[31m   [36mconst[31m navigate [33m=[31m useNavigate()
+ [90m 47 |[31m   [36mconst[31m [q[33m,[31m setQ] [33m=[31m useState([32m''[31m)[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mE:/teamwork/crewdesk/frontend/src/components/Layout.jsx[39m:44:9
+[33m  43 |  
+  44 |  function Palette() {
+  45 |    const { paletteOpen, setPaletteOpen, openTask } = useUi()
+     |                                 ^
+  46 |    const navigate = useNavigate()
+  47 |    const [q, setQ] = useState('')[39m
+      at constructor (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at JSXParserMixin.raise (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:6632:19)
+      at ScopeHandler.checkRedeclarationInScope (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1626:19)
+      at ScopeHandler.declareName (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1592:12)
+      at JSXParserMixin.registerFunctionStatementId (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10507:16)
+      at JSXParserMixin.parseFunction (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10491:12)
+      at JSXParserMixin.parseFunctionStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10165:17)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9818:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseModuleItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9771:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:36)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseProgram (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9633:10)
+      at JSXParserMixin.parseTopLevel (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9623:25)
+      at JSXParserMixin.parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14896:25)
+      at parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14930:38)
+      at parser (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
+      at normalizeFile.next (<anonymous>)
+      at run (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:261:32)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:189:28
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:113:33
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:287:14)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+[2m4:20:11 AM[22m [31m[1m[vite][22m[39m [31mInternal server error: E:\teamwork\crewdesk\frontend\src\components\Layout.jsx: Identifier 'Palette' has already been declared. (44:9)
+
+[0m [90m 42 |[31m ]
+ [90m 43 |[31m
+[31m[1m>[22m[31m[90m 44 |[31m [36mfunction[31m [33mPalette[31m() {
+ [90m    |[31m          [31m[1m^[22m[31m
+ [90m 45 |[31m   [36mconst[31m { paletteOpen[33m,[31m setPaletteOpen[33m,[31m openTask } [33m=[31m useUi()
+ [90m 46 |[31m   [36mconst[31m navigate [33m=[31m useNavigate()
+ [90m 47 |[31m   [36mconst[31m [q[33m,[31m setQ] [33m=[31m useState([32m''[31m)[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mE:/teamwork/crewdesk/frontend/src/components/Layout.jsx[39m:44:9
+[33m  43 |  
+  44 |  function Palette() {
+  45 |    const { paletteOpen, setPaletteOpen, openTask } = useUi()
+     |                                 ^
+  46 |    const navigate = useNavigate()
+  47 |    const [q, setQ] = useState('')[39m
+      at constructor (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at JSXParserMixin.raise (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:6632:19)
+      at ScopeHandler.checkRedeclarationInScope (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1626:19)
+      at ScopeHandler.declareName (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:1592:12)
+      at JSXParserMixin.registerFunctionStatementId (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10507:16)
+      at JSXParserMixin.parseFunction (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10491:12)
+      at JSXParserMixin.parseFunctionStatement (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10165:17)
+      at JSXParserMixin.parseStatementContent (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9818:21)
+      at JSXParserMixin.parseStatementLike (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9794:17)
+      at JSXParserMixin.parseModuleItem (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9771:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10356:36)
+      at JSXParserMixin.parseBlockBody (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:10349:10)
+      at JSXParserMixin.parseProgram (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9633:10)
+      at JSXParserMixin.parseTopLevel (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:9623:25)
+      at JSXParserMixin.parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14896:25)
+      at parse (E:\teamwork\crewdesk\frontend\node_modules\@babel\parser\lib\index.js:14930:38)
+      at parser (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
+      at normalizeFile.next (<anonymous>)
+      at run (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:261:32)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:189:28
+      at E:\teamwork\crewdesk\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:113:33
+      at step (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:287:14)
+      at E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (E:\teamwork\crewdesk\frontend\node_modules\gensync\index.js:223:11)
+[2m4:20:17 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/Layout.jsx[22m
+[2m4:20:50 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ProjectExtras.jsx[22m
+[2m4:20:50 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx[22m
+[2m4:20:50 AM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/pages/ProjectExtras.jsx[22m Could not Fast Refresh (new export)
+[2m4:20:50 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/pages/Project.jsx[22m
+[2m4:22:00 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Chat.jsx[22m
+[2m4:22:22 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Chat.jsx[22m

@@ -4,7 +4,7 @@ import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   Home, CircleCheck, History, Inbox, Sparkles, Building2, Folder, LayoutTemplate, Clock, CircleCheckBig, CalendarRange,
   BarChart3, DollarSign, MoreHorizontal, ChevronRight, PanelRightOpen, X, Search, Pin, Star, FileCheck2, LayoutGrid,
-  CalendarDays, Users, Zap, Mail, CheckSquare, MessageSquare, FolderOpen, Plus,
+  CalendarDays, Users, Zap, Mail, CheckSquare, MessageSquare, FolderOpen, Plus, Rocket,
 } from 'lucide-react'
 import { api } from '../lib/api'
 import { useUi } from '../lib/ui-context'
@@ -17,10 +17,13 @@ const NAV = [
     ['/my-work?tab=projects', 'My projects', Folder], ['/my-work?tab=activity', 'Activity', History], ['/my-work?tab=dashboards', 'Dashboards', LayoutGrid]] },
   { panel: 'recent', icon: History, label: 'Recent' },
   { to: '/inbox', icon: Inbox, label: 'Inbox', badge: true },
+  { to: '/welcome', icon: Rocket, label: 'Welcome' },
   { to: '/ai/ask', icon: Sparkles, label: 'Crewdesk AI', ai: true, match: ['/ai'], children: [
     ['/ai/ask', 'Ask AI', Sparkles], ['/ai/teammates', 'AI teammates', Users], ['/ai/skills', 'AI skills', Zap, 'NEW']] },
   { section: 'Manage' },
   { to: '/clients', icon: Building2, label: 'Clients' },
+  { to: '/people/people', icon: Users, label: 'People', match: ['/people'], children: [
+    ['/people/people', 'People', Users], ['/people/roles', 'Roles', LayoutGrid], ['/people/skills', 'Skills', Zap, 'NEW'], ['/people/teams', 'Teams', Users], ['/people/statuses', 'Statuses', MessageSquare]] },
   { to: '/projects', icon: Folder, label: 'Projects', jump: true },
   { to: '/templates', icon: LayoutTemplate, label: 'Templates' },
   { to: '/time/all', icon: Clock, label: 'Time', match: ['/time'], children: [
@@ -43,6 +46,7 @@ const MORE = [
   ['/calendar', 'Calendar', CalendarDays],
   ['/people/people', 'People', Users, [['/people/people', 'People'], ['/people/roles', 'Roles'], ['/people/skills', 'Skills'], ['/people/teams', 'Teams'], ['/people/statuses', 'Statuses']]],
   ['/automate', 'Automate', Zap],
+  ['/chat', 'Chat', MessageSquare],
   ['/settings', 'Settings', LayoutGrid],
 ]
 const AV = ['#fde68a', '#bfdbfe', '#fecaca', '#bbf7d0', '#ddd6fe', '#fbcfe8']
