@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   Home, CheckCircle2, Inbox, Folder, Clock, Users, BarChart3, Flag, CalendarDays, Building2, Activity,
   Plus, Search, LogOut, ChevronsLeft, ChevronsRight, Star, Settings, ListChecks, MessageSquare, FolderPlus, Timer,
@@ -14,6 +14,8 @@ import TaskDrawer from './TaskDrawer'
 import QuickAdd from './QuickAdd'
 import SideNav from './SideNav'
 import { GettingStarted } from '../pages/Welcome'
+import { isClient, clientCanOpen } from '../lib/client'
+import { NoAccess, useAppearance } from './ClientView'
 
 // Quick add items as in Teamwork: [key, label, icon, quickAdd kind or route, keyboard shortcut]
 const QUICK = [
@@ -83,6 +85,10 @@ export default function Layout() {
   const { setQuickAdd, setPaletteOpen, unread, projects, toast, notify } = useUi()
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem('cd_side') === '1')
   const navigate = useNavigate()
+  const loc = useLocation()
+  const client = isClient(user)
+  const quick = client ? QUICK.filter((q) => ['task', 'message'].includes(q[0])) : QUICK
+  useAppearance()
 
   useEffect(() => {
     const k = (e) => {
@@ -93,7 +99,7 @@ export default function Layout() {
   }, [setPaletteOpen])
 
   const runQuick = (key) => {
-    const q = QUICK.find((x) => x[0] === key)
+    const q = quick.find((x) => x[0] === key)
     if (!q) return
     if (key === 'timer') { try { localStorage.setItem('cd_timer', String(Date.now())) } catch { /* ignore */ } notify('Timer started'); navigate('/time/all'); return }
     if (q[3].startsWith('/')) navigate(q[3]); else setQuickAdd(q[3])
@@ -101,7 +107,7 @@ export default function Layout() {
   useEffect(() => {
     const k = (e) => {
       if (e.ctrlKey || e.metaKey || e.altKey || /input|textarea|select/i.test(e.target.tagName) || e.target.isContentEditable || document.querySelector('.overlay')) return
-      const q = QUICK.find((x) => x[4] && x[4].toLowerCase() === e.key.toLowerCase())
+      const q = quick.find((x) => x[4] && x[4].toLowerCase() === e.key.toLowerCase())
       if (q) { e.preventDefault(); runQuick(q[0]) }
     }
     window.addEventListener('keydown', k)
@@ -109,7 +115,7 @@ export default function Layout() {
   })
 
   const [chatUnread, setChatUnread] = useState(0)
-  useEffect(() => { const f = () => api.get('/chat/unread').then((r) => setChatUnread(r.unread)).catch(() => {}); f(); const t = setInterval(f, 15000); return () => clearInterval(t) }, [])
+  useEffect(() => { if (client) return; const f = () => api.get('/chat/unread').then((r) => setChatUnread(r.unread)).catch(() => {}); f(); const t = setInterval(f, 15000); return () => clearInterval(t) }, [])
   const [logo, setLogo] = useState(null)
   useEffect(() => { api.get('/settings').then((st) => setLogo(st.logo?.data || null)).catch(() => {}) }, [])
   const toggle = () => { localStorage.setItem('cd_side', collapsed ? '0' : '1'); setCollapsed(!collapsed) }
@@ -124,24 +130,32 @@ export default function Layout() {
         </div>
         <button className="tt-search" onClick={() => setPaletteOpen(true)}><Search size={14} />Search<kbd>Ctrl + K</kbd></button>
         <div className="tt-right">
-          <button className="tt-icon" title="Start a new timer" onClick={() => runQuick('timer')}><Timer size={17} /></button>
-          <button className="tt-upgrade" onClick={() => navigate('/settings/subscription')}>Plan</button>
+          {!client && <button className="tt-icon" title="Start a new timer" onClick={() => runQuick('timer')}><Timer size={17} /></button>}
+          {!client && <button className="tt-upgrade" onClick={() => navigate('/settings/subscription')}>Plan</button>}
           <button className="tt-icon rel" title="Notifications" onClick={() => navigate('/inbox')}><Bell size={17} />{unread > 0 && <span className="tt-badge">{unread > 99 ? '99+' : unread}</span>}</button>
-          <button className="tt-icon rel" title="Chat" onClick={() => navigate('/chat')}><MessageCircle size={17} />{chatUnread > 0 && <span className="tt-badge">{chatUnread}</span>}</button>
+          {!client && <button className="tt-icon rel" title="Chat" onClick={() => navigate('/chat')}><MessageCircle size={17} />{chatUnread > 0 && <span className="tt-badge">{chatUnread}</span>}</button>}
           <Menu trigger={<button className="tt-icon" title="Help"><HelpCircle size={17} /></button>}>
-            <button onClick={() => navigate('/welcome')}><Rocket size={15} />Getting started</button>
+            {!client && <button onClick={() => navigate('/welcome')}><Rocket size={15} />Getting started</button>}
             <button onClick={() => notify('Shortcuts: Ctrl+K search · T task · P project · L log time · S timer · M milestone · E event · N message · B budget')}><Keyboard size={15} />Keyboard shortcuts</button>
-            <button onClick={() => navigate('/ai/ask')}><Sparkles size={15} />Ask AI for help</button>
+            {!client && <button onClick={() => navigate('/ai/ask')}><Sparkles size={15} />Ask AI for help</button>}
           </Menu>
-          <button className="tt-icon" title="Automations" onClick={() => navigate('/automate')}><Bot size={17} /></button>
-          <Menu trigger={<button className="tt-icon" title="Other apps"><Grid3x3 size={17} /></button>}>
+          {!client && <button className="tt-icon" title="Automations" onClick={() => navigate('/automate')}><Bot size={17} /></button>}
+          {client ? <Menu trigger={<button className="tt-icon" title="Other apps"><Grid3x3 size={17} /></button>}>
+            <button onClick={() => navigate('/proofs')}><CheckSquare size={15} />Proofs</button>
+            <button onClick={() => navigate('/settings/appearance')}><PaletteIcon size={15} />Appearance</button>
+          </Menu> : <Menu trigger={<button className="tt-icon" title="Other apps"><Grid3x3 size={17} /></button>}>
             <button onClick={() => navigate('/chat')}><MessageCircle size={15} />Crewdesk Chat</button>
             <button onClick={() => navigate('/everything/notebooks')}><BookOpen size={15} />Crewdesk Spaces (Notebooks)</button>
             <button onClick={() => navigate('/settings/integrations')}><Settings size={15} />Manage apps</button>
-          </Menu>
-          <button className="tt-ask" onClick={() => navigate('/ai/ask')}><Sparkles size={13} />Ask AI</button>
+          </Menu>}
+          {!client && <button className="tt-ask" onClick={() => navigate('/ai/ask')}><Sparkles size={13} />Ask AI</button>}
           <Menu trigger={<button className="tt-avatar"><Avatar user={user} size={24} /></button>}>
             <div className="row" style={{ padding: '8px 10px', gap: 10, cursor: 'pointer' }} onClick={() => navigate(`/people/person/${user.id}/details`)}><Avatar user={user} size={34} /><div><b>{user.name}</b><div className="small" style={{ color: 'var(--accent)' }}>View profile</div></div></div>
+            {client ? <>
+              <button onClick={() => navigate(`/people/person/${user.id}/details`)}><Pencil size={15} />Edit my details</button>
+              <button onClick={() => navigate('/settings/appearance')}><Settings size={15} />Settings</button>
+              <button onClick={() => navigate('/my-work')}><CheckSquare size={15} />My tasks</button>
+            </> : <>
             <button onClick={() => navigate('/settings/profile')}><Pencil size={15} />Edit my details</button>
             <button onClick={() => navigate('/settings/general')}><Settings size={15} />Settings</button>
             <button onClick={() => navigate('/settings/subscription')}><CreditCard size={15} />Subscription</button>
@@ -149,6 +163,7 @@ export default function Layout() {
             <button onClick={() => navigate('/settings/integrations')}><Grid3x3 size={15} />Apps and integrations</button>
             <button onClick={() => navigate('/activity')}><Gift size={15} />What's new?</button>
             <button onClick={() => navigate('/settings/appearance')}><PaletteIcon size={15} />Appearance</button>
+            </>}
             <button onClick={() => { logout(); navigate('/login') }}><LogOut size={15} />Logout</button>
           </Menu>
         </div>
@@ -158,16 +173,16 @@ export default function Layout() {
           <div className="side-scroll">
             <Menu trigger={<button className="quick-add"><Plus size={16} /><span className="label">Quick add</span></button>}>
               <div className="muted small" style={{ padding: '6px 10px' }}>Quick add</div>
-              {QUICK.map(([key, label, Icon, , sc]) => <button key={key} onClick={() => runQuick(key)}><Icon size={15} />{label}{sc && <kbd className="qa-kbd">{sc}</kbd>}</button>)}
+              {quick.map(([key, label, Icon, , sc]) => <button key={key} onClick={() => runQuick(key)}><Icon size={15} />{label}{sc && <kbd className="qa-kbd">{sc}</kbd>}</button>)}
             </Menu>
             <SideNav collapsed={collapsed} />
           </div>
         </aside>
-        <main className="content"><Outlet /></main>
+        <main className="content">{clientCanOpen(user, loc.pathname, loc.search) ? <Outlet /> : <NoAccess />}</main>
       </div>
       <TaskDrawer />
       <QuickAdd />
-      <GettingStarted />
+      {!client && <GettingStarted />}
       <Palette />
       {toast && <Toast text={toast} onDone={() => notify(null)} />}
     </div>

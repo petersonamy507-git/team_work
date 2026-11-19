@@ -39,15 +39,15 @@ def log_time(body: schemas.TimeIn, db: Session = Depends(get_db), user=Depends(c
     e = models.TimeEntry(user_id=user.id, **body.model_dump())
     db.add(e)
     log(db, user, f"logged {body.minutes // 60}h {body.minutes % 60}m", body.project_id)
-    if body.task_id:  # Automations: time logged / logged time exceeds estimate
-        from sqlalchemy import func as _f
-        from .parity import run_automations
+    if body.task_id:  # Automations: time logged / logged time vs estimate
+        from ..automation_engine import fire_task, logged_minutes
         t = db.get(models.Task, body.task_id)
         if t:
-            run_automations(db, t, "time_logged", user)
-            total = (db.scalar(select(_f.coalesce(_f.sum(models.TimeEntry.minutes), 0)).where(models.TimeEntry.task_id == t.id)) or 0) + body.minutes
-            if t.estimate_minutes and total > t.estimate_minutes >= total - body.minutes:
-                run_automations(db, t, "time_exceeds", user)
+            before, bill_before = logged_minutes(db, t), logged_minutes(db, t, True)
+            fire_task(db, t, "time_logged", user, billable=bool(body.billable))
+            fire_task(db, t, "time_exceeds", user, estimate=t.estimate_minutes or 0, before=before,
+                      after=before + body.minutes, billable_before=bill_before,
+                      billable_after=bill_before + (body.minutes if body.billable else 0))
     db.commit()
     db.refresh(e)
     return schemas.time_out(e)
@@ -69,7 +69,12 @@ def delete_time(eid: int, db: Session = Depends(get_db), user=Depends(current_us
     e = get_or_404(db, models.TimeEntry, eid, "Time entry")
     if e.user_id != user.id and user.role != "admin":
         raise HTTPException(403, "Not allowed")
+    t = db.get(models.Task, e.task_id) if e.task_id else None
+    billable = e.billable
     db.delete(e)
+    if t:
+        from ..automation_engine import fire_task
+        fire_task(db, t, "time_removed", user, billable=bool(billable))
     db.commit()
     return {"ok": True}
 

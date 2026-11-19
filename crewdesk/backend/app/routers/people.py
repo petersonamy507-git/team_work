@@ -15,7 +15,11 @@ router = APIRouter(prefix="/api", tags=["people"])
 
 @router.get("/people")
 def list_people(db: Session = Depends(get_db), user=Depends(current_user)):
+    from ..client_scope import visible_user_ids
     people = db.scalars(select(models.User).order_by(models.User.name)).all()
+    vis = visible_user_ids(db)
+    if vis is not None:
+        people = [p for p in people if p.id in vis]
     today = date.today()
     week_start = today - timedelta(days=today.weekday())
     T = models.Task
@@ -32,7 +36,7 @@ def list_people(db: Session = Depends(get_db), user=Depends(current_user)):
 
 @router.post("/people")
 def add_person(body: schemas.UserIn, db: Session = Depends(get_db), user=Depends(current_user)):
-    if user.role != "admin":
+    if user.role != "admin" and not getattr(user, "can_add_users", False):
         raise HTTPException(403, "Only admins can add people")
     email = body.email.strip().lower()
     if db.scalar(select(models.User).where(models.User.email == email)):
@@ -89,10 +93,47 @@ def list_clients(db: Session = Depends(get_db), user=Depends(current_user)):
     return out
 
 
+def client_login(db: Session, c: models.Client):
+    """The client-user account that lets this client sign in, if one exists."""
+    return db.scalar(select(models.User).where(models.User.role == "client", models.User.client_id == c.id)
+                     .order_by(models.User.id))
+
+
+def _set_client_login(db: Session, c: models.Client, password: str | None):
+    """Create or update the client's login (email + password) as a 'client' user tied to this client."""
+    login = client_login(db, c)
+    email = (c.email or "").strip().lower()
+    if password:
+        if len(password) < 6:
+            raise HTTPException(400, "Password must be at least 6 characters")
+        if not email:
+            raise HTTPException(400, "Add the client's email so they can sign in with this password")
+    if not email or (not password and not login):
+        return
+    other = db.scalar(select(models.User).where(models.User.email == email))
+    if other and (not login or other.id != login.id):
+        if other.role != "client" or (other.client_id and other.client_id != c.id):
+            raise HTTPException(400, f"{email} is already used by another sign-in")
+        login = other  # an existing client user with this email: link it to this client
+    if not login:
+        count = db.scalar(select(func.count(models.User.id))) or 0
+        login = models.User(name=c.name, email=email, role="client", color=COLORS[count % len(COLORS)],
+                            password_hash=hash_password(password))
+        db.add(login)
+    login.client_id = c.id
+    login.email = email
+    if password:
+        login.password_hash = hash_password(password)
+
+
 @router.post("/clients")
 def create_client(body: schemas.ClientIn, db: Session = Depends(get_db), user=Depends(current_user)):
-    c = models.Client(**body.model_dump())
+    data = body.model_dump()
+    password = data.pop("password", None)
+    c = models.Client(**data)
     db.add(c)
+    db.flush()
+    _set_client_login(db, c, password)
     db.commit()
     return schemas.client_out(c)
 
@@ -100,7 +141,11 @@ def create_client(body: schemas.ClientIn, db: Session = Depends(get_db), user=De
 @router.patch("/clients/{cid}")
 def update_client(cid: int, body: schemas.ClientIn, db: Session = Depends(get_db), user=Depends(current_user)):
     c = get_or_404(db, models.Client, cid, "Client")
-    apply(c, body.model_dump(exclude_unset=True))
+    data = body.model_dump(exclude_unset=True)
+    password = data.pop("password", None)
+    apply(c, data)
+    db.flush()
+    _set_client_login(db, c, password)
     db.commit()
     return schemas.client_out(c)
 
@@ -108,6 +153,14 @@ def update_client(cid: int, body: schemas.ClientIn, db: Session = Depends(get_db
 @router.delete("/clients/{cid}")
 def delete_client(cid: int, db: Session = Depends(get_db), user=Depends(current_user)):
     c = get_or_404(db, models.Client, cid, "Client")
+    # the client's login goes with it, so it can no longer sign in
+    for login in db.scalars(select(models.User).where(models.User.role == "client", models.User.client_id == c.id)).all():
+        try:
+            with db.begin_nested():
+                db.delete(login)
+        except Exception:
+            login.is_active = False
+            login.client_id = None
     db.delete(c)
     db.commit()
     return {"ok": True}

@@ -56,6 +56,7 @@ class ClientIn(BaseModel):
     internal_notes: Optional[str] = None
     client_notes: Optional[str] = None
     domains: Optional[str] = None
+    password: Optional[str] = None  # sets up / changes the client's login (a "client" user); never stored on the client
 
 
 class ProjectIn(BaseModel):
@@ -194,7 +195,10 @@ def user_out(u: models.User | None):
         return None
     return {"id": u.id, "name": u.name, "email": u.email, "title": u.title, "color": u.color,
             "role": u.role, "is_active": u.is_active, "created_at": d(u.created_at),
-            "client_id": u.client_id, "phone": u.phone, "capacity_minutes": u.capacity_minutes}
+            "client_id": u.client_id, "phone": u.phone, "capacity_minutes": u.capacity_minutes,
+            "invite_pending": bool(getattr(u, "invite_token", None)),
+            "can_add_users": bool(getattr(u, "can_add_users", False)),
+            "can_create_projects": bool(getattr(u, "can_create_projects", True))}
 
 
 def user_brief(u: models.User | None):

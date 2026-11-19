@@ -16,8 +16,10 @@ import { Eye, MoreHorizontal, Send, ArrowLeft } from 'lucide-react'
 import { useEffect } from 'react'
 import { Proofs } from './Extras'
 import Finance from './Finance'
+import TicketsTab from '../components/Tickets'
+import { useAuth } from '../lib/auth'
 
-export const PROJECT_MORE = [['forms', 'Forms'], ['notebooks', 'Notebooks'], ['links', 'Links'], ['risks', 'Risks'], ['comments', 'Comments'],
+export const PROJECT_MORE = [['forms', 'Forms'], ['tickets', 'Tickets'], ['notebooks', 'Notebooks'], ['links', 'Links'], ['risks', 'Risks'], ['comments', 'Comments'],
   ['proofs', 'Proofs'], ['finance', 'Finance'], ['settings', 'Settings']]
 
 function ProjectSettings({ project }) {
@@ -47,6 +49,7 @@ export function ProjectSection({ section: fixed }) {
   const pid = project.id
   switch (section) {
     case 'forms': return <FormsTab projectId={pid} />
+    case 'tickets': return <TicketsTab projectId={pid} />
     case 'notebooks': return <NotebooksTab projectId={pid} />
     case 'links': return <LinksTab projectId={pid} />
     case 'risks': return <RisksTab projectId={pid} />
@@ -60,6 +63,7 @@ export function ProjectSection({ section: fixed }) {
 /* Project › Dashboard tab (Teamwork /app/projects/:id/overview/summary) */
 export function ProjectDashboard() {
   const { project, reload } = useOutletContext()
+  const client = useAuth().user?.role === 'client'
   const { setQuickAdd } = useUi()
   const navigate = useNavigate()
   const [open, setOpen] = useState(true)
@@ -73,8 +77,8 @@ export function ProjectDashboard() {
       <div className={`proj-info ${open ? '' : 'closed'}`}>
         <button className="toggle" onClick={() => setOpen(!open)}>{open ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}</button>
         {open && <>
-          <h4><User size={15} />Project owner</h4><div className="val">{project.owner ? <span className="kit-person"><Avatar user={project.owner} size={20} />{project.owner.name}</span> : <a style={{ color: 'var(--accent)', cursor: 'pointer' }} onClick={() => setEdit(true)}>Not set</a>}</div>
-          <h4><AlignLeft size={15} />Description <button className="icon-btn" style={{ marginLeft: 'auto' }} onClick={() => setEdit(true)}><Pencil size={13} /></button></h4><div className="val proj-desc">{project.description || <span className="muted">No description</span>}</div>
+          <h4><User size={15} />Project owner</h4><div className="val">{project.owner ? <span className="kit-person"><Avatar user={project.owner} size={20} />{project.owner.name}</span> : (client ? <span className="muted">Not set</span> : <a style={{ color: 'var(--accent)', cursor: 'pointer' }} onClick={() => setEdit(true)}>Not set</a>)}</div>
+          <h4><AlignLeft size={15} />Description {!client && <button className="icon-btn" style={{ marginLeft: 'auto' }} onClick={() => setEdit(true)}><Pencil size={13} /></button>}</h4><div className="val proj-desc">{project.description || <span className="muted">No description</span>}</div>
           <h4><CalendarDays size={15} />Dates</h4><div className="val">{project.start_date ? fmtDate(project.start_date, { day: 'numeric', month: 'short', year: 'numeric' }) : 'No start date'} – {project.end_date ? fmtDate(project.end_date, { day: 'numeric', month: 'short', year: 'numeric' }) : 'No end date'}</div>
           <h4><Building2 size={15} />Client</h4><div className="val">{project.client?.name || '—'}</div>
           <h4><HeartPulse size={15} />Health</h4><div className="val"><span className="dot" style={{ background: HEALTH[project.health || 'none'].color }} /> {HEALTH[project.health || 'none'].label}</div>
@@ -87,13 +91,17 @@ export function ProjectDashboard() {
           header={<div className="row" style={{ gap: 10 }}><h2 style={{ fontSize: 20 }}>Dashboard</h2>
             <div className="wtabs" style={{ border: 0, marginBottom: 0, marginLeft: 16 }}><button className={tab === 'summary' ? 'on' : ''} onClick={() => setTab('summary')}>Summary</button><button className={tab === 'activity' ? 'on' : ''} onClick={() => setTab('activity')}>Activity</button></div></div>}
           extraActions={<>
-            <button className="btn ai-outline" onClick={() => navigate('/reports/view/project-health')}><Sparkles size={14} />See project insights</button>
-            <span className="split-btn"><button className="btn primary" onClick={() => add('task')}><Plus size={15} />Add</button>
+            {!client && <button className="btn ai-outline" onClick={() => navigate('/reports/view/project-health')}><Sparkles size={14} />See project insights</button>}
+            {client ? <span className="split-btn"><button className="btn primary" onClick={() => add('task')}><Plus size={15} />Add</button>
+              <Menu trigger={<button className="btn primary caret"><ChevronDown size={14} /></button>}>
+                <button onClick={() => add('task')}>Task</button><button onClick={() => add('message')}>Message</button>
+                <button onClick={() => navigate(`/projects/${pid}/files`)}>File</button><button onClick={() => navigate(`/projects/${pid}/x/tickets`)}>Ticket</button>
+              </Menu></span> : <span className="split-btn"><button className="btn primary" onClick={() => add('task')}><Plus size={15} />Add</button>
               <Menu trigger={<button className="btn primary caret"><ChevronDown size={14} /></button>}>
                 <button onClick={() => add('task')}>Task</button><button onClick={() => add('milestone')}>Milestone</button><button onClick={() => add('message')}>Message</button>
                 <button onClick={() => add('time')}>Time entry</button><button onClick={() => add('event')}>Event</button><button onClick={() => navigate(`/projects/${pid}/files`)}>File</button>
                 <button onClick={() => navigate(`/projects/${pid}/x/risks`)}>Risk</button><button onClick={() => navigate(`/projects/${pid}/x/notebooks`)}>Notebook</button>
-              </Menu></span></>} />
+              </Menu></span>}</>} />
         {tab === 'activity' && <div className="card" style={{ marginTop: 14, padding: 8 }}>{(act || []).map((a) => <div key={a.id} className="row small" style={{ gap: 8, padding: '7px 6px', borderBottom: '1px solid var(--row-line)' }}><Avatar user={a.user} size={22} /><span style={{ flex: 1 }}><b>{a.user?.name}</b> {a.action}</span><span className="muted">{timeAgo(a.created_at)}</span></div>)}{act && !act.length && <div className="muted small">No activity yet</div>}</div>}
       </div>
       {edit && <ProjectForm project={project} onDone={() => { setEdit(false); reload() }} onCancel={() => setEdit(false)} />}

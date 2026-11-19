@@ -120,6 +120,10 @@ def search(q: str, db: Session = Depends(get_db), user=Depends(current_user)):
     people = db.scalars(select(models.User).where(or_(models.User.name.ilike(like),
                                                       models.User.email.ilike(like))).limit(8)).all()
     messages = db.scalars(select(models.Message).where(models.Message.title.ilike(like)).limit(8)).all()
+    from ..client_scope import visible_user_ids
+    vis = visible_user_ids(db)
+    if vis is not None:
+        people = [p for p in people if p.id in vis]
     return {"projects": [{"id": p.id, "name": p.name, "color": p.color} for p in projects],
             "tasks": [{"id": t.id, "title": t.title, "project_name": t.project.name} for t in tasks],
             "people": [schemas.user_brief(p) for p in people],

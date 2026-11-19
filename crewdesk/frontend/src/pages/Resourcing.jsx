@@ -1,6 +1,7 @@
 // Plan & Insights › Resourcing: Overview, Schedule, Workload, Portfolio, Chart (Teamwork /app/planning/*)
 import { Fragment, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useAuth } from '../lib/auth'
 import { CalendarRange, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, ChevronDown, ChevronRight as Chev, Kanban, Folder, X } from 'lucide-react'
 import { api, qs } from '../lib/api'
 import { useData, useUi } from '../lib/ui-context'
@@ -15,9 +16,12 @@ const addDays = (s, n) => { const d = new Date(s + 'T00:00:00'); d.setDate(d.get
 const todayIso = () => iso(new Date())
 const dow = (s) => new Date(s + 'T00:00:00').getDay()
 
+const CLIENT_TABS = [{ to: '/planning/chart', label: 'Chart' }]
 export default function Resourcing() {
+  const client = useAuth().user?.role === 'client'
   const { tab = 'workload' } = useParams()
   const C = { overview: Overview, schedule: Schedule, workload: Workload, portfolio: Portfolio, chart: ChartTab }[tab] || Workload
+  if (client) return <Section icon={CalendarRange} title="Resourcing" tabs={CLIENT_TABS}><ChartTab /></Section>
   return <Section icon={CalendarRange} title="Resourcing" tabs={TABS}><C /></Section>
 }
 

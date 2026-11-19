@@ -1,13 +1,14 @@
 // More › People: People, Roles, Skills, Teams, Statuses (Teamwork /app/people/*)
 import { useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Users, Plus, Pencil, Trash2, Mail, IdCard, Award, UsersRound, Bell, Download, Grid2x2, List, Upload, UserRoundSearch } from 'lucide-react'
+import { Users, Plus, Pencil, Trash2, Mail, IdCard, Award, UsersRound, Bell, Download, Grid2x2, List, Upload, UserRoundSearch, Link2 } from 'lucide-react'
 import { api } from '../lib/api'
 import { useData, useUi } from '../lib/ui-context'
 import { timeAgo } from '../lib/format'
 import { Avatar, AvatarStack } from '../components/ui'
 import { Section, DataTable, EmptyState, FormModal, Hero, PersonChip, Pill, useRows, money, toCSV, AskAiButton } from '../components/Kit'
 import { downloadText } from '../lib/taskFilters'
+import InviteUsersDialog from '../components/InviteUsersDialog'
 
 const TABS = [{ to: '/people/people', label: 'People' }, { to: '/people/roles', label: 'Roles' }, { to: '/people/skills', label: 'Skills', badge: 'NEW' },
   { to: '/people/teams', label: 'Teams' }, { to: '/people/statuses', label: 'Statuses' }]
@@ -51,6 +52,12 @@ function PeopleTab() {
     const r = await api.post('/people/import', { rows: rowsIn })
     notify(`Imported ${r.added} people${r.skipped.length ? `, skipped ${r.skipped.length} (already exist or no email)` : ''}`); reload()
   }
+  const copyInvite = async (p) => {
+    try {
+      const r = await api.post(`/invites/${p.id}/link`, { origin: window.location.origin })
+      try { await navigator.clipboard.writeText(r.invite_url); notify(`Invite link for ${p.name} copied`) } catch { window.prompt(`Invite link for ${p.name}`, r.invite_url) }
+    } catch (e) { notify(e.message) }
+  }
   const save = async (v) => {
     await api.patch(`/people/${edit.id}`, { name: v.name, title: v.title, role: v.role, client_id: v.client_id ? Number(v.client_id) : null, phone: v.phone, capacity_minutes: Math.round(Number(v.capacity_hours || 8) * 60) })
     await api.post(`/finance/rates/${edit.id}`, { billable_rate: v.billable_rate, cost_rate: v.cost_rate })
@@ -71,7 +78,7 @@ function PeopleTab() {
       {sel.length > 0 && <div className="row small" style={{ gap: 8, marginBottom: 8 }}><b>{sel.length} selected</b><button className="btn sm" onClick={async () => { for (const id of sel) await api.patch(`/people/${id}`, { is_active: false }); setSel([]); notify('Deactivated'); reload() }}>Deactivate</button><button className="btn sm" onClick={async () => { for (const id of sel) await api.patch(`/people/${id}`, { is_active: true }); setSel([]); notify('Activated'); reload() }}>Activate</button></div>}
       <DataTable rows={data ? rows : null} search={(p) => p.name + p.email} onRow={(p) => navigate(`/people/person/${p.id}`)} selectable selected={sel} setSelected={setSel}
         columns={[
-          { key: 'name', label: 'Name', render: (p) => <span className="kit-person"><Avatar user={p} size={26} /><b>{p.name}</b>{!p.is_active && <Pill>inactive</Pill>}</span> },
+          { key: 'name', label: 'Name', render: (p) => <span className="kit-person"><Avatar user={p} size={26} /><b>{p.name}</b>{!p.is_active && <Pill>inactive</Pill>}{p.invite_pending && <Pill>invited</Pill>}</span> },
           { key: 'client', label: 'Client', sort: (p) => client(p.client_id), render: (p) => client(p.client_id) || '—' },
           { key: 'role', label: 'Role', sort: (p) => memberOf(roles, p.id)[0], render: (p) => memberOf(roles, p.id).join(', ') || <span className="muted">—</span> },
           { key: 'br', label: 'Billable rate', sort: (p) => rate(p.id)?.billable_rate, render: (p) => (rate(p.id)?.billable_rate ? money(rate(p.id).billable_rate) : '—') },
@@ -79,14 +86,10 @@ function PeopleTab() {
           { key: 'teams', label: 'Teams', render: (p) => memberOf(teams, p.id).join(', ') || '—' },
           { key: 'email', label: 'Email' },
           { key: 'open_tasks', label: 'Open tasks' },
-          { key: 'a', label: '', nosort: true, render: (p) => <span className="act" onClick={(e) => e.stopPropagation()}><button className="icon-btn" onClick={() => setEdit({ ...p, billable_rate: rate(p.id)?.billable_rate || 0, cost_rate: rate(p.id)?.cost_rate || 0, capacity_hours: (p.capacity_minutes || 480) / 60 })}><Pencil size={14} /></button><a className="icon-btn" href={`mailto:${p.email}`}><Mail size={14} /></a></span> },
+          { key: 'a', label: '', nosort: true, render: (p) => <span className="act" onClick={(e) => e.stopPropagation()}>{p.invite_pending && <button className="icon-btn" title="Copy invite link" onClick={() => copyInvite(p)}><Link2 size={14} /></button>}<button className="icon-btn" onClick={() => setEdit({ ...p, billable_rate: rate(p.id)?.billable_rate || 0, cost_rate: rate(p.id)?.cost_rate || 0, capacity_hours: (p.capacity_minutes || 480) / 60 })}><Pencil size={14} /></button><a className="icon-btn" href={`mailto:${p.email}`}><Mail size={14} /></a></span> },
         ]} />
       </>}
-      {invite && <FormModal title="Invite users" submitLabel="Invite" onClose={() => setInvite(false)}
-        onSubmit={async (v) => { await api.post('/people', { ...v, role: v.role || 'member' }); notify(`Invited ${v.email} (temporary password: ${v.password || 'changeme123'})`); reload() }}
-        fields={[{ key: 'name', label: 'Full name', required: true, autoFocus: true }, { key: 'email', label: 'Email address', required: true },
-          { key: 'title', label: 'Job title', half: true }, { key: 'role', label: 'User type', type: 'select', half: true, default: 'member', options: [['member', 'Team member'], ['admin', 'Administrator'], ['client', 'Client user']] },
-          { key: 'password', label: 'Temporary password', placeholder: 'changeme123' }]} />}
+      {invite && <InviteUsersDialog onClose={() => setInvite(false)} onDone={() => reload()} />}
       {edit && <FormModal title={`Edit ${edit.name}`} initial={edit} onClose={() => setEdit(null)} onSubmit={save}
         fields={[{ key: 'name', label: 'Name', required: true }, { key: 'title', label: 'Job title', half: true }, { key: 'phone', label: 'Phone', half: true },
           { key: 'role', label: 'User type', type: 'select', half: true, required: true, options: [['member', 'Team member'], ['admin', 'Administrator'], ['client', 'Client user']] },

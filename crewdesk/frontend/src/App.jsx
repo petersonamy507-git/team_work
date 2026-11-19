@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from './lib/auth'
 import { UiProvider } from './lib/ui-context'
 import Layout from './components/Layout'
-import { Login, Register } from './pages/Auth'
+import { Login, Register, AcceptInvite } from './pages/Auth'
 import HomePage from './pages/Home'
 import MyWork from './pages/MyWork'
 import InboxPage from './pages/Inbox'
@@ -29,6 +29,7 @@ import { Section } from './components/Kit'
 import { Clock as ClockIcon } from 'lucide-react'
 import ChatPage from './pages/Chat'
 import Automations from './pages/Automations'
+import HQ from './pages/HQ'
 import SiteSettings from './pages/SiteSettings'
 import Welcome from './pages/Welcome'
 import Profile from './pages/Profile'
@@ -46,6 +47,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/invite/:token" element={<AcceptInvite />} />
       <Route element={<Protected><Layout /></Protected>}>
         <Route index element={<HomePage />} />
         <Route path="my-work" element={<MyWork />} />
@@ -80,6 +82,7 @@ export default function App() {
         <Route path="work/calendar" element={<Navigate to="/my-work?tab=calendar" replace />} />
         <Route path="work/timesheet" element={<Navigate to="/my-work?tab=timesheet" replace />} />
         <Route path="work/projects" element={<Navigate to="/my-work?tab=projects" replace />} />
+        <Route path="work/activity" element={<Navigate to="/my-work?tab=activity" replace />} />
         <Route path="work/dashboards" element={<Navigate to="/my-work?tab=dashboards" replace />} />
         <Route path="templates" element={<Templates />} />
         <Route path="proofs" element={<Proofs />} />
@@ -92,6 +95,7 @@ export default function App() {
         <Route path="people/person/:id" element={<Profile />} />
         <Route path="people/person/:id/:tab" element={<Profile />} />
         <Route path="welcome" element={<Welcome />} />
+        <Route path="hq" element={<HQ />} />
         <Route path="chat" element={<ChatPage />} />
         <Route path="chat/v/:view" element={<ChatPage />} />
         <Route path="chat/:cid" element={<ChatPage />} />

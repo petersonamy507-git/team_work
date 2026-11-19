@@ -27,6 +27,8 @@ def register(body: schemas.RegisterIn, db: Session = Depends(get_db)):
 @router.post("/login")
 def login(body: schemas.LoginIn, db: Session = Depends(get_db)):
     user = db.scalar(select(models.User).where(models.User.email == body.email.strip().lower()))
+    if user and getattr(user, "invite_token", None):
+        raise HTTPException(401, "You've been invited but haven't set a password yet. Open your invite link to finish signing up.")
     if not user or not verify_password(body.password, user.password_hash):
         raise HTTPException(401, "Wrong email or password")
     if not user.is_active:

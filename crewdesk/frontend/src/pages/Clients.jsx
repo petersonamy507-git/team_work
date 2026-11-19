@@ -1,7 +1,7 @@
 // Manage › Clients (Teamwork /app/clients): expandable rows with projects, task completion, health, budgets
 import { Fragment, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Plus, Building2, Pencil, Trash2, ChevronRight, ChevronDown, Search, Download, MoreHorizontal, Globe, MoreVertical, Upload, FileText, Sheet, Filter, CloudUpload, AtSign, X } from 'lucide-react'
+import { Plus, Building2, Pencil, Trash2, ChevronRight, ChevronDown, Search, Download, MoreHorizontal, Globe, MoreVertical, Upload, FileText, Sheet, Filter, CloudUpload, AtSign, X, Eye, EyeOff } from 'lucide-react'
 import { Modal } from '../components/ui'
 import { api } from '../lib/api'
 import { useData, useUi } from '../lib/ui-context'
@@ -83,12 +83,16 @@ export function ClientModal({ client, onClose, onSave }) {
   const [tab, setTab] = useState('logo')
   const [domains, setDomains] = useState(() => (client.domains || '').split(',').filter(Boolean).concat(client.domains ? [] : ['']))
   const [busy, setBusy] = useState(false)
+  const [showPw, setShowPw] = useState(false)
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
   const pick = (file) => { if (!file) return; if (file.size > 2_000_000) return notify('Logo must be under 2 MB'); const r = new FileReader(); r.onload = () => setF((x) => ({ ...x, logo: r.result })); r.readAsDataURL(file) }
   const submit = async () => {
     if (!f.name.trim()) return notify('Client name is required')
     setBusy(true)
-    try { await onSave({ ...f, website: f.website && !/^https?:\/\//.test(f.website) ? 'https://' + f.website : f.website, domains: domains.map((d) => d.trim()).filter(Boolean).join(',') }); onClose() } catch (e) { notify(e.message) } finally { setBusy(false) }
+    if (f.password && f.password.length < 6) return notify('Password must be at least 6 characters')
+    if (f.password && !f.email?.trim()) return notify('Add an email so the client can sign in with this password')
+    const { password, ...rest } = f
+    try { await onSave({ ...rest, ...(password ? { password } : {}), website: f.website && !/^https?:\/\//.test(f.website) ? 'https://' + f.website : f.website, domains: domains.map((d) => d.trim()).filter(Boolean).join(',') }); onClose() } catch (e) { notify(e.message) } finally { setBusy(false) }
   }
   const fl = (k, label, extra = {}) => <label className="fl-field"><span>{label}</span><input value={f[k] || ''} onChange={set(k)} placeholder=" " {...extra} /></label>
   return (
@@ -96,6 +100,12 @@ export function ClientModal({ client, onClose, onSave }) {
       {fl('name', 'Client name *', { autoFocus: true })}
       {fl('website', 'Website', { placeholder: 'https://' })}
       {fl('email', 'Email')}
+      <label className="fl-field"><span>{client.has_login ? 'New password' : 'Password'}</span>
+        <span className="row" style={{ gap: 4 }}>
+          <input type={showPw ? 'text' : 'password'} value={f.password || ''} onChange={set('password')} placeholder=" " autoComplete="new-password" />
+          <button type="button" className="icon-btn" title={showPw ? 'Hide password' : 'Show password'} onClick={() => setShowPw(!showPw)}>{showPw ? <EyeOff size={14} /> : <Eye size={14} />}</button>
+        </span></label>
+      <div className="muted small" style={{ margin: '-4px 0 8px' }}>{client.has_login ? 'The client signs in with their email. Leave blank to keep the current password.' : 'Optional. Lets the client sign in with their email and this password.'}</div>
       {fl('phone', 'Phone')}
       <label className="fl-field"><span>Client owner</span><select value={f.owner_id || ''} onChange={(e) => setF({ ...f, owner_id: e.target.value ? Number(e.target.value) : '' })}><option value="">Nobody</option>{people.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
       <div className="wtabs" style={{ marginTop: 8 }}>{TABS.map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{l}</button>)}</div>

@@ -8,6 +8,7 @@ import './tasks.css'
 import './teamwork-ui.css'
 import './teamwork-theme.css'
 import './parity.css'
+import './client-view.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>

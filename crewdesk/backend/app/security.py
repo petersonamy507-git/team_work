@@ -4,7 +4,7 @@ import os
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
@@ -35,7 +35,7 @@ def create_token(user_id: int) -> str:
     return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
 
-def current_user(creds: HTTPAuthorizationCredentials | None = Depends(bearer),
+def current_user(request: Request, creds: HTTPAuthorizationCredentials | None = Depends(bearer),
                  db: Session = Depends(get_db)) -> models.User:
     if not creds:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not signed in")
@@ -47,4 +47,6 @@ def current_user(creds: HTTPAuthorizationCredentials | None = Depends(bearer),
     user = db.get(models.User, user_id)
     if not user or not user.is_active:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "User not found")
+    from .client_scope import apply_client_scope
+    apply_client_scope(request, db, user)
     return user

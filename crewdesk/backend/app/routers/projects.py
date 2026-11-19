@@ -32,9 +32,11 @@ def project_stats(db: Session, p: models.Project):
 
 
 def set_members(db: Session, project_id: int, member_ids: list[int]):
+    admins = set(db.scalars(select(models.ProjectMember.user_id).where(
+        models.ProjectMember.project_id == project_id, models.ProjectMember.is_admin.is_(True))).all())
     db.execute(delete(models.ProjectMember).where(models.ProjectMember.project_id == project_id))
     for uid in set(member_ids):
-        db.add(models.ProjectMember(project_id=project_id, user_id=uid))
+        db.add(models.ProjectMember(project_id=project_id, user_id=uid, is_admin=uid in admins))
 
 
 @router.get("")
@@ -46,7 +48,26 @@ def list_projects(status: str = "active", q: str | None = None, db: Session = De
     if q:
         stmt = stmt.where(models.Project.name.ilike(f"%{q}%"))
     projects = db.scalars(stmt.order_by(models.Project.is_starred.desc(), models.Project.name)).all()
-    return [schemas.project_out(p, st) for p, st in zip(projects, bulk_stats(db, projects))]
+    out = [schemas.project_out(p, st) for p, st in zip(projects, bulk_stats(db, projects))]
+    return client_stars(db, user, out)
+
+
+def _client_starred(db: Session, user) -> list[int]:
+    import json
+    row = db.scalar(select(models.UserPref).where(models.UserPref.user_id == user.id, models.UserPref.key == "starred_projects"))
+    return json.loads(row.value) if row and row.value else []
+
+
+def client_stars(db: Session, user, out):
+    """Client users star projects for themselves only (kept in their prefs, not on the shared project)."""
+    if user.role != "client":
+        return out
+    mine = set(_client_starred(db, user))
+    for o in (out if isinstance(out, list) else [out]):
+        o["is_starred"] = o["id"] in mine
+    if isinstance(out, list):
+        out.sort(key=lambda o: (not o["is_starred"], o["name"].lower()))
+    return out
 
 
 def bulk_stats(db: Session, projects):
@@ -75,6 +96,8 @@ def bulk_stats(db: Session, projects):
 
 @router.post("")
 def create_project(body: schemas.ProjectIn, db: Session = Depends(get_db), user=Depends(current_user)):
+    if user.role != "admin" and not getattr(user, "can_create_projects", True):
+        raise HTTPException(403, "You don't have permission to create projects")
     data = body.model_dump(exclude_unset=True)
     member_ids = data.pop("member_ids", None) or []
     data.setdefault("owner_id", user.id)
@@ -86,6 +109,10 @@ def create_project(body: schemas.ProjectIn, db: Session = Depends(get_db), user=
         db.add(models.BoardColumn(project_id=p.id, name=name, color=color, position=i))
     db.add(models.TaskList(project_id=p.id, name="General tasks", position=0))
     log(db, user, f"created project {p.name}", p.id)
+    from ..automation_engine import fire
+    fire(db, "project_added", user, project=p)
+    if (p.type or "").lower() == "confirmed":
+        fire(db, "project_confirmed", user, project=p)
     for uid in member_ids:
         notify(db, uid, user, f"{user.name} added you to project {p.name}", f"/projects/{p.id}")
     db.commit()
@@ -95,18 +122,55 @@ def create_project(body: schemas.ProjectIn, db: Session = Depends(get_db), user=
 @router.get("/{pid}")
 def get_project(pid: int, db: Session = Depends(get_db), user=Depends(current_user)):
     p = get_or_404(db, models.Project, pid, "Project")
-    return schemas.project_out(p, project_stats(db, p))
+    return client_stars(db, user, schemas.project_out(p, project_stats(db, p)))
 
 
 @router.patch("/{pid}")
 def update_project(pid: int, body: schemas.ProjectIn, db: Session = Depends(get_db), user=Depends(current_user)):
     p = get_or_404(db, models.Project, pid, "Project")
     data = body.model_dump(exclude_unset=True)
+    if user.role == "client":  # clients can only star/unstar a project, for themselves
+        import json
+        if set(data) - {"name", "is_starred"}:
+            raise HTTPException(403, "Client users can't change projects")
+        mine = [i for i in _client_starred(db, user) if i != p.id] + ([p.id] if data.get("is_starred") else [])
+        row = db.scalar(select(models.UserPref).where(models.UserPref.user_id == user.id, models.UserPref.key == "starred_projects"))
+        if not row:
+            row = models.UserPref(user_id=user.id, key="starred_projects")
+            db.add(row)
+        row.value = json.dumps(mine)
+        db.commit()
+        return client_stars(db, user, schemas.project_out(p, project_stats(db, p)))
     member_ids = data.pop("member_ids", None)
+    old = {k: getattr(p, k) for k in ("name", "description", "category_id", "owner_id", "client_id", "type", "status",
+                                       "start_date", "end_date")}
+    old_members = set(db.scalars(select(models.ProjectMember.user_id).where(models.ProjectMember.project_id == p.id)))
     apply(p, data)
     if member_ids is not None:
         set_members(db, p.id, member_ids)
     log(db, user, f"updated project {p.name}", p.id)
+    from ..automation_engine import fire
+    pairs = [("name", "project_name_changed", {"text": p.name}),
+             ("description", "project_description_changed", {"text": p.description or ""}),
+             ("category_id", "project_category_changed", {"from": old["category_id"], "to": p.category_id}),
+             ("owner_id", "project_owner_changed", {"from": old["owner_id"], "to": p.owner_id}),
+             ("client_id", "project_company_changed", {"from": old["client_id"], "to": p.client_id}),
+             ("start_date", "project_start_changed", {}), ("end_date", "project_end_changed", {})]
+    for k, trig, ctx in pairs:
+        if getattr(p, k) != old[k]:
+            fire(db, trig, user, project=p, ctx=ctx)
+    if p.type != old["type"] and (p.type or "").lower() == "confirmed":
+        fire(db, "project_confirmed", user, project=p)
+    if p.status != old["status"] and p.status == "completed":
+        fire(db, "project_completed", user, project=p)
+    if member_ids is not None:
+        new_members = set(member_ids)
+        if new_members - old_members:
+            fire(db, "people_added", user, project=p, ctx={"user_ids": list(new_members - old_members)})
+        if old_members - new_members:
+            fire(db, "people_removed", user, project=p, ctx={"user_ids": list(old_members - new_members)})
+    if any(getattr(p, k) != v for k, v in old.items()) or member_ids is not None:
+        fire(db, "project_updated", user, project=p)
     db.commit()
     return schemas.project_out(p, project_stats(db, p))
 
@@ -114,8 +178,10 @@ def update_project(pid: int, body: schemas.ProjectIn, db: Session = Depends(get_
 @router.delete("/{pid}")
 def delete_project(pid: int, db: Session = Depends(get_db), user=Depends(current_user)):
     p = get_or_404(db, models.Project, pid, "Project")
-    if user.role != "admin" and p.owner_id != user.id:
-        raise HTTPException(403, "Only the owner or an admin can delete a project")
+    if user.role != "admin" and p.owner_id != user.id and not db.scalar(select(models.ProjectMember.id).where(
+            models.ProjectMember.project_id == pid, models.ProjectMember.user_id == user.id,
+            models.ProjectMember.is_admin.is_(True))):
+        raise HTTPException(403, "Only the owner, a project administrator or an admin can delete a project")
     db.delete(p)
     db.commit()
     return {"ok": True}
@@ -170,7 +236,15 @@ def create_tasklist(pid: int, body: schemas.TaskListIn, db: Session = Depends(ge
 @router.patch("/tasklists/{lid}")
 def update_tasklist(lid: int, body: schemas.TaskListIn, db: Session = Depends(get_db), user=Depends(current_user)):
     tl = get_or_404(db, models.TaskList, lid, "Task list")
+    old_ms = tl.milestone_id
     apply(tl, body.model_dump(exclude_unset=True))
+    if tl.milestone_id != old_ms:
+        from ..automation_engine import fire
+        if old_ms and db.get(models.Milestone, old_ms):
+            fire(db, "milestone_list_detached", user, milestone=db.get(models.Milestone, old_ms), ctx={"tasklist_id": tl.id})
+        if tl.milestone_id and db.get(models.Milestone, tl.milestone_id):
+            fire(db, "milestone_list_attached", user, milestone=db.get(models.Milestone, tl.milestone_id),
+                 ctx={"tasklist_id": tl.id})
     db.commit()
     return {"id": tl.id, "name": tl.name}
 
@@ -231,12 +305,14 @@ def project_people(pid: int, db: Session = Depends(get_db), user=Depends(current
     members = db.scalars(select(models.User).join(models.ProjectMember,
                                                   models.ProjectMember.user_id == models.User.id)
                          .where(models.ProjectMember.project_id == pid).order_by(models.User.name)).all()
+    admins = set(db.scalars(select(models.ProjectMember.user_id).where(
+        models.ProjectMember.project_id == pid, models.ProjectMember.is_admin.is_(True))).all())
     out = []
     for m in members:
         open_tasks = db.scalar(select(func.count(models.Task.id)).where(
             models.Task.project_id == pid, models.Task.assignee_id == m.id,
             models.Task.status != "completed")) or 0
-        out.append({**schemas.user_out(m), "open_tasks": open_tasks})
+        out.append({**schemas.user_out(m), "open_tasks": open_tasks, "is_project_admin": m.id in admins})
     return out
 
 
@@ -247,6 +323,8 @@ def add_project_person(pid: int, uid: int, db: Session = Depends(get_db), user=D
                                                         models.ProjectMember.user_id == uid)):
         db.add(models.ProjectMember(project_id=pid, user_id=uid))
         notify(db, uid, user, f"{user.name} added you to project {p.name}", f"/projects/{pid}")
+        from ..automation_engine import fire
+        fire(db, "people_added", user, project=p, ctx={"user_ids": [uid]})
         db.commit()
     return {"ok": True}
 
@@ -255,5 +333,9 @@ def add_project_person(pid: int, uid: int, db: Session = Depends(get_db), user=D
 def remove_project_person(pid: int, uid: int, db: Session = Depends(get_db), user=Depends(current_user)):
     db.execute(delete(models.ProjectMember).where(models.ProjectMember.project_id == pid,
                                                   models.ProjectMember.user_id == uid))
+    p = db.get(models.Project, pid)
+    if p:
+        from ..automation_engine import fire
+        fire(db, "people_removed", user, project=p, ctx={"user_ids": [uid]})
     db.commit()
     return {"ok": True}

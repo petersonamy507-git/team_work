@@ -8,11 +8,12 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: PORT,
-    host: true,
+    host: '0.0.0.0',
+    allowedHosts: true,
     proxy: { '/api': API },
     warmup: { clientFiles: ['./src/main.jsx', './src/App.jsx', './src/pages/*.jsx', './src/components/*.jsx'] },
   },
   // `npm run preview` serves the optimised production build with the same /api proxy
-  preview: { port: PORT, host: true, proxy: { '/api': API } },
+  preview: { port: PORT, host: '0.0.0.0', allowedHosts: true, proxy: { '/api': API } },
   build: { chunkSizeWarningLimit: 1200 },
 })

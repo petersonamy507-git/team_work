@@ -49,6 +49,7 @@ export function TabManager({ tabs, setTabs }) {
 
 export function MyActivity() {
   const { data } = useData('/activity')
+  const client = useAuth().user?.role === 'client'
   const [range, setRange] = useState('all')
   const navigate = useNavigate()
   const { setQuickAdd } = useUi()
@@ -59,7 +60,7 @@ export function MyActivity() {
     <>
       <div className="tw-toolbar">
         <select className="input" style={{ width: 140, height: 32, border: 0, fontWeight: 500 }} value={range} onChange={(e) => setRange(e.target.value)}><option value="all">All time</option><option value="today">Today</option><option value="week">This week</option><option value="month">This month</option></select>
-        <span className="spacer" /><span className="split-btn"><button className="btn primary" onClick={() => setQuickAdd('project')}><Plus size={15} />Add project</button></span>
+        <span className="spacer" />{!client && <span className="split-btn"><button className="btn primary" onClick={() => setQuickAdd('project')}><Plus size={15} />Add project</button></span>}
       </div>
       {data && !rows.length && <EmptyState icon={List} title="No activity" text="Nothing happened in this period." />}
       {Object.entries(groups).map(([proj, list]) => (

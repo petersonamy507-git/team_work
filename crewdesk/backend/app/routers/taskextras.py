@@ -119,6 +119,8 @@ def set_task_fields(tid: int, body: ValuesIn, db: Session = Depends(get_db), use
     changed = save_values(db, t, body.values)
     if changed:
         log(db, user, "changed " + ", ".join(changed), t.project_id, t.id)
+        from ..automation_engine import fire_task
+        fire_task(db, t, "custom_field_changed", user, field_ids=[int(k) for k in body.values])
     db.commit()
     return T.task_full(db, t, user)
 
@@ -255,11 +257,15 @@ def move_to_stage(tid: int, body: MoveStageIn, db: Session = Depends(get_db), us
     if s.workflow_id != body.workflow_id:
         raise HTTPException(400, "That stage belongs to another workflow")
     row = db.scalar(select(X.TaskStage).where(X.TaskStage.task_id == tid, X.TaskStage.workflow_id == body.workflow_id))
+    old_stage = row.stage_id if row else None
     if row:
         row.stage_id = s.id
     else:
         db.add(X.TaskStage(task_id=tid, workflow_id=body.workflow_id, stage_id=s.id))
     log(db, user, f"moved to stage {s.name}", t.project_id, t.id)
+    if old_stage != s.id:
+        from ..automation_engine import fire_task
+        fire_task(db, t, "stage_changed", user, kind="workflow", workflow_id=s.workflow_id, **{"from": old_stage, "to": s.id})
     if s.is_done and t.status != "completed":
         T.apply_update(db, t, {"status": "completed"}, user)
     elif not s.is_done and t.status == "completed":

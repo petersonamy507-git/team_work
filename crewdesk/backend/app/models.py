@@ -21,6 +21,12 @@ class User(Base):
     capacity_minutes: Mapped[int] = mapped_column(Integer, default=480)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    # invites: a pending invite has a token; the person sets their own password at /invite/<token>
+    invite_token: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    invited_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    invited_by_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    can_add_users: Mapped[bool] = mapped_column(Boolean, default=False)
+    can_create_projects: Mapped[bool] = mapped_column(Boolean, default=True)
 
 
 class Client(Base):
@@ -73,6 +79,7 @@ class ProjectMember(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     project_id: Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)  # project administrator
 
 
 class TaskList(Base):

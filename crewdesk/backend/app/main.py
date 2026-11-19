@@ -9,7 +9,8 @@ from fastapi.staticfiles import StaticFiles
 from .config import CORS_ORIGINS
 from .database import Base, engine, add_missing_columns
 from . import models  # noqa: F401  (registers tables)
-from .routers import auth, people, projects, tasks, time, milestones, messages, files, home, mywork, parity, taskextras
+from . import client_scope  # noqa: F401  (client view: scopes queries for client users)
+from .routers import auth, people, projects, tasks, time, milestones, messages, files, home, mywork, parity, taskextras, invites
 
 Base.metadata.create_all(bind=engine)
 add_missing_columns()
@@ -19,8 +20,15 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS, allow_credentials=True,
                    allow_methods=["*"], allow_headers=["*"])
 
-for r in (parity, auth, people, projects, tasks, time, milestones, messages, files, home, mywork, taskextras):
+for r in (parity, auth, people, projects, tasks, time, milestones, messages, files, home, mywork, taskextras, invites):
     app.include_router(r.router)
+
+
+@app.on_event("startup")
+def _automations_scheduler():
+    from .automation_engine import start_scheduler
+    from .database import SessionLocal
+    start_scheduler(SessionLocal)
 
 
 @app.get("/api/health")

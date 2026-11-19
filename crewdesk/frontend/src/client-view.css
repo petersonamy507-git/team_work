@@ -1,0 +1,72 @@
+/* Client view: no-access page, My projects grid, Theme/Sidebar appearance, dark theme + dark sidebar */
+.cv-noaccess { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; min-height: 70vh; font-size: 16px; }
+.cv-cone { width: 80px; height: 80px; border-radius: 18px; background: #e3e8fd; display: flex; align-items: center; justify-content: center; }
+
+.cv-letter { padding: 4px 0 18px; color: var(--muted); position: relative; }
+.cv-letter a { color: var(--accent); cursor: pointer; }
+.cv-letters { position: absolute; top: 24px; left: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 4px; max-width: 360px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 8px; box-shadow: 0 6px 20px rgba(0, 0, 0, .08); }
+.cv-letters button { min-width: 30px; height: 28px; border-radius: 6px; border: 1px solid var(--border); background: #fff; cursor: pointer; }
+.cv-letters button.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-dark); }
+.cv-group { margin-bottom: 22px; }
+.cv-group h4 { font-size: 14px; font-weight: 600; margin: 0 0 10px; }
+.cv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 210px)); gap: 16px; }
+.cv-card { border: 1px solid var(--border); border-radius: 2px; background: #fff; min-height: 244px; cursor: pointer; display: flex; flex-direction: column; }
+.cv-card:hover { box-shadow: 0 2px 10px rgba(0, 0, 0, .07); }
+.cv-card-head { display: flex; gap: 6px; align-items: flex-start; padding: 12px 12px 8px; background: #fafafa; }
+.cv-card-head b { display: block; font-size: 13px; line-height: 1.35; }
+.cv-card-head .muted { font-size: 12px; }
+.cv-star { border: 0; background: none; padding: 2px 0 0; cursor: pointer; }
+.cv-noowner { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #c3c7d4; flex-shrink: 0; }
+.cv-card-tabs { display: flex; gap: 4px; padding: 0 12px; background: #fafafa; border-bottom: 1px solid var(--border); }
+.cv-card-tabs button { border: 0; background: none; padding: 6px 8px; font-size: 12px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; }
+.cv-card-tabs button.on { color: var(--text); border-bottom-color: var(--text); }
+.cv-card-body { padding: 14px 12px; font-size: 12px; display: flex; flex-direction: column; gap: 14px; }
+.cv-desc { display: flex; gap: 4px; align-items: flex-start; font-size: 13px; }
+.cv-desc svg { color: var(--muted); margin-top: 3px; flex-shrink: 0; }
+.cv-insights { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cv-insights div { display: flex; flex-direction: column; }
+.cv-insights b { font-size: 18px; }
+.cv-insights span { color: var(--muted); }
+
+.cv-appearance h3 { font-size: 16px; margin: 6px 0 4px; }
+.cv-appearance p { margin: 0 0 14px; font-size: 13px; }
+.cv-choices { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 26px; }
+.cv-choices > button { border: 0; background: none; padding: 0; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+.cv-lbl { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.cv-lbl svg { color: var(--muted); }
+.cv-mini { position: relative; display: block; width: 132px; height: 92px; border-radius: 12px; overflow: hidden; border: 1px solid #e3e6ee; background: #fff; }
+.cv-choices > button.on .cv-mini { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.cv-mini i { position: absolute; display: block; }
+.cv-mini .top { left: 0; right: 0; top: 0; height: 12px; background: #0b0f1f; }
+.cv-mini .side { left: 0; top: 12px; bottom: 0; width: 36px; background: #f3f4f8; padding: 8px 6px; }
+.cv-mini .side.dark { background: #1b1e2c; }
+.cv-mini .main { left: 36px; right: 0; top: 12px; bottom: 0; padding: 12px 10px; }
+.cv-mini em { display: block; height: 3px; border-radius: 2px; background: #d7dae4; margin-bottom: 6px; width: 85%; }
+.cv-mini.dark { background: #1f2231; }
+.cv-mini.dark .main em { background: #474b5f; }
+.cv-mini .split { left: 0; right: 0; top: 12px; bottom: 0; background: #1f2231; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+
+/* Dark sidebar */
+html[data-sidebar="dark"] .sidebar.tw-side { background: #161a2b; border-right-color: #161a2b; }
+html[data-sidebar="dark"] .tw-side .side-link,
+html[data-sidebar="dark"] .tw-side .side-recent-proj b,
+html[data-sidebar="dark"] .tw-side .side-link svg { color: #e6e8f0; }
+html[data-sidebar="dark"] .tw-side .side-link:hover { background: #262b40; color: #fff; }
+html[data-sidebar="dark"] .tw-side .side-link.active { background: #2e3a74; color: #fff; }
+html[data-sidebar="dark"] .tw-side .side-link.active svg { color: #fff; }
+html[data-sidebar="dark"] .tw-side .side-section,
+html[data-sidebar="dark"] .tw-side .side-empty,
+html[data-sidebar="dark"] .tw-side .side-recent-proj span { color: #9aa0b5; }
+
+/* Dark theme: invert the light UI (pictures and avatars are flipped back so they keep their colours) */
+html[data-theme="dark"] { background: #fff; filter: invert(.9) hue-rotate(180deg); }
+html[data-theme="dark"] img, html[data-theme="dark"] video, html[data-theme="dark"] iframe,
+html[data-theme="dark"] .proj-av, html[data-theme="dark"] .side-recent-proj .av { filter: invert(1) hue-rotate(180deg); }
+/* keep things that are already dark (top bar, dark sidebar) and the appearance previews in their real colours */
+html[data-theme="dark"] .tw-topbar,
+html[data-theme="dark"][data-sidebar="dark"] .sidebar.tw-side,
+html[data-theme="dark"] .cv-mini { filter: invert(1) hue-rotate(180deg); }
+html[data-theme="dark"] .tw-topbar img { filter: none; }
+/* project header: people assigned to the project */
+.proj-people { border: 0; background: none; padding: 2px 4px; border-radius: 9999px; cursor: pointer; display: inline-flex; align-items: center; }
+.proj-people:hover { background: #f5f7fa; }

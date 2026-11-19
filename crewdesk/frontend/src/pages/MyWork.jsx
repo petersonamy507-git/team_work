@@ -20,6 +20,8 @@ import { MyTimesheet } from './TimeHub'
 import { Dashboard } from './Home'
 import { Sparkles } from 'lucide-react'
 import { ALL_TABS, useMyWorkTabs, TabManager, MyActivity, MyEvents, MyHealth, MyWorkload } from '../components/MyWorkExtras'
+import { isClient, CLIENT_MYWORK_TABS } from '../lib/client'
+import { ClientProjects } from '../components/ClientView'
 
 const STORE = 'cd_mywork_v1'
 const TABS = [['tasks', 'My tasks'], ['calendar', 'My calendar'], ['timesheet', 'My timesheet'], ['projects', 'My projects'], ['activity', 'Activity'], ['dashboards', 'Dashboards']]
@@ -32,7 +34,9 @@ function loadPrefs() {
 export default function MyWork() {
   const { user } = useAuth()
   const loc = useLocation()
-  const [myTabs, setMyTabs] = useMyWorkTabs()
+  const [savedTabs, setMyTabs] = useMyWorkTabs()
+  const client = isClient(user)
+  const myTabs = client ? CLIENT_MYWORK_TABS : savedTabs
   const nav = useNavigate()
   const [tab, setTabState] = useState(() => new URLSearchParams(location.search).get('tab') || 'tasks')
   useEffect(() => { setTabState(new URLSearchParams(loc.search).get('tab') || 'tasks') }, [loc.search])
@@ -52,7 +56,7 @@ export default function MyWork() {
         <h1><CheckCircle2 size={20} />My work</h1>
         <nav className="tw-tabs">
           {myTabs.map((k) => ALL_TABS.find((t) => t[0] === k)).filter(Boolean).map(([k, l]) => <a key={k} className={tab === k ? 'active' : ''} onClick={() => setTab(k)}>{l}</a>)}
-          <TabManager tabs={myTabs} setTabs={setMyTabs} />
+          {!client && <TabManager tabs={myTabs} setTabs={setMyTabs} />}
         </nav>
         <span className="spacer" />
         {tab === 'tasks' && (
@@ -65,7 +69,7 @@ export default function MyWork() {
         )}
       </div>
       <div className="tw-body">
-        {scout && tab !== 'dashboards' && (
+        {scout && !client && tab !== 'dashboards' && (
           <div className="scout-banner"><Sparkles size={18} color="#c03cc4" /><div style={{ flex: 1 }}><b>Want Scout to catch you up on what you've missed?</b><div>Get your AI Teammate to provide a quick summary of your project activity over the last 7 days.</div></div>
             <button className="btn" onClick={() => nav(`/ai/ask?prompt=${encodeURIComponent('Catch me up')}`)}>Catch me up</button>
             <button className="icon-btn" onClick={() => { setScout(false); try { localStorage.setItem('cd_scout_hide', '1') } catch { /* ignore */ } }}><X size={15} /></button></div>)}
@@ -75,7 +79,7 @@ export default function MyWork() {
         {tab === 'calendar' && <CalendarPage embedded />}
         {tab === 'timesheet' && <MyTimesheet />}
         {tab === 'dashboards' && <Dashboard scope="mywork" header={null} />}
-        {tab === 'projects' && <MyProjects />}
+        {tab === 'projects' && (client ? <ClientProjects /> : <MyProjects />)}
         {tab === 'activity' && <MyActivity />}
         {tab === 'events' && <MyEvents />}
         {tab === 'health' && <MyHealth />}
@@ -118,12 +122,12 @@ function MyTasks({ p, set, personId, setPersonId, goCalendar }) {
     <>
       <div className="tw-toolbar">
         <Avatar user={person} size={28} />
-        <Popover width={240} trigger={<button className="icon-btn" title="View someone else's tasks"><Plus size={16} /></button>}>
+        {user.role !== 'client' && <Popover width={240} trigger={<button className="icon-btn" title="View someone else's tasks"><Plus size={16} /></button>}>
           {(c) => <>
             <div className="pop-title">View tasks for</div>
             {people.map((u) => <button key={u.id} className="pop-item" onClick={() => { setPersonId(u.id); c() }}><Avatar user={u} size={20} />{u.name}{u.id === user.id && <span className="muted small">(me)</span>}</button>)}
           </>}
-        </Popover>
+        </Popover>}
         {personId !== user.id && <button className="btn sm ghost" onClick={() => setPersonId(user.id)}><X size={13} />Back to my tasks</button>}
         <span className="spacer" />
         {p.layout === 'grouped' && <button className="tb-btn" onClick={goCalendar}><CalendarDays size={15} />Plan with My calendar</button>}

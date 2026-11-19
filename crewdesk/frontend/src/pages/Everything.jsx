@@ -209,6 +209,7 @@ function Responses({ form, onClose }) {
 }
 
 export function FormsTab({ projectId }) {
+  const ro = useAuth().user?.role === 'client'
   const { rows, create, update, remove } = useRows('forms', projectId ? { project_id: projectId } : {})
   const [edit, setEdit] = useState(null)
   const [fill, setFill] = useState(null)
@@ -216,9 +217,9 @@ export function FormsTab({ projectId }) {
   const save = (v) => (edit.id ? update(edit.id, v) : create(v))
   return (
     <>
-      <div className="tw-toolbar"><h2>{projectId ? 'Forms' : 'All Forms'}</h2><span className="spacer" /><button className="btn primary" onClick={() => setEdit({})}><Plus size={15} />Create form</button></div>
+      <div className="tw-toolbar"><h2>{projectId ? 'Forms' : 'All Forms'}</h2><span className="spacer" />{!ro && <button className="btn primary" onClick={() => setEdit({})}><Plus size={15} />Create form</button>}</div>
       <DataTable rows={rows} search={(f) => f.title}
-        empty={<EmptyState icon={ClipboardList} title="Get started with Forms" text="Create a form within a project to start collecting responses." action={<button className="btn primary" onClick={() => setEdit({})}><Plus size={15} />Create form</button>} />}
+        empty={ro ? <EmptyState icon={ClipboardList} title="No forms" text="Forms shared on this project will appear here." /> : <EmptyState icon={ClipboardList} title="Get started with Forms" text="Create a form within a project to start collecting responses." action={<button className="btn primary" onClick={() => setEdit({})}><Plus size={15} />Create form</button>} />}
         columns={[
           { key: 'title', label: 'Form', render: (f) => <b>{f.title}</b> },
           ...(projectId ? [] : [{ key: 'project_name', label: 'Project', render: ProjectCell }]),
@@ -229,10 +230,11 @@ export function FormsTab({ projectId }) {
           { key: 'a', label: '', nosort: true, render: (f) => (
             <span className="act" onClick={(e) => e.stopPropagation()}>
               <button className="icon-btn" title="Fill in" onClick={() => setFill(f)}><Send size={14} /></button>
+              {!ro && <>
               <button className="icon-btn" title="Responses" onClick={() => setResp(f)}><Eye size={14} /></button>
               <button className="icon-btn" title={f.is_active ? 'Close form' : 'Open form'} onClick={() => update(f.id, { is_active: !f.is_active })}>{f.is_active ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}</button>
               <button className="icon-btn" onClick={() => setEdit(f)}><Pencil size={14} /></button>
-              <button className="icon-btn" onClick={() => confirm('Delete this form?') && remove(f.id)}><Trash2 size={14} /></button>
+              <button className="icon-btn" onClick={() => confirm('Delete this form?') && remove(f.id)}><Trash2 size={14} /></button></>}
             </span>) },
         ]} onRow={(f) => f.is_active && setFill(f)} />
       {edit && <FormBuilder form={edit} projectId={projectId} save={save} onClose={() => setEdit(null)} />}
@@ -303,6 +305,7 @@ export function RisksTab({ projectId }) {
 
 /* ---------------- Notebooks ---------------- */
 export function NotebooksTab({ projectId }) {
+  const ro = useAuth().user?.role === 'client'
   const { rows, create, update, remove } = useRows('notebooks', projectId ? { project_id: projectId } : {})
   const [open, setOpen] = useState(null)
   const [form, setForm] = useState(null)
@@ -314,8 +317,8 @@ export function NotebooksTab({ projectId }) {
   const save = (v) => (form.id ? update(form.id, v) : create(v))
   return (
     <>
-      <div className="tw-toolbar"><h2>{projectId ? 'Notebooks' : 'All Notebooks'}</h2><span className="spacer" /><button className="btn primary" onClick={() => setForm({})}><Plus size={15} />Add notebook</button></div>
-      {rows && !rows.length && <EmptyState icon={BookOpen} title="No Notebooks Yet" text="No notebooks have been added yet." action={<button className="btn primary" onClick={() => setForm({})}><Plus size={15} />Add notebook</button>} />}
+      <div className="tw-toolbar"><h2>{projectId ? 'Notebooks' : 'All Notebooks'}</h2><span className="spacer" />{!ro && <button className="btn primary" onClick={() => setForm({})}><Plus size={15} />Add notebook</button>}</div>
+      {rows && !rows.length && <EmptyState icon={BookOpen} title="No Notebooks Yet" text="No notebooks have been added yet." action={ro ? null : <button className="btn primary" onClick={() => setForm({})}><Plus size={15} />Add notebook</button>} />}
       {groups.map(([g, list]) => (
         <div key={g} className="tw-group"><div className="tw-ghead"><b>{g}</b><span className="muted small">{list.length}</span></div>
           {list.map((n) => (
@@ -326,7 +329,7 @@ export function NotebooksTab({ projectId }) {
             </div>))}
         </div>))}
       {open && (
-        <Modal wide title={open.title} onClose={() => setOpen(null)} footer={<>
+        <Modal wide title={open.title} onClose={() => setOpen(null)} footer={ro ? null : <>
           <button className="btn" onClick={() => { remove(open.id); setOpen(null) }} style={{ color: 'var(--danger)' }}><Trash2 size={14} />Delete</button>
           <span className="spacer" /><button className="btn primary" onClick={() => { setForm(open); setOpen(null) }}><Pencil size={14} />Edit</button></>}>
           <div className="muted small" style={{ marginBottom: 10 }}>{open.project_name} · {open.category || 'General'} · updated {timeAgo(open.updated_at)}</div>
@@ -446,22 +449,23 @@ export function MessagesTab() {
 
 /* ---------------- Links ---------------- */
 export function LinksTab({ projectId }) {
+  const ro = useAuth().user?.role === 'client'
   const { rows, create, update, remove } = useRows('links', projectId ? { project_id: projectId } : {})
   const [form, setForm] = useState(null)
   const save = (v) => { let url = v.url.trim(); if (!/^https?:\/\//i.test(url)) url = 'https://' + url; return form.id ? update(form.id, { ...v, url }) : create({ ...v, url }) }
   return (
     <>
-      <div className="tw-toolbar"><h2>{projectId ? 'Links' : 'All Links'}</h2><span className="spacer" /><button className="btn primary" onClick={() => setForm({})}><Plus size={15} />Add link</button></div>
+      <div className="tw-toolbar"><h2>{projectId ? 'Links' : 'All Links'}</h2><span className="spacer" />{!ro && <button className="btn primary" onClick={() => setForm({})}><Plus size={15} />Add link</button>}</div>
       <DataTable rows={rows} search={(l) => l.title + l.url}
-        empty={<EmptyState icon={Link2} title="No Links Yet" text="No links have been linked here yet." action={<button className="btn primary" onClick={() => setForm({})}><Plus size={15} />Add link</button>} />}
+        empty={<EmptyState icon={Link2} title="No Links Yet" text="No links have been linked here yet." action={ro ? null : <button className="btn primary" onClick={() => setForm({})}><Plus size={15} />Add link</button>} />}
         columns={[
           { key: 'title', label: 'Title', render: (l) => <span className="row" style={{ gap: 8 }}><Link2 size={15} className="muted" /><b>{l.title}</b></span> },
           { key: 'url', label: 'URL', render: (l) => <a href={l.url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: 'var(--accent)' }}>{l.url.replace(/^https?:\/\//, '').slice(0, 50)} <ExternalLink size={11} /></a> },
           ...(projectId ? [] : [{ key: 'project_name', label: 'Project', render: ProjectCell }]),
           { key: 'category', label: 'Category', render: (l) => l.category || '—' },
           { key: 'created_by', label: 'Added by', render: (l) => <PersonChip user={l.created_by} /> },
-          { key: 'a', label: '', nosort: true, render: (l) => <span className="act" onClick={(e) => e.stopPropagation()}><button className="icon-btn" onClick={() => confirm('Delete link?') && remove(l.id)}><Trash2 size={14} /></button></span> },
-        ]} onRow={(l) => setForm(l)} />
+          { key: 'a', label: '', nosort: true, render: (l) => !ro && <span className="act" onClick={(e) => e.stopPropagation()}><button className="icon-btn" onClick={() => confirm('Delete link?') && remove(l.id)}><Trash2 size={14} /></button></span> },
+        ]} onRow={(l) => (ro ? window.open(l.url, '_blank', 'noopener') : setForm(l))} />
       {form && <FormModal title={form.id ? 'Edit link' : 'Add link'} initial={form} onClose={() => setForm(null)} onSubmit={save}
         fields={[{ key: 'title', label: 'Title', required: true, autoFocus: true }, { key: 'url', label: 'URL', required: true, placeholder: 'https://' },
           ...(!projectId && !form.id ? [{ key: 'project_id', label: 'Project', type: 'project', required: true }] : []),

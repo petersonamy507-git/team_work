@@ -1,6 +1,7 @@
 // Manage › Projects (Teamwork /app/projects/list): categories sidebar, table/cards, status filter
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../lib/auth'
 import { Plus, Star, Folder, LayoutGrid, List, FolderPlus, Tag, Trash2, Download, ChevronDown, LayoutTemplate, Pencil, MoreVertical, Copy, Sparkles, PiggyBank, Archive, CheckCircle2, ChevronRight, CheckSquare, Flag, MessageSquare, Clock, Paperclip, CalendarDays, RotateCcw } from 'lucide-react'
 import { ProjectForm } from '../components/QuickAdd'
 import { api } from '../lib/api'
@@ -23,6 +24,7 @@ const TYPE_COLORS = { Confirmed: '#d6f7e6', Tentative: '#fff1d6', Internal: '#e5
 
 export default function Projects({ mine }) {
   const { setQuickAdd, notify, refresh } = useUi()
+  const client = useAuth().user?.role === 'client'
   const navigate = useNavigate()
   const [status, setStatus] = useState('active')
   const [cat, setCat] = useState('all')
@@ -43,32 +45,32 @@ export default function Projects({ mine }) {
   const exportCsv = () => downloadText('projects.csv', toCSV(shown.map((p) => ({ Name: p.name, Client: p.client?.name || '', Owner: p.owner?.name || '', Status: p.status, Health: p.health, 'Start date': p.start_date || '', 'End date': p.end_date || '', Tasks: p.task_count, Completed: p.completed_count, 'Logged minutes': p.logged_minutes }))))
   const catName = (id) => cats.rows?.find((c) => c.id === id)
   return (
-    <Section icon={Folder} title={mine ? 'My projects' : 'Projects'} tabs={mine ? null : [{ to: '/projects', label: 'List', end: true }, { to: '/templates', label: 'Templates' }]}
+    <Section icon={Folder} title={mine ? 'My projects' : 'Projects'} tabs={mine ? null : [{ to: '/projects', label: 'List', end: true }, ...(client ? [] : [{ to: '/templates', label: 'Templates' }])]}
       right={<>
         <span className="small" style={{ textTransform: 'capitalize' }}>{status} <span className="kit-pill gray">{items.length}</span></span>
         <div className="chips">{['active', 'completed', 'archived', 'all'].map((s) => <button key={s} className={status === s ? 'on' : ''} onClick={() => setStatus(s)} style={{ textTransform: 'capitalize' }}>{s}</button>)}</div>
         <div className="scope-toggle"><button className={view === 'table' ? 'active' : ''} onClick={() => setV('table')}><List size={14} /></button><button className={view === 'cards' ? 'active' : ''} onClick={() => setV('cards')}><LayoutGrid size={14} /></button></div>
         <button className="tb-btn" onClick={exportCsv}><Download size={14} /></button>
-        <span className="split-btn"><button className="btn primary" onClick={() => setQuickAdd('project')}><Plus size={15} />Add project</button>
+        {!client && <span className="split-btn"><button className="btn primary" onClick={() => setQuickAdd('project')}><Plus size={15} />Add project</button>
           <Menu trigger={<button className="btn primary caret"><ChevronDown size={14} /></button>}>
             <button onClick={() => setQuickAdd('project')}><FolderPlus size={15} />Blank project</button>
             <button onClick={() => navigate('/templates')}><LayoutTemplate size={15} />From a template</button>
-          </Menu></span>
+          </Menu></span>}
       </>} flush>
       <div className="proj-split">
         <div className="proj-cats">
           <button className={cat === 'all' ? 'on' : ''} onClick={() => setCat('all')}><Folder size={15} />All projects<span className="n">{count('all')}</span></button>
-          <div className="row muted small" style={{ padding: '12px 8px 4px', justifyContent: 'space-between' }}>Categories<button className="icon-btn" title="Add category" onClick={() => setCatForm({})}><Plus size={14} /></button></div>
+          <div className="row muted small" style={{ padding: '12px 8px 4px', justifyContent: 'space-between' }}>Categories{!client && <button className="icon-btn" title="Add category" onClick={() => setCatForm({})}><Plus size={14} /></button>}</div>
           {(cats.rows || []).map((c) => (
             <div key={c.id} className="row" style={{ gap: 0 }}>
               <button className={cat === c.id ? 'on' : ''} onClick={() => setCat(c.id)}><span className="dot" style={{ background: c.color }} />{c.name}<span className="n">{count(c.id)}</span></button>
-              <Menu trigger={<button className="icon-btn"><Pencil size={12} /></button>}><button onClick={() => setCatForm(c)}><Pencil size={14} />Edit</button><button onClick={() => { cats.remove(c.id); setCat('all') }}><Trash2 size={14} />Delete</button></Menu>
+              {!client && <Menu trigger={<button className="icon-btn"><Pencil size={12} /></button>}><button onClick={() => setCatForm(c)}><Pencil size={14} />Edit</button><button onClick={() => { cats.remove(c.id); setCat('all') }}><Trash2 size={14} />Delete</button></Menu>}
             </div>))}
           {cats.rows && !cats.rows.length && <div className="muted small" style={{ padding: '2px 8px 6px' }}>No categories</div>}
           <button className={cat === 'none' ? 'on' : ''} onClick={() => setCat('none')}><Tag size={15} />No category<span className="n">{count('none')}</span></button>
         </div>
         <div className="proj-main">
-          {!data ? <Loading /> : shown.length === 0 ? <EmptyState icon={Folder} title="No projects" text="Projects you create or join appear here." action={<button className="btn primary" onClick={() => setQuickAdd('project')}><Plus size={15} />Add project</button>} />
+          {!data ? <Loading /> : shown.length === 0 ? <EmptyState icon={Folder} title="No projects" text="Projects you create or join appear here." action={client ? null : <button className="btn primary" onClick={() => setQuickAdd('project')}><Plus size={15} />Add project</button>} />
             : view === 'cards' ? (
               <div className="dash-grid">{shown.map((p) => (
                 <Link to={`/projects/${p.id}`} key={p.id} className="widget" style={{ minHeight: 170, borderTop: `4px solid ${p.color}` }}>
@@ -114,6 +116,7 @@ export default function Projects({ mine }) {
 
 export function ProjectRowMenu({ p }) {
   const { notify, refresh, setQuickAdd } = useUi()
+  const client = useAuth().user?.role === 'client'
   const navigate = useNavigate()
   const [mode, setMode] = useState('manage')
   const [more, setMore] = useState(false)
@@ -121,6 +124,7 @@ export function ProjectRowMenu({ p }) {
   const status = async (st) => { await api.patch(`/projects/${p.id}`, { name: p.name, status: st }); notify(`Project ${st === 'active' ? 'reactivated' : st}`); refresh() }
   const copy = async () => { const r = await api.post(`/projects/${p.id}/copy`); notify('Project copied'); refresh(); navigate(`/projects/${r.id}`) }
   const del = async () => { if (confirm(`Delete project "${p.name}" and everything in it?`)) { await api.del(`/projects/${p.id}`); notify('Project deleted'); refresh() } }
+  if (client) return null
   return (
     <>
       <Menu trigger={<button className="icon-btn" title="Project options"><MoreVertical size={16} /></button>}>

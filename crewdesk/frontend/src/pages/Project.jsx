@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useNavigate, useOutletContext, useParams } from 
 import {
   Plus, MoreHorizontal, Pencil, Trash2, Archive, CheckCircle2, Flag, MessageSquare, Paperclip, Download, Clock,
   Users, ListChecks, GripVertical, UserMinus, Reply, RotateCcw, Copy, DollarSign, LayoutTemplate, MoreVertical, Bot, ChevronDown, Sparkles, Building,
+  Folder, ClipboardList, Ticket, MessagesSquare, BookOpen, Link2, FileCheck2, Diamond,
 } from 'lucide-react'
 import { api } from '../lib/api'
 import { useData, useUi } from '../lib/ui-context'
@@ -12,15 +13,33 @@ import TaskRow from '../components/TaskRow'
 import { ProjectForm, TaskForm, TimeForm, MessageForm } from '../components/QuickAdd'
 import { StarButton } from './Projects'
 import { PROJECT_MORE } from './ProjectExtras'
+import { useAuth } from '../lib/auth'
+import { isClient, CLIENT_PROJECT_TABS, CLIENT_PROJECT_MORE } from '../lib/client'
 
 // Teamwork project tabs: Dashboard, List, Board, Table, Files, Messages, Comments, then the rest under More…
 const TABS = [['', 'Dashboard'], ['tasks', 'List'], ['board', 'Board'], ['table', 'Table'], ['timeline', 'Timeline'], ['time', 'Time'], ['finance', 'Finance'], ['schedule', 'Schedule'],
   ['files', 'Files'], ['messages', 'Messages'], ['x/comments', 'Comments']]
 const MORE_TABS = [['milestones', 'Milestones'], ['people', 'People'], ['activity', 'Activity'], ['overview', 'Overview']]
 
+// More… menu icons (as in Teamwork's client project menu)
+const MORE_ICONS = { Files: Folder, Forms: ClipboardList, Tickets: Ticket, Milestones: Diamond, Messages: MessageSquare, Comments: MessagesSquare, Notebooks: BookOpen, Links: Link2, Proofs: FileCheck2 }
+
+// Top-right of the project header: who is assigned to the project (click for the full list)
+function HeaderPeople({ project }) {
+  const people = project.members?.length ? project.members : (project.owner ? [project.owner] : [])
+  return (
+    <Menu trigger={<button className="proj-people" title="People on this project"><AvatarStack users={people} max={5} size={26} />{!people.length && <Users size={16} />}</button>}>
+      <div className="muted small" style={{ padding: '6px 10px' }}>People on this project ({people.length})</div>
+      {people.map((u) => <div key={u.id} className="row" style={{ gap: 8, padding: '6px 10px' }}><Avatar user={u} size={24} /><span style={{ flex: 1 }}>{u.name}</span>{project.owner?.id === u.id && <span className="muted small">Owner</span>}</div>)}
+      {!people.length && <div className="muted small" style={{ padding: '6px 10px' }}>Nobody is assigned yet.</div>}
+    </Menu>
+  )
+}
+
 export default function ProjectLayout() {
   const { pid } = useParams()
   const navigate = useNavigate()
+  const client = isClient(useAuth().user)
   const { refresh, notify, version } = useUi()
   const [project, setProject] = useState(null)
   const [editing, setEditing] = useState(false)
@@ -42,9 +61,9 @@ export default function ProjectLayout() {
         <span className="proj-av" style={{ background: project.color + '33', color: project.color }}>{project.name[0]}</span>
         <h1>{project.name}</h1>
         <StarButton project={project} />
-        {project.client && <Link to="/clients" className="proj-client"><Building size={13} />{project.client.name}</Link>}
+        {project.client && <Link to={client ? `/projects/${pid}/tasks` : '/clients'} className="proj-client"><Building size={13} />{project.client.name}</Link>}
         {project.status !== 'active' && <span className="pill">{project.status}</span>}
-        <Menu trigger={<button className="icon-btn"><MoreVertical size={16} /></button>}>
+        {!client && <Menu trigger={<button className="icon-btn"><MoreVertical size={16} /></button>}>
           <button onClick={() => setEditing(true)}><Pencil size={15} />Edit project</button>
           <button onClick={async () => { const r = await api.post(`/projects/${pid}/copy`); notify('Project copied'); refresh(); navigate(`/projects/${r.id}`) }}><Copy size={15} />Copy project</button>
           <button onClick={() => navigate(`/projects/${pid}/x/finance`)}><DollarSign size={15} />Budget</button>
@@ -54,17 +73,23 @@ export default function ProjectLayout() {
             <button onClick={() => setStatus('archived')}><Archive size={15} />Archive</button>
           </> : <button onClick={() => setStatus('active')}><RotateCcw size={15} />Reactivate</button>}
           <button onClick={del} style={{ color: 'var(--danger)' }}><Trash2 size={15} />Delete</button>
-        </Menu>
+        </Menu>}
         <span className="spacer" />
-        <AvatarStack users={project.members} />
+        <HeaderPeople project={project} />
         <HealthPill h={project.health} />
-        <span className="split-btn"><button className="btn" onClick={() => navigate('/automate')}><Bot size={15} />Automate</button>
+        {!client && <span className="split-btn"><button className="btn" onClick={() => navigate('/automate')}><Bot size={15} />Automate</button>
           <Menu trigger={<button className="btn caret" style={{ borderLeft: '1px solid var(--border)' }}><ChevronDown size={14} /></button>}>
             <button onClick={() => navigate('/automate')}><Bot size={14} />Manage automations</button>
             <button onClick={() => navigate(`/ai/ask?prompt=${encodeURIComponent('project ' + project.name)}`)}><Sparkles size={14} />Ask AI about this project</button>
-          </Menu></span>
+          </Menu></span>}
       </div>
-      <div className="tabs">
+      {client ? <div className="tabs">
+        {CLIENT_PROJECT_TABS.map(([path, label]) => <NavLink key={path} end={path === ''} to={`/projects/${pid}${path ? '/' + path : ''}`} className={({ isActive }) => `tab ${isActive ? 'active' : ''}`}>{label}</NavLink>)}
+        {(() => { const cur = CLIENT_PROJECT_MORE.find(([k]) => window.location.pathname.startsWith(`/projects/${pid}/${k}`))
+          return <Menu trigger={<button className={`tab ${cur ? 'active' : ''}`}>{cur ? cur[1] : 'More…'}<ChevronDown size={13} style={{ marginLeft: 4 }} /></button>}>
+            {CLIENT_PROJECT_MORE.map(([k, l]) => { const I = MORE_ICONS[l] || Folder; return <button key={k} className={cur?.[0] === k ? 'on' : ''} onClick={() => navigate(`/projects/${pid}/${k}`)}><I size={15} />{l}</button> })}
+          </Menu> })()}
+      </div> : <div className="tabs">
         {TABS.map(([path, label]) => (
           <NavLink key={path} end={path === ''} to={`/projects/${pid}${path ? '/' + path : ''}`} className={({ isActive }) => `tab ${isActive ? 'active' : ''}`}>{label}</NavLink>
         ))}
@@ -73,7 +98,7 @@ export default function ProjectLayout() {
           {PROJECT_MORE.filter(([k]) => k !== 'comments').map(([k, l]) => <button key={k} onClick={() => navigate(`/projects/${pid}/x/${k}`)}>{l}</button>)}
         </Menu>
         <button className="tab" title="Add tab" onClick={() => navigate(`/projects/${pid}/x/settings`)}><Plus size={15} /></button>
-      </div>
+      </div>}
       <Outlet context={{ project, reload: load }} />
       {editing && <ProjectForm project={project} onDone={() => { setEditing(false); load() }} onCancel={() => setEditing(false)} />}
     </div>

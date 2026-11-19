@@ -82,7 +82,12 @@ export function Templates() {
 /* ================= Proofs ================= */
 const PROOF = { in_review: ['blue', 'In review'], approved: ['green', 'Approved'], changes: ['amber', 'Changes requested'], rejected: ['red', 'Rejected'] }
 export function Proofs({ projectId }) {
-  const { rows, create, update, remove } = useRows('proofs', projectId ? { project_id: projectId } : {})
+  const { user } = useAuth()
+  const client = user?.role === 'client'
+  const all = useRows('proofs', projectId ? { project_id: projectId } : {})
+  const { create, update, remove } = all
+  // a client sees the proofs shared with them (they are a reviewer/approver, or they made it)
+  const rows = client && all.rows ? all.rows.filter((p) => (p.reviewers || []).some((u) => u.id === user.id) || p.created_by?.id === user.id) : all.rows
   const [form, setForm] = useState(null)
   const [files, setFiles] = useState([])
   const { data: tasks } = useData(form ? `/tasks?status=all${form.project_id || projectId ? `&project_id=${form.project_id || projectId}` : ''}` : null, [form?.project_id])
@@ -91,9 +96,10 @@ export function Proofs({ projectId }) {
   useEffect(() => { if (filePid) api.get(`/projects/${filePid}/files`).then(setFiles) }, [filePid])
   const body = (
     <>
-      {rows && !rows.length && !projectId && <Hero icon={FileCheck2} title="Proofs" text="Say goodbye to endless emails and hello to faster file approvals. Create a proof, share it for review and approval, and gather feedback in one place while keeping track of the proof's status."><AskAiButton /><button className="btn primary" onClick={() => setForm({})}>Start using proofing</button></Hero>}
-      <div className="tw-toolbar"><h2>Proofs</h2><span className="spacer" /><button className="btn primary" onClick={() => setForm({})}><Plus size={15} />Add proof</button></div>
-      <DataTable rows={rows} search={(p) => p.title}
+      {client && rows && !rows.length && <div className="kit-empty" style={{ marginTop: 120 }}><span className="cv-cone"><FileCheck2 size={34} color="#6a7ee6" /></span><b>No proofs</b><span>Proofs shared with you will appear here.</span></div>}
+      {!client && rows && !rows.length && !projectId && <Hero icon={FileCheck2} title="Proofs" text="Say goodbye to endless emails and hello to faster file approvals. Create a proof, share it for review and approval, and gather feedback in one place while keeping track of the proof's status."><AskAiButton /><button className="btn primary" onClick={() => setForm({})}>Start using proofing</button></Hero>}
+      {!client && <div className="tw-toolbar"><h2>Proofs</h2><span className="spacer" /><button className="btn primary" onClick={() => setForm({})}><Plus size={15} />Add proof</button></div>}
+      {(!client || rows?.length > 0) && <DataTable rows={rows} search={(p) => p.title}
         empty={<EmptyState icon={FileCheck2} title="No proofs yet" text="Upload a file and ask people to review it." />}
         columns={[
           { key: 'title', label: 'Proof', render: (p) => <span className="row" style={{ gap: 8 }}><FileCheck2 size={16} color="#4461d7" /><b>{p.title}</b></span> },
@@ -107,9 +113,9 @@ export function Proofs({ projectId }) {
           { key: 'a', label: '', nosort: true, render: (p) => <span className="act" onClick={(e) => e.stopPropagation()}>
             <button className="icon-btn" title="Approve" onClick={() => update(p.id, { status: 'approved' })}><Check size={14} /></button>
             <button className="icon-btn" title="Request changes" onClick={() => update(p.id, { status: 'changes' })}><RotateCcw size={14} /></button>
-            <button className="icon-btn" title="New version" onClick={() => update(p.id, { version: p.version + 1, status: 'in_review' })}><Copy size={14} /></button>
-            <button className="icon-btn" onClick={() => confirm('Delete proof?') && remove(p.id)}><Trash2 size={14} /></button></span> },
-        ]} onRow={(p) => setForm(p)} />
+            {!client && <button className="icon-btn" title="New version" onClick={() => update(p.id, { version: p.version + 1, status: 'in_review' })}><Copy size={14} /></button>}
+            {!client && <button className="icon-btn" onClick={() => confirm('Delete proof?') && remove(p.id)}><Trash2 size={14} /></button>}</span> },
+        ]} onRow={(p) => !client && setForm(p)} />}
       {form && <FormModal title={form.id ? 'Edit proof' : 'Add proof'} initial={form} onClose={() => setForm(null)} onSubmit={save}
         onChange={(v) => { if (v.project_id && v.project_id !== form.project_id) setForm({ ...form, ...v }) }}
         fields={[{ key: 'title', label: 'Proof name', required: true, autoFocus: true }, ...(!projectId && !form.id ? [{ key: 'project_id', label: 'Project', type: 'project', required: true }] : []),

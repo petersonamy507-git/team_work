@@ -1,6 +1,7 @@
 // Settings (Teamwork /app/settings/*): General, Projects, Subscription, Currencies, Time, Logo, Working hours,
 // Appearance, Integrations, plus My details. Values are stored in /api/settings (site) and /api/prefs (user).
 import { useEffect, useState } from 'react'
+import { ThemeSettings } from '../components/ClientView'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Settings as Cog, Check, Upload, Search, Plug, MessageCircle, Folder, Sparkles } from 'lucide-react'
 import { api } from '../lib/api'
@@ -63,6 +64,7 @@ export default function SiteSettings() {
   const { tab = 'general' } = useParams()
   const [s, save] = useSettings()
   const { user } = useAuth()
+  if (user.role === 'client') return <Section icon={Cog} title="Settings" tabs={[{ to: '/settings/appearance', label: 'Appearance' }]}><ThemeSettings /></Section>
   if (!s) return <Section icon={Cog} title="Settings" tabs={TABS.map(([k, l]) => ({ to: `/settings/${k}`, label: l }))}><div className="muted">Loading…</div></Section>
   const admin = user.role === 'admin'
   const g = (k, d) => s[k] ?? d
@@ -122,6 +124,9 @@ function WorkingHours({ s, save }) {
 }
 
 function Appearance() {
+  return <><ThemeSettings /><OtherAppearance /></>
+}
+function OtherAppearance() {
   const [p, setP] = useState(null)
   const { notify } = useUi()
   useEffect(() => { api.get('/prefs').then(setP) }, [])

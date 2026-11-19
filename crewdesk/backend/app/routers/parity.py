@@ -22,6 +22,7 @@ RESOURCES = {
     "links": (models.Link, "project"),
     "forms": (models.Form, "project"),
     "proofs": (models.Proof, "project"),
+    "tickets": (models.Ticket, "project"),
     "categories": (models.ProjectCategory, "global"),
     "roles": (models.Role, "global"),
     "skills": (models.Skill, "global"),
@@ -93,7 +94,7 @@ def serialize(db, rows):
                 o[c.name.replace("_ids", "s")] = [users[i] for i in ids if i in users]
                 v = ids
             o[c.name] = v
-            if c.name in ("owner_id", "created_by_id", "lead_id", "user_id") and v:
+            if c.name in ("owner_id", "created_by_id", "lead_id", "user_id", "assigned_user_id") and v:
                 o[c.name[:-3]] = users.get(v)
             if c.name == "project_id" and v in projects:
                 p = projects[v]
@@ -184,6 +185,11 @@ def create_row(kind: str, body: dict = Body(...), db: Session = Depends(get_db),
     if data.get("project_id"):
         label = data.get("title") or data.get("name") or data.get("source") or data.get("number") or ""
         log(db, user, f"added {kind.rstrip('s').replace('-', ' ')} {label}", data["project_id"])
+    if kind == "tickets":
+        proj = db.get(models.Project, data["project_id"])
+        for uid in {proj.owner_id if proj else None, data.get("assigned_user_id")} - {None}:
+            notify(db, uid, user, f"{user.name} raised ticket \"{data.get('subject', '')}\" on {proj.name if proj else 'a project'}",
+                   f"/projects/{data['project_id']}/x/tickets", "ticket")
     if kind == "proofs":
         for uid in [int(x) for x in (data.get("reviewer_ids") or "").split(",") if x]:
             notify(db, uid, user, f"{user.name} asked you to review proof \"{data['title']}\"", "/proofs", "proof")
@@ -199,6 +205,8 @@ def update_row(kind: str, rid: int, body: dict = Body(...), db: Session = Depend
     obj = get_or_404(db, model, rid)
     if sc == "user" and obj.user_id != user.id:
         raise HTTPException(403, "Not allowed")
+    if user.role == "client" and kind == "tickets" and obj.created_by_id != user.id:
+        raise HTTPException(403, "You can only change tickets you raised")
     for k, v in coerce(model, body).items():
         setattr(obj, k, v)
     db.commit()
@@ -211,6 +219,8 @@ def delete_row(kind: str, rid: int, db: Session = Depends(get_db), user=Depends(
     model, sc = _model(kind)
     obj = get_or_404(db, model, rid)
     if sc in ("user", "user_public") and obj.user_id != user.id and user.role != "admin":
+        raise HTTPException(403, "Not allowed")
+    if user.role == "client" and getattr(obj, "created_by_id", user.id) != user.id:
         raise HTTPException(403, "Not allowed")
     db.delete(obj)
     db.commit()
@@ -282,6 +292,8 @@ def submit_form(fid: int, body: dict = Body(...), db: Session = Depends(get_db),
     r = models.FormResponse(form_id=f.id, answers=json.dumps(answers), task_id=t.id)
     db.add(r)
     log(db, user, f"submitted form {f.title}", f.project_id, t.id)
+    from ..automation_engine import fire_task
+    fire_task(db, t, "task_created", user, via="forms")
     db.commit()
     return {"ok": True, "task_id": t.id}
 
@@ -390,6 +402,17 @@ def track_recent(body: dict = Body(...), db: Session = Depends(get_db), user=Dep
 @router.get("/recent")
 def list_recent(kind: str | None = None, q: str | None = None, db: Session = Depends(get_db),
                 user=Depends(current_user)):
+    if kind == "comment":  # comments you've made (Teamwork's Recent › Comments)
+        cs = select(models.Comment).where(models.Comment.user_id == user.id)
+        if q:
+            cs = cs.where(models.Comment.body.ilike(f"%{q}%"))
+        out = []
+        for c in db.scalars(cs.order_by(models.Comment.id.desc()).limit(60)).all():
+            t = db.get(models.Task, c.task_id)
+            if t:
+                out.append({"id": f"c{c.id}", "kind": "comment", "ref_id": c.task_id, "title": (c.body or "")[:120],
+                            "subtitle": t.title, "link": f"/tasks/{t.id}", "viewed_at": schemas.d(c.created_at)})
+        return out
     stmt = select(models.RecentItem).where(models.RecentItem.user_id == user.id)
     if kind:
         stmt = stmt.where(models.RecentItem.kind == kind)
@@ -424,7 +447,9 @@ def clients_overview(db: Session = Depends(get_db), user=Depends(current_user)):
                     "address": c.address, "industry": c.industry, "project_count": len(pids), "projects": projects,
                     "tasks_total": total, "tasks_done": done, "tasks_left": total - done,
                     "completion": round(done * 100 / total) if total else 0, "health": worst,
-                    "budget": int(budget), "time_budget": int(tbudget)})
+                    "budget": int(budget), "time_budget": int(tbudget),
+                    "has_login": db.scalar(select(func.count(models.User.id)).where(
+                        models.User.role == "client", models.User.client_id == c.id)) > 0})
     return out
 
 
@@ -805,153 +830,29 @@ def ai_ask(body: dict = Body(...), db: Session = Depends(get_db), user=Depends(c
     return serialize(db, [chat])[0]
 
 
-# ---------------------------------------------------------------- Automations
-AUTOMATION_TRIGGERS = {
-    "task_created": "Task added", "task_completed": "Task completed", "stage_changed": "Task stage changes",
-    "tag_added": "Task tag added", "time_logged": "Task time logged", "time_exceeds": "Task logged time exceeds estimated",
-    "assignee_changed": "Task assignees change", "due_arrives": "Task due date arrives", "due_changed": "Task due date changes",
-    "progress_changed": "Task progress changes", "priority_changed": "Task priority changes", "comment_added": "Task comment added",
-}
-AUTOMATION_ACTIONS = {
-    "notify": "Notify people", "assign": "Change task assignees", "add_tag": "Change task tags", "set_priority": "Change task priority",
-    "move_list": "Move to task list", "copy_list": "Copy to task list", "add_task": "Add task", "add_subtask": "Add subtask",
-    "complete": "Complete task", "set_due": "Change task due date", "set_start": "Change task start date",
-    "set_progress": "Change task progress", "add_comment": "Add task comment", "add_followers": "Change task followers",
-    "set_estimate": "Change task estimated time", "set_status": "Move task to stage", "log_time": "Log task time",
-}
+# ---------------------------------------------------------------- Automations (engine: app/automation_engine.py)
+from .. import automation_engine as AE  # noqa: E402
+
+AUTOMATION_TRIGGERS = AE.TRIGGER_LABEL
+AUTOMATION_ACTIONS = AE.ACTION_LABEL
 
 
-def _ids(v):
-    return [int(x) for x in re.split(r"[,\s]+", str(v or "")) if x.strip().isdigit()]
-
-
-def _apply_action(db, r, task, actor):
-    v = r.action_value or ""
-    a = r.action
-    if a == "notify":
-        for uid in _ids(v) or [task.assignee_id]:
-            if uid:
-                db.add(models.Notification(user_id=uid, actor_id=actor.id, kind="automation",
-                                           message=f"Automation \"{r.name}\": {task.title}", link=f"/tasks/{task.id}"))
-        return "notified people"
-    if a == "assign" and _ids(v):
-        ids = _ids(v)
-        task.assignee_id = ids[0]
-        db.execute(models.TaskAssignee.__table__.delete().where(models.TaskAssignee.task_id == task.id))
-        for uid in ids[1:]:
-            db.add(models.TaskAssignee(task_id=task.id, user_id=uid))
-        return f"assigned {len(ids)} people"
-    if a == "add_tag" and v:
-        tags = [x for x in (task.tags or "").split(",") if x]
-        for t in [x.strip() for x in v.split(",") if x.strip()]:
-            if t not in tags:
-                tags.append(t)
-        task.tags = ",".join(tags)
-        return f"tagged {v}"
-    if a == "set_priority" and v in ("low", "medium", "high", "none"):
-        task.priority = v
-        return f"priority {v}"
-    if a in ("move_list", "copy_list") and v.isdigit():
-        tl = db.get(models.TaskList, int(v))
-        if not tl:
-            return "task list not found"
-        if a == "move_list":
-            task.tasklist_id = tl.id
-            task.project_id = tl.project_id
-            return f"moved to {tl.name}"
-        db.add(models.Task(project_id=tl.project_id, tasklist_id=tl.id, title=task.title, description=task.description,
-                           priority=task.priority, assignee_id=task.assignee_id, created_by_id=actor.id,
-                           due_date=task.due_date, start_date=task.start_date, tags=task.tags))
-        return f"copied to {tl.name}"
-    if a in ("add_task", "add_subtask"):
-        db.add(models.Task(project_id=task.project_id, tasklist_id=task.tasklist_id, title=(v or f"Follow up: {task.title}")[:300],
-                           created_by_id=actor.id, parent_id=task.id if a == "add_subtask" else None))
-        return "added task"
-    if a == "complete":
-        task.status = "completed"
-        task.progress = 100
-        task.completed_at = datetime.utcnow()
-        return "completed task"
-    if a in ("set_due", "set_start"):
-        try:
-            days = int(v or 0)
-        except ValueError:
-            return "bad value"
-        d = date.today() + timedelta(days=days)
-        if a == "set_due":
-            task.due_date = d
-        else:
-            task.start_date = d
-        return f"{'due' if a == 'set_due' else 'start'} date {d.isoformat()}"
-    if a == "set_progress" and v.isdigit():
-        task.progress = max(0, min(100, int(v)))
-        return f"progress {task.progress}%"
-    if a == "add_comment" and v:
-        db.add(models.Comment(task_id=task.id, user_id=actor.id, body=v))
-        return "added comment"
-    if a == "add_followers":
-        have = set(db.scalars(select(models.TaskFollower.user_id).where(models.TaskFollower.task_id == task.id)))
-        for uid in _ids(v):
-            if uid not in have:
-                db.add(models.TaskFollower(task_id=task.id, user_id=uid))
-        return "added followers"
-    if a == "set_estimate" and v.isdigit():
-        task.estimate_minutes = int(v)
-        return f"estimate {v} min"
-    if a == "set_status" and v in ("new", "in_progress", "completed", "backlog"):
-        task.status = v
-        if v == "completed":
-            task.completed_at = datetime.utcnow()
-        return f"stage {v}"
-    if a == "log_time" and v.isdigit():
-        db.add(models.TimeEntry(user_id=task.assignee_id or actor.id, project_id=task.project_id, task_id=task.id,
-                                date=date.today(), minutes=int(v), description=f"Automation: {r.name}", billable=True))
-        return f"logged {v} min"
-    return "nothing to do"
-
-
-def run_automations(db: Session, task: models.Task, trigger: str, actor: models.User, value: str | None = None):
-    """Run every active rule for this trigger. value is matched against trigger_value (stage, tag, priority...)."""
-    rules = db.scalars(select(models.Automation).where(models.Automation.is_active.is_(True),
-                                                       models.Automation.trigger == trigger,
-                                                       or_(models.Automation.project_id.is_(None),
-                                                           models.Automation.project_id == task.project_id))).all()
-    for r in rules:
-        tv = (r.trigger_value or "").strip().lower()
-        if tv and value is not None and tv not in [x.strip().lower() for x in str(value).split(",")]:
-            continue
-        try:
-            result = _apply_action(db, r, task, actor)
-        except Exception as e:  # never break the user's request because of a rule
-            result = f"error: {e}"[:300]
-        r.run_count = (r.run_count or 0) + 1
-        r.last_run_at = datetime.utcnow()
-        db.add(models.AutomationRun(automation_id=r.id, task_id=task.id, result=result))
+def run_automations(db: Session, task: models.Task, trigger: str, actor: models.User, value: str | None = None, **ctx):
+    """Kept for existing callers; value is the old single match value (stage, tag, priority...)."""
+    if value is not None:
+        ctx.setdefault("value", value)
+    AE.fire(db, trigger, actor, task=task, ctx=ctx)
 
 
 def run_due_automations(db: Session, actor: models.User):
-    """'Task due date arrives': fire once per task per rule on/after the due date."""
-    rules = db.scalars(select(models.Automation).where(models.Automation.is_active.is_(True),
-                                                       models.Automation.trigger == "due_arrives")).all()
-    if not rules:
-        return
-    tasks = db.scalars(select(models.Task).where(models.Task.status != "completed", models.Task.due_date.is_not(None),
-                                                 models.Task.due_date <= date.today())).all()
-    for r in rules:
-        done = set(db.scalars(select(models.AutomationRun.task_id).where(models.AutomationRun.automation_id == r.id)))
-        for t in tasks:
-            if t.id in done or (r.project_id and t.project_id != r.project_id):
-                continue
-            result = _apply_action(db, r, t, actor)
-            r.run_count = (r.run_count or 0) + 1
-            r.last_run_at = datetime.utcnow()
-            db.add(models.AutomationRun(automation_id=r.id, task_id=t.id, result=result))
-    db.commit()
+    AE.tick(db)
 
 
 @router.get("/automations/meta")
 def automations_meta(user=Depends(current_user)):
-    return {"triggers": AUTOMATION_TRIGGERS, "actions": AUTOMATION_ACTIONS}
+    m = AE.meta()
+    return {**m, "triggers_list": m["triggers"], "actions_list": m["actions"],
+            "triggers": m["trigger_labels"], "actions": m["action_labels"]}
 
 
 @router.get("/automations/usage")

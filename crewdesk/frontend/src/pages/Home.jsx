@@ -8,6 +8,7 @@ import { useData, useUi } from '../lib/ui-context'
 import { Menu, Modal } from '../components/ui'
 import { FormModal, useRows } from '../components/Kit'
 import { WIDGETS, CATEGORIES, WidgetBody } from '../components/Widgets'
+import { isClient, CLIENT_HOME_WIDGETS } from '../lib/client'
 
 const DEFAULT = ['time_distribution', 'projects_by_health', 'unread', 'delegated', 'logged_weekday', 'milestones', 'late_by_project', 'assignee_status']
 const MYWORK = ['my_tasks', 'my_calendar', 'personal_tasks', 'activity']
@@ -171,7 +172,7 @@ export default function HomePage() {
   const navigate = useNavigate()
   const hour = new Date().getHours()
   const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
-  return <Dashboard scope="home" header={<div style={{ paddingTop: 4 }}>
+  return <Dashboard scope="home" defaults={isClient(user) ? CLIENT_HOME_WIDGETS : undefined} header={<div style={{ paddingTop: 4 }}>
     <div className="row"><div className="muted small">{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</div><span style={{ flex: 1 }} /><button className="tb-btn" onClick={() => navigate('/inbox')}><MessageSquare size={13} />Feedback</button></div>
     <h1 style={{ fontSize: 24, paddingBottom: 6 }}>{greet}, {user.name.split(' ')[0]}</h1></div>} />
 }

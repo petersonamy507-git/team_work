@@ -48,7 +48,12 @@ def project_milestones(pid: int, db: Session = Depends(get_db), user=Depends(cur
 def create_milestone(pid: int, body: schemas.MilestoneIn, db: Session = Depends(get_db), user=Depends(current_user)):
     m = models.Milestone(project_id=pid, **{k: v for k, v in body.model_dump().items() if v is not None})
     db.add(m)
+    db.flush()
     log(db, user, f"added milestone {m.name}", pid)
+    from ..automation_engine import fire
+    fire(db, "milestone_added", user, milestone=m)
+    if m.owner_id:
+        fire(db, "milestone_assignee_added", user, milestone=m, ctx={"user_ids": [m.owner_id]})
     notify(db, m.owner_id, user, f"{user.name} made you responsible for milestone {m.name}", f"/projects/{pid}/milestones")
     db.commit()
     return schemas.milestone_out(m, ms_extra(db, m))
@@ -57,9 +62,19 @@ def create_milestone(pid: int, body: schemas.MilestoneIn, db: Session = Depends(
 @router.patch("/milestones/{mid}")
 def update_milestone(mid: int, body: schemas.MilestoneIn, db: Session = Depends(get_db), user=Depends(current_user)):
     m = get_or_404(db, models.Milestone, mid, "Milestone")
+    was_done, old_owner = m.completed, m.owner_id
     apply(m, body.model_dump(exclude_unset=True))
+    from ..automation_engine import fire
     if body.completed:
         log(db, user, f"completed milestone {m.name}", m.project_id)
+        if not was_done:
+            fire(db, "milestone_completed", user, milestone=m)
+    if m.owner_id != old_owner:
+        if old_owner:
+            fire(db, "milestone_assignee_removed", user, milestone=m, ctx={"user_ids": [old_owner]})
+        if m.owner_id:
+            fire(db, "milestone_assignee_added", user, milestone=m, ctx={"user_ids": [m.owner_id]})
+    fire(db, "milestone_updated", user, milestone=m)
     db.commit()
     return schemas.milestone_out(m, ms_extra(db, m))
 

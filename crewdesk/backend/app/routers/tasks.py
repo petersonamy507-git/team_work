@@ -394,8 +394,8 @@ def create_task(pid: int, body: schemas.TaskIn, db: Session = Depends(get_db), u
         except ValueError:
             pass
     log(db, user, f"added task {t.title}", pid, t.id)
-    from .parity import run_automations  # Automate rules (More > Automate)
-    run_automations(db, t, "task_created", user)
+    from ..automation_engine import fire_task  # Automate rules (More > Automate)
+    fire_task(db, t, "task_created", user, via="app")
     if custom_vals:
         from .taskextras import save_values
         save_values(db, t, custom_vals)
@@ -438,7 +438,8 @@ def apply_update(db, t, data: dict, user):
     old_assignees = set(assignee_ids_of(db, t))
     old_status = t.status
     _old = {"priority": t.priority, "tags": set(x for x in (t.tags or "").split(",") if x), "due": t.due_date,
-            "progress": t.progress}  # for Automations triggers
+            "progress": t.progress, "title": t.title, "description": t.description, "start": t.start_date,
+            "tasklist": t.tasklist_id, "estimate": t.estimate_minutes or 0}  # for Automations triggers
     assignee_ids = data.pop("assignee_ids", None)
     follower_ids = data.pop("follower_ids", None)
     for k in ("depends_on_ids", "reminders", "notify", "custom"):
@@ -514,21 +515,62 @@ def apply_update(db, t, data: dict, user):
                 log(db, user, f"set status to {data['status'].replace('_', ' ')}", t.project_id, t.id)
     if changed:
         log(db, user, "changed " + ", ".join(FIELD_LABELS[c] for c in changed), t.project_id, t.id)
-    # Automations: fire change triggers (More > Automate)
-    from .parity import run_automations
+    # Automations: fire change triggers (More > Automate, see app/automation_engine.py)
+    from ..automation_engine import fire_task
+    any_change = False
     if t.status != old_status:
-        run_automations(db, t, "stage_changed", user, t.status)
+        fire_task(db, t, "stage_changed", user, kind="status", value=t.status, **{"from": old_status, "to": t.status})
+        any_change = True
+        if t.status == "completed":  # tasks waiting on this one may now be unblocked
+            for dep in db.scalars(select(models.Task).join(models.TaskDependency, models.TaskDependency.task_id == models.Task.id)
+                                  .where(models.TaskDependency.depends_on_id == t.id)).all():
+                others = db.scalars(select(models.TaskDependency.depends_on_id).where(models.TaskDependency.task_id == dep.id)).all()
+                if not db.scalar(select(func.count(models.Task.id)).where(models.Task.id.in_(others), models.Task.id != t.id,
+                                                                           models.Task.status != "completed")):
+                    fire_task(db, dep, "task_unblocked", user)
     if t.priority != _old["priority"]:
-        run_automations(db, t, "priority_changed", user, t.priority)
-    new_tags = set(x for x in (t.tags or "").split(",") if x) - _old["tags"]
-    if new_tags:
-        run_automations(db, t, "tag_added", user, ",".join(new_tags))
+        fire_task(db, t, "priority_changed", user, value=t.priority, **{"from": _old["priority"], "to": t.priority})
+        any_change = True
+    now_tags = set(x for x in (t.tags or "").split(",") if x)
+    if now_tags - _old["tags"]:
+        fire_task(db, t, "tag_added", user, value=",".join(now_tags - _old["tags"]), tags=list(now_tags - _old["tags"]))
+        any_change = True
+    if _old["tags"] - now_tags:
+        fire_task(db, t, "tag_removed", user, tags=list(_old["tags"] - now_tags))
+        any_change = True
     if t.due_date != _old["due"]:
-        run_automations(db, t, "due_changed", user)
+        fire_task(db, t, "due_changed", user)
+        any_change = True
+    if t.start_date != _old["start"]:
+        fire_task(db, t, "start_changed", user)
+        any_change = True
+    if t.title != _old["title"]:
+        fire_task(db, t, "name_changed", user, text=t.title)
+        any_change = True
+    if (t.description or "") != (_old["description"] or ""):
+        fire_task(db, t, "description_changed", user, text=t.description or "")
+        any_change = True
+    if t.tasklist_id != _old["tasklist"]:
+        fire_task(db, t, "list_changed", user, to=t.tasklist_id)
+        any_change = True
+    if (t.estimate_minutes or 0) != _old["estimate"]:
+        fire_task(db, t, "estimate_exceeds", user, **{"from": _old["estimate"], "to": t.estimate_minutes or 0})
+        any_change = True
     if t.progress != _old["progress"]:
-        run_automations(db, t, "progress_changed", user, str(t.progress))
-    if assignee_ids is not None and set(i for i in assignee_ids if i) != old_assignees:
-        run_automations(db, t, "assignee_changed", user)
+        fire_task(db, t, "progress_changed", user, value=str(t.progress))
+        fire_task(db, t, "progress_exceeds", user, **{"from": _old["progress"] or 0, "to": t.progress or 0})
+        any_change = True
+    if assignee_ids is not None:
+        new_set = set(i for i in assignee_ids if i)
+        if new_set != old_assignees:
+            fire_task(db, t, "assignee_changed", user)
+            any_change = True
+        if new_set - old_assignees:
+            fire_task(db, t, "assignee_added", user, user_ids=list(new_set - old_assignees))
+        if old_assignees - new_set:
+            fire_task(db, t, "assignee_removed", user, user_ids=list(old_assignees - new_set))
+    if any_change or changed:
+        fire_task(db, t, "task_updated", user)
 
 
 @router.patch("/tasks/{tid}")
@@ -663,8 +705,8 @@ def add_comment(tid: int, body: schemas.CommentIn, db: Session = Depends(get_db)
     for uid in {t.created_by_id, *assignee_ids_of(db, t), *followers}:
         notify(db, uid, user, f"{user.name} commented on \"{t.title}\"", f"/tasks/{t.id}", "comment")
     log(db, user, "commented", t.project_id, t.id)
-    from .parity import run_automations
-    run_automations(db, t, "comment_added", user)
+    from ..automation_engine import fire_task
+    fire_task(db, t, "comment_added", user, author_id=user.id, text=body.body)
     db.commit()
     return task_full(db, t, user)
 

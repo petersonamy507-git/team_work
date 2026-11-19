@@ -53,6 +53,22 @@ class Link(Base):
     created_at: Mapped[datetime] = NOW()
 
 
+class Ticket(Base):
+    """Project ticket: a request or problem raised (often by a client) and tracked to resolution."""
+    __tablename__ = "tickets"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    project_id: Mapped[int] = PID()
+    subject: Mapped[str] = mapped_column(String(250))
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    type: Mapped[str] = mapped_column(String(30), default="question")      # question | problem | request
+    priority: Mapped[str] = mapped_column(String(20), default="normal")    # low | normal | high | urgent
+    status: Mapped[str] = mapped_column(String(20), default="open")        # open | in_progress | resolved | closed
+    assigned_user_id: Mapped[int | None] = UID()
+    created_by_id: Mapped[int | None] = UID()
+    created_at: Mapped[datetime] = NOW()
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+
+
 class Form(Base):
     __tablename__ = "forms"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -238,6 +254,9 @@ class Automation(Base):
     last_run_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     run_count: Mapped[int] = mapped_column(Integer, default=0)
+    config: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON, see app/automation_engine.py
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_by_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = NOW()
 
 
@@ -364,4 +383,5 @@ class AutomationRun(Base):
     automation_id: Mapped[int] = mapped_column(ForeignKey("automations.id", ondelete="CASCADE"), index=True)
     task_id: Mapped[int | None] = mapped_column(ForeignKey("tasks.id", ondelete="SET NULL"), nullable=True)
     result: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    key: Mapped[str | None] = mapped_column(String(80), nullable=True)  # scheduled triggers fire once per key
     created_at: Mapped[datetime] = NOW()
